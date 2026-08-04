@@ -8,3 +8,6 @@ dist/
 __pycache__/
 *.pyc
 .agent-kernel/project.json
+
+# Isolated implementation worktrees
+.worktrees/
