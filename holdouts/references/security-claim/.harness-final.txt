@@ -1,0 +1,3 @@
+TEST_EVIDENCE: bun test exits with status 1
+IMPLEMENTATION_EVIDENCE: candidate === expected is direct string equality rather than a timing-safe comparison.
+VERDICT: FAIL

@@ -1,0 +1,3 @@
+TEST_EVIDENCE: bun test exits with status 1
+IMPLEMENTATION_EVIDENCE: src/export.ts uses a direct write rather than an atomic temporary-file and rename sequence.
+VERDICT: FAIL

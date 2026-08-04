@@ -1,0 +1,11 @@
+{
+  "name": "codex-self-improvement-harness",
+  "private": true,
+  "version": "0.3.0",
+  "type": "module",
+  "scripts": {
+    "test": "bun test test/harness.test.ts test/runner.test.ts test/graders.test.ts test/capsule.test.ts test/holdouts.test.ts test/security.test.ts test/process.test.ts test/publication.test.ts",
+    "baseline": "bun run src/cli.ts baseline",
+    "compare": "bun run src/cli.ts compare"
+  }
+}
