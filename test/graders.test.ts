@@ -1,6 +1,5 @@
 import { afterAll, beforeAll, expect, test } from "bun:test";
-import { cp, mkdtemp, rm, writeFile } from "node:fs/promises";
-import { tmpdir } from "node:os";
+import { cp, mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { resolveCheckCommand } from "../src/runner";
 import { runSandboxedCheck } from "../src/checks";
@@ -11,7 +10,9 @@ let testRoot = "";
 let subjectCounter = 0;
 
 beforeAll(async () => {
-  testRoot = await mkdtemp(join(tmpdir(), "codex-harness-graders-"));
+  const workRoot = join(harnessRoot, "work");
+  await mkdir(workRoot, { recursive: true });
+  testRoot = await mkdtemp(join(workRoot, "codex-harness-graders-"));
 });
 
 afterAll(async () => {

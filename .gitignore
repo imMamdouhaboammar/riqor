@@ -1,1 +1,10 @@
 .runs/
+work/
+dist/
+.DS_Store
+*.pending-*
+*.backup
+.skill-curation-stage.*/
+__pycache__/
+*.pyc
+.agent-kernel/project.json

@@ -1,0 +1,78 @@
+{
+  "description": "Bounded routing, continuity, and evidence hooks for Codex Self Improvement",
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "statusMessage": "Loading measured execution guidance",
+            "additionalContextLimit": 900
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "additionalContextLimit": 900
+          }
+        ]
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "additionalContextLimit": 600
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|shell|exec_command|run_shell_command|start_process|interact_with_process|apply_patch|write_file|edit_file|edit_block|multi_replace|create_file|delete_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "statusMessage": "Checking completion evidence"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 3
+          }
+        ]
+      }
+    ]
+  }
+}

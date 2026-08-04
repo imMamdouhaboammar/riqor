@@ -1,4 +1,5 @@
 import type { ScenarioDefinition } from "./harness";
+import type { HarnessPathId } from "../plugins/codex-self-improvement/hooks/paths";
 
 export type BenchmarkCheck = { id: string; command: string[] };
 
@@ -6,6 +7,7 @@ export type ExecutableScenario = {
   id: string;
   prompt: string;
   expectedTools: string[];
+  harnessPath: HarnessPathId;
   checks: BenchmarkCheck[];
 };
 
@@ -17,6 +19,7 @@ const codingPrompt =
 export const scenarios: BenchmarkScenario[] = [
   {
     id: "long-multistage",
+    harnessPath: "architecture-conformance",
     category: "long_multistage",
     expectedTools: ["shell", "apply_patch"],
     prompt: `${codingPrompt} Complete every stage rather than stopping after the first passing example.`,
@@ -27,6 +30,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "unfamiliar-repo",
+    harnessPath: "architecture-conformance",
     category: "unfamiliar_repo",
     expectedTools: ["shell", "apply_patch"],
     prompt: `${codingPrompt} Infer the local interval conventions from the repository before editing.`,
@@ -37,6 +41,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "unclear-bug",
+    harnessPath: "evidence-loop",
     category: "unclear_bug",
     expectedTools: ["shell", "apply_patch"],
     prompt: `${codingPrompt} The report is intentionally symptom-level; trace all callers and fix the shared cause.`,
@@ -47,6 +52,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "cross-project",
+    harnessPath: "architecture-conformance",
     category: "cross_project",
     expectedTools: ["shell", "apply_patch"],
     prompt: `${codingPrompt} Keep the API and CLI behavior aligned through the existing shared package.`,
@@ -57,6 +63,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "implicit-discovery",
+    harnessPath: "architecture-conformance",
     category: "implicit_discovery",
     expectedTools: ["shell", "apply_patch", "skill:postgresql-table-design"],
     prompt:
@@ -65,6 +72,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "context-recovery",
+    harnessPath: "evidence-loop",
     category: "context_recovery",
     expectedTools: ["shell", "apply_patch"],
     prompt:
@@ -76,6 +84,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "agent-review",
+    harnessPath: "independent-review",
     category: "agent_review",
     expectedTools: ["shell", "apply_patch"],
     prompt:
@@ -87,6 +96,7 @@ export const scenarios: BenchmarkScenario[] = [
   },
   {
     id: "unsupported-completion",
+    harnessPath: "independent-review",
     category: "unsupported_completion",
     expectedTools: ["shell"],
     prompt:

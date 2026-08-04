@@ -1,6 +1,6 @@
 # Codex Self-Improvement Plugin Implementation Plan
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Package the measured Codex control-plane improvements as a locally installable plugin with bounded hooks, task routing, evidence gates, health checks, and a reversible development install flow
 
@@ -36,9 +36,9 @@
 - Create: `plugins/codex-self-improvement/package.json`
 - Create: `.agents/plugins/marketplace.json`
 
-- [ ] Write validator tests for the required manifest, hooks discovery, strict semver, and marketplace source
-- [ ] Create the smallest valid plugin and repo-local marketplace entry
-- [ ] Validate with the installed Codex `plugin-creator` validator
+- [x] Write validator tests for the required manifest, hooks discovery, strict semver, and marketplace source
+- [x] Create the smallest valid plugin and repo-local marketplace entry
+- [x] Validate with the installed Codex `plugin-creator` validator
 
 ### Task 3: Add Bounded Task Routing
 
@@ -48,9 +48,9 @@
 - Create: `plugins/codex-self-improvement/skills/self-improvement-loop/SKILL.md`
 - Create: `plugins/codex-self-improvement/skills/evidence-engineering/SKILL.md`
 
-- [ ] Test deterministic classification for debugging, review, database, security, UI, research, and engineering tasks
-- [ ] Return concise additional context on `UserPromptSubmit` without storing the prompt
-- [ ] Keep routing profiles bounded and map them to installed skill names only as suggestions
+- [x] Test deterministic classification for debugging, review, database, security, UI, research, and engineering tasks
+- [x] Return concise additional context on `UserPromptSubmit` without storing the prompt
+- [x] Keep routing profiles bounded and map them to installed skill names only as suggestions
 
 ### Task 4: Add Evidence and Continuity Hooks
 
@@ -60,11 +60,11 @@
 - Create: `plugins/codex-self-improvement/hooks/state.ts`
 - Create: `plugins/codex-self-improvement/hooks/state.test.ts`
 
-- [ ] Record only anonymous event flags and timestamps after recognized edits and checks
-- [ ] Invalidate earlier verification after a later mutation
-- [ ] Block `Stop` once when a mutation lacks a later successful check
-- [ ] Add compact session and subagent context
-- [ ] Bound state files, permissions, retention, and symlink handling
+- [x] Record only anonymous event flags and timestamps after recognized edits and checks
+- [x] Invalidate earlier verification after a later mutation
+- [x] Block `Stop` once when a mutation lacks a later successful check
+- [x] Add compact session and subagent context
+- [x] Bound state files, permissions, retention, and symlink handling
 
 ### Task 5: Add Plugin Health, Packaging, and Rollback
 
@@ -76,11 +76,11 @@
 - Create: `test/plugin-package.test.ts`
 - Modify: `package.json`
 
-- [ ] Validate source package and marketplace metadata
-- [ ] Build a deterministic ZIP without secrets, transient runs, or development fixtures
-- [ ] Install via repo-local marketplace using a Codex cachebuster
-- [ ] Smoke-test plugin discovery and hook execution in an isolated `CODEX_HOME`
-- [ ] Prove uninstall and previous-plugin restoration instructions
+- [x] Validate source package and marketplace metadata
+- [x] Build a deterministic ZIP without secrets, transient runs, or development fixtures
+- [x] Install via repo-local marketplace using a Codex cachebuster
+- [x] Smoke-test plugin discovery and hook execution in an isolated `CODEX_HOME`
+- [x] Prove uninstall and previous-plugin restoration instructions
 
 ### Task 6: Independent Review and Release Evidence
 
@@ -89,8 +89,30 @@
 - Modify: `README.md`
 - Modify: `EVOLUTION_LOG.md`
 
-- [ ] Run the full harness and plugin test suites
-- [ ] Run plugin validator and health checks
-- [ ] Run CodeRabbit on the Git diff and resolve accepted issues
-- [ ] Record exact commands, exits, plugin version, Codex version, limitations, and rollback
-- [ ] Commit the verified package and create the ZIP artifact
+- [x] Run the full harness and plugin test suites
+- [x] Run plugin validator and health checks
+- [x] Run CodeRabbit on the Git diff and resolve accepted issues
+- [x] Record exact commands, exits, plugin version, Codex version, limitations, and rollback
+- [x] Commit the verified package and create the ZIP artifact
+
+### Task 7 Curate External Skills into Harness Paths
+
+**Files:**
+- Create: `config/skill-curation.json`
+- Create: `SKILL_CURATION.md`
+- Create: `plugins/codex-self-improvement/hooks/paths.ts`
+- Create: `plugins/codex-self-improvement/skills/harness-paths/SKILL.md`
+- Create: `test/skill-curation.test.ts`
+- Create: `test/plugin-paths.test.ts`
+- Modify: `src/capsule.ts`
+- Modify: `src/scenarios.ts`
+- Modify: `src/holdouts.ts`
+
+- [x] Discover the requested skills pack and inspect the primary sources
+- [x] Install only the reviewed project-local subset through `npx skills add`
+- [x] Remove the oversized raw `agent-kernel` root skill
+- [x] Lock every installed skill and reject unlocked directories
+- [x] Define bounded harness paths with no automatic third-party actions
+- [x] Route candidate capsules through explicit path evidence and guardrails
+- [x] Record candidate path IDs in comparison evidence
+- [x] Run the full repository and plugin suites

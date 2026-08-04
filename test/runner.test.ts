@@ -50,6 +50,12 @@ test("recognizes a relevant implicit skill without exposing the event", () => {
   expect(extractTelemetry(hereString).observedTools).toEqual(["shell"]);
   const wrappedRead = JSON.stringify({ type: "item.completed", item: { type: "command_execution", command: "sh -c 'cat /skills/verification-before-completion/SKILL.md'", exit_code: 0 } });
   expect(extractTelemetry(wrappedRead).observedTools).toEqual(["shell", "skill:verification-before-completion"]);
+  const curatedRead = JSON.stringify({ type: "item.completed", item: { type: "command_execution", command: "sed -n 1,80p /skills/architecture-guardian/SKILL.md", exit_code: 0 } });
+  expect(extractTelemetry(curatedRead).observedTools).toEqual(["shell", "skill:architecture-guardian"]);
+  for (const skill of ["test-driven-development", "clean-code-guard", "test-guard"]) {
+    const systemSkillRead = JSON.stringify({ type: "item.completed", item: { type: "command_execution", command: `cat /skills/${skill}/SKILL.md`, exit_code: 0 } });
+    expect(extractTelemetry(systemSkillRead).observedTools).toEqual(["shell", `skill:${skill}`]);
+  }
 });
 
 test("resolves grader paths against the harness root", () => {
@@ -186,14 +192,16 @@ test("accepts a candidate only when correctness and rollback hold while cost imp
     { scenarioId: "holdout", passed: true, checksPassed: 1, checksTotal: 1, testQuality: 1, toolSelectionAccuracy: 1, durationMs: 200, tokens: 100, interventionRequired: false, eventErrors: 4 },
   ];
   const candidate = [
-    { scenarioId: "holdout", passed: true, checksPassed: 1, checksTotal: 1, testQuality: 1, toolSelectionAccuracy: 1, durationMs: 100, tokens: 50, interventionRequired: false, eventErrors: 2 },
+    { scenarioId: "holdout", passed: true, checksPassed: 1, checksTotal: 1, testQuality: 1, toolSelectionAccuracy: 1, durationMs: 100, tokens: 50, interventionRequired: false, eventErrors: 2, harnessPath: "secure-change" },
   ];
   const comparison = compareBenchmarks(control, candidate, true);
   expect(comparison.accepted).toBe(true);
   expect(comparison.timeReduction).toBe(0.5);
   expect(comparison.tokenReduction).toBe(0.5);
   expect(comparison.errorReduction).toBe(0.5);
-  expect(renderFinalEvaluation({ runId: "compare-1", startedAt: "2026-08-04", control, candidate, rollbackVerified: true })).toContain("ACCEPTED");
+  const report = renderFinalEvaluation({ runId: "compare-1", startedAt: "2026-08-04", control, candidate, rollbackVerified: true });
+  expect(report).toContain("ACCEPTED");
+  expect(report).toContain("secure-change");
 });
 
 test("rejects an efficient candidate with a correctness regression", () => {

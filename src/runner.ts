@@ -22,6 +22,7 @@ export type PublicScenarioResult = {
   checkEvidence?: Array<{ id: string; exitCode: number }>;
   agentExitCode?: number;
   finalOutputDigest?: string | null;
+  harnessPath?: string | null;
 };
 
 export type BenchmarkRun = {
@@ -96,7 +97,22 @@ function toolsFromEvent(event: CodexEvent) {
   const command = event.item?.type === "command_execution" ? event.item.command ?? "" : "";
   if (command) tools.push("shell");
   if (event.item?.type === "file_change") tools.push("apply_patch");
-  for (const skill of ["postgresql-table-design", "verification-before-completion"]) {
+  for (const skill of [
+    "postgresql-table-design",
+    "verification-before-completion",
+    "architecture-guardian",
+    "code-review",
+    "agency-multi-agent-systems-architect",
+    "agency-application-security-engineer",
+    "agency-secrets-credential-hygiene-engineer",
+    "agency-privacy-engineer",
+    "agency-performance-benchmarker",
+    "agency-test-automation-engineer",
+    "agent-kernel-evolve",
+    "test-driven-development",
+    "clean-code-guard",
+    "test-guard",
+  ]) {
     const skillPath = `${skill}/SKILL.md`;
     const shellRead = command.split(/&&|\|\||[;\n]/).map((segment) => segment.replace(/\s+#.*$/, "")).some((segment) => {
       const wrapped = segment.match(/^\s*(?:sh|bash|zsh)\s+-c\s+(['"])([\s\S]*)\1\s*$/)?.[2] ?? segment;
@@ -270,7 +286,7 @@ function comparisonRows(evaluation: FinalEvaluation) {
   return ids.map((scenarioId) => {
     const control = evaluation.control.find((result) => result.scenarioId === scenarioId);
     const candidate = evaluation.candidate.find((result) => result.scenarioId === scenarioId);
-    return `| ${scenarioId} | ${control ? (control.passed ? "PASS" : "FAIL") : "MISSING"} | ${candidate ? (candidate.passed ? "PASS" : "FAIL") : "MISSING"} | ${control ? (control.durationMs / 1000).toFixed(1) : "unavailable"} | ${candidate ? (candidate.durationMs / 1000).toFixed(1) : "unavailable"} | ${control?.tokens ?? "unavailable"} | ${candidate?.tokens ?? "unavailable"} |`;
+    return `| ${scenarioId} | ${candidate?.harnessPath ?? "not recorded"} | ${control ? (control.passed ? "PASS" : "FAIL") : "MISSING"} | ${candidate ? (candidate.passed ? "PASS" : "FAIL") : "MISSING"} | ${control ? (control.durationMs / 1000).toFixed(1) : "unavailable"} | ${candidate ? (candidate.durationMs / 1000).toFixed(1) : "unavailable"} | ${control?.tokens ?? "unavailable"} | ${candidate?.tokens ?? "unavailable"} |`;
   }).join("\n");
 }
 
@@ -286,8 +302,8 @@ Whole comparison state unchanged: **${evaluation.wholeRunStateUnchanged === unde
 
 ## Before / after
 
-| Holdout | Control | Candidate | Control seconds | Candidate seconds | Control tokens | Candidate tokens |
-|---|---:|---:|---:|---:|---:|---:|
+| Holdout | Candidate harness path | Control | Candidate | Control seconds | Candidate seconds | Control tokens | Candidate tokens |
+|---|---|---:|---:|---:|---:|---:|---:|
 ${comparisonRows(evaluation)}
 
 - Correct completion: ${comparison.control.scenariosPassed}/${comparison.control.scenariosTotal} → ${comparison.candidate.scenariosPassed}/${comparison.candidate.scenariosTotal}

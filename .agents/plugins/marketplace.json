@@ -1,0 +1,20 @@
+{
+  "name": "codex-self-improvement-dev",
+  "interface": {
+    "displayName": "Codex Self Improvement Development"
+  },
+  "plugins": [
+    {
+      "name": "codex-self-improvement",
+      "source": {
+        "source": "local",
+        "path": "./plugins/codex-self-improvement"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    }
+  ]
+}

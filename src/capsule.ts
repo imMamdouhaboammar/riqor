@@ -1,27 +1,43 @@
 import { chmod, lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { classifyPrompt } from "../plugins/codex-self-improvement/hooks/router";
+import { harnessPathForProfile, type HarnessPath, type TaskProfile } from "../plugins/codex-self-improvement/hooks/paths";
 
 export type Capability = { name: string; path: string };
-export type TaskProfile = "database" | "review" | "debugging" | "engineering";
+export type { TaskProfile } from "../plugins/codex-self-improvement/hooks/paths";
 
-const skillRoot = join(homedir(), ".agents", "skills");
+const globalSkillRoot = join(homedir(), ".agents", "skills");
+const projectSkillRoot = resolve(import.meta.dir, "..", ".agents", "skills");
 const registry: Record<TaskProfile, string[]> = {
   database: ["postgresql-table-design"],
   review: ["verification-before-completion"],
   debugging: ["systematic-debugging", "test-driven-development"],
+  security: ["verification-before-completion"],
+  ui: ["test-driven-development"],
+  research: ["verification-before-completion"],
+  privacy: ["verification-before-completion"],
+  performance: ["verification-before-completion"],
+  evolution: ["verification-before-completion"],
   engineering: ["test-driven-development", "clean-code-guard", "test-guard"],
 };
 
 export function classifyTask(task: string): TaskProfile {
-  if (/postgres|schema|foreign key|index|row.level|\brls\b/i.test(task)) return "database";
-  if (/review|audit|completion claim|verdict/i.test(task)) return "review";
-  if (/bug|failure|wrong|intermittent|root cause/i.test(task)) return "debugging";
-  return "engineering";
+  return classifyPrompt(task).profile;
 }
 
-export function selectedCapabilities(task: string): Capability[] {
-  return registry[classifyTask(task)].map((name) => ({ name, path: join(skillRoot, name) }));
+export function selectedHarnessPath(task: string): HarnessPath {
+  return harnessPathForProfile(classifyTask(task));
+}
+
+export function selectedCapabilities(task: string, selectedPath = selectedHarnessPath(task)): Capability[] {
+  const profile = classifyTask(task);
+  const names = [...new Set([...registry[profile], ...selectedPath.curatedSkills])];
+  const curated = new Set(selectedPath.curatedSkills);
+  return names.map((name) => ({
+    name,
+    path: join(curated.has(name) ? projectSkillRoot : globalSkillRoot, name),
+  }));
 }
 
 const minimalConfig = `model = "gpt-5.6-sol"
@@ -46,10 +62,26 @@ include_only = []
 experimental_use_profile = false
 `;
 
-const minimalInstructions = `# Task-scoped Codex execution
+const sentenceCase = (value: string) => value.length === 0 ? value : `${value[0]!.toUpperCase()}${value.slice(1)}`;
 
-Define observable success, inspect relevant files and callers, and use only the installed skills visible in this capsule when they apply. Make the smallest root-cause change. Preserve unrelated files and secrets. Run a focused check after changes. Finish with changed files, checks and outcomes, and anything not verified. Never claim completion from a plan, diff, or prior agent report.
+function minimalInstructions(path: HarnessPath) {
+  return `# Task-scoped Codex execution
+
+Harness path: ${path.id}
+Objective: ${path.objective}
+
+Evidence required:
+${path.evidence.map((entry) => `- ${sentenceCase(entry)}`).join("\n")}
+
+Guardrails:
+${path.guardrails.map((entry) => `- ${sentenceCase(entry)}`).join("\n")}
+
+Actions requiring explicit approval:
+${path.requiresExplicitApproval.map((entry) => `- ${sentenceCase(entry)}`).join("\n")}
+
+Define observable success, inspect relevant files and callers, and use only the installed skills visible in this capsule when they apply. Make the smallest root-cause change. Preserve unrelated files and secrets. Run a focused check after the final mutation. Finish with changed files, checks and outcomes, and anything not verified. Never claim completion from a plan, diff, or prior agent report.
 `;
+}
 
 async function validateCapability(capability: Capability) {
   if (!/^[a-z0-9][a-z0-9-]*$/.test(capability.name)) throw new Error("invalid capability name");
@@ -68,7 +100,7 @@ async function validateAuth(authPath: string) {
   }
 }
 
-export async function createCapsule(input: { authPath: string; capabilities: Capability[] }) {
+export async function createCapsule(input: { authPath: string; capabilities: Capability[]; path?: HarnessPath }) {
   await validateAuth(input.authPath);
   const capsule = await mkdtemp(join(tmpdir(), "codex-capability-capsule-"));
   try {
@@ -80,7 +112,7 @@ export async function createCapsule(input: { authPath: string; capabilities: Cap
       await symlink(capability.path, join(capsule, "skills", capability.name), "dir");
     }
     await writeFile(join(capsule, "config.toml"), minimalConfig, { mode: 0o600 });
-    await writeFile(join(capsule, "AGENTS.md"), minimalInstructions, { mode: 0o600 });
+    await writeFile(join(capsule, "AGENTS.md"), minimalInstructions(input.path ?? harnessPathForProfile("debugging")), { mode: 0o600 });
     return capsule;
   } catch (error) {
     await rm(capsule, { recursive: true, force: true });

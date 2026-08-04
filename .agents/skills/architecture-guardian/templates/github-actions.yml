@@ -1,0 +1,30 @@
+name: Architecture Guardian
+on:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: 22
+      - name: Install verified Agent Kernel
+        shell: bash
+        env:
+          EXPECTED_INTEGRITY: sha512-CuGiS8rgtBWdCRs/qLfN3uiKw6D19gee+Oz8UDlrgZtoY7mMlzH1+/p23Ey3olXakiqz5Yb8n1cFqcweEoMWzg==
+        run: |
+          npm pack @mamdouh-aboammar/agent-kernel@1.19.0 --json --ignore-scripts > agent-kernel-pack.json
+          node <<'NODE'
+          const fs = require('node:fs')
+          const pack = JSON.parse(fs.readFileSync('agent-kernel-pack.json', 'utf8'))[0]
+          if (pack.integrity !== process.env.EXPECTED_INTEGRITY) throw new Error('Agent Kernel integrity mismatch')
+          fs.writeFileSync('agent-kernel-package.txt', pack.filename)
+          NODE
+          npm install -g "./$(cat agent-kernel-package.txt)" --ignore-scripts
+      - run: agent-kernel architecture policy validate .
+      - run: agent-kernel architecture check . --base "${{ github.event.pull_request.base.sha }}" --strict --json

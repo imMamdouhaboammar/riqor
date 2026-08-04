@@ -1,0 +1,445 @@
+diff --git a/.agents/skills/agency-application-security-engineer/SKILL.md b/.agents/skills/agency-application-security-engineer/SKILL.md
+index af25ecf..164fe80 100644
+--- a/.agents/skills/agency-application-security-engineer/SKILL.md
++++ b/.agents/skills/agency-application-security-engineer/SKILL.md
+@@ -137,10 +137,12 @@ function hashPassword(password: string): string {
+ }
+ 
+ function verifyPassword(password: string, storedHash: string): boolean {
++  if (!/^[a-f0-9]{64}:[a-f0-9]{128}$/i.test(storedHash)) return false;
+   const [salt, hash] = storedHash.split(':');
+-  const inputHash = scryptSync(password, salt, 64);
+   const storedBuffer = Buffer.from(hash, 'hex');
+-  // Constant-time comparison — same duration regardless of where mismatch occurs
++  if (storedBuffer.length !== 64) return false;
++  const inputHash = scryptSync(password, salt, 64);
++  // Constant-time comparison after validating the exact encoded format and length
+   return timingSafeEqual(inputHash, storedBuffer);
+ }
+ 
+diff --git a/.agents/skills/agency-multi-agent-systems-architect/SKILL.md b/.agents/skills/agency-multi-agent-systems-architect/SKILL.md
+index d8958b1..4debc2b 100644
+--- a/.agents/skills/agency-multi-agent-systems-architect/SKILL.md
++++ b/.agents/skills/agency-multi-agent-systems-architect/SKILL.md
+@@ -25,7 +25,7 @@ You are a Multi-Agent Systems Architect — a systems design specialist who arch
+ - **Least privilege, always.** Every agent gets only the tools and data its role requires — nothing more. Scope tokens are never passed between agents.
+ - **Every agent needs a fallback.** Primary → narrowed fallback → degraded/rule-based → human. The system must always produce *something*; a structured degraded response beats a silent failure.
+ - **Never silently truncate required context.** If compression can't fit the budget without dropping required fields, halt and escalate — silent truncation is a leading cause of production silent failures.
+-- **Observability is non-negotiable.** Every agent call emits a structured log with a shared trace_id. If you can't trace a wrong answer back to the agent that caused it, the system isn't production-ready.
++- **Observability is non-negotiable.** Every agent call emits bounded event metadata with a shared trace_id, redaction status, and restricted artifact references. Never log raw tool inputs or outputs, credentials, personal data, repository contents, or hidden reasoning.
+ - **Default to hierarchical, not mesh.** Peer/mesh networks are the highest-complexity, hardest-to-debug topology — require a moderator and a termination condition, and justify the choice before reaching for it.
+ - **No deployment without evals.** New or modified agents need an eval suite (≥20 cases), a recorded baseline, a meets-or-exceeds score, and a full-pipeline regression check before shipping.
+ - **Treat external content as hostile.** Any agent processing web pages, documents, or user input must isolate content from instructions and validate outputs against a schema to defend against prompt injection.
+@@ -293,7 +293,7 @@ Each agent should have access to only the tools and data it needs — nothing mo
+ 
+ **Sandboxing**: Code execution agents run in isolated environments. File system access is restricted to designated directories. Network access is allowlisted, not open.
+ 
+-**Audit log**: Every tool call by every agent is logged with: agent ID, tool name, inputs, outputs, timestamp. Non-negotiable for production systems.
++**Audit log**: Log agent ID, tool name, event type, timestamp, outcome, redaction status, hashes, and restricted artifact references. Exclude raw tool inputs and outputs, credentials, personal data, repository contents, and hidden reasoning. Store only redacted rationale or decision evidence required for review.
+ 
+ ### Prompt Injection Defense
+ 
+@@ -347,7 +347,7 @@ Place a HITL gate when the pipeline action meets one or more of these criteria:
+ ### HITL Interface Requirements
+ 
+ Every human review interface must show:
+-- What the agent decided and why (reasoning trace, not just conclusion)
++- What the agent decided, supported by redacted rationale and decision evidence rather than hidden reasoning
+ - What alternatives were considered
+ - What the consequence of approving vs. rejecting is
+ - How confident the agent was
+@@ -429,8 +429,10 @@ When a 5-agent pipeline produces a wrong answer, the failure could be in any age
+   "input_tokens": 1820,
+   "output_tokens": 412,
+   "total_cost_usd": 0.0087,
+-  "input_hash": "sha256 of input (for dedup/cache)",
+-  "output": { ... },
++  "input_hash": "sha256 of redacted input metadata",
++  "output_artifact_ref": "restricted://artifact/uuid",
++  "redaction_status": "complete",
++  "decision_evidence": ["check:contract-validation"],
+   "confidence": 0.82,
+   "tools_called": ["web_search"],
+   "errors": [],
+@@ -561,7 +563,7 @@ Before deploying a multi-agent pipeline to production:
+ ### Human-in-the-Loop
+ - [ ] All irreversible, high-blast-radius, and low-confidence actions have HITL gates
+ - [ ] Timeout behavior is defined for every blocking gate
+-- [ ] HITL interface surfaces reasoning trace, alternatives, and consequence — not just the decision
++- [ ] HITL interface surfaces redacted rationale, alternatives, consequence, and evidence references — not hidden reasoning
+ - [ ] Escalation rate target is defined; monitoring is in place to detect drift
+ 
+ ### Observability
+diff --git a/.agents/skills/agency-performance-benchmarker/SKILL.md b/.agents/skills/agency-performance-benchmarker/SKILL.md
+index c75f0ee..4b32bda 100644
+--- a/.agents/skills/agency-performance-benchmarker/SKILL.md
++++ b/.agents/skills/agency-performance-benchmarker/SKILL.md
+@@ -23,7 +23,7 @@ You are **Performance Benchmarker**, an expert performance testing and optimizat
+ - **Default requirement**: All systems must meet performance SLAs with 95% confidence
+ 
+ ### Web Performance and Core Web Vitals Optimization
+-- Optimize for Largest Contentful Paint (LCP < 2.5s), First Input Delay (FID < 100ms), and Cumulative Layout Shift (CLS < 0.1)
++- Optimize for Largest Contentful Paint (LCP < 2.5s), Interaction to Next Paint (INP ≤ 200ms at p75), and Cumulative Layout Shift (CLS < 0.1)
+ - Implement advanced frontend performance techniques including code splitting and lazy loading
+ - Configure CDN optimization and asset delivery strategies for global performance
+ - Monitor Real User Monitoring (RUM) data and synthetic performance metrics
+@@ -83,40 +83,40 @@ export const options = {
+ 
+ export default function () {
+   const baseUrl = __ENV.BASE_URL || 'http://localhost:3000';
+-  
++
+   // Test critical user journey
+   const loginResponse = http.post(`${baseUrl}/api/auth/login`, {
+     email: 'test@example.com',
+     password: __ENV.TEST_USER_PASSWORD
+   });
+-  
++
+   check(loginResponse, {
+     'login successful': (r) => r.status === 200,
+     'login response time OK': (r) => r.timings.duration < 200,
+   });
+-  
++
+   errorRate.add(loginResponse.status !== 200);
+   responseTimeTrend.add(loginResponse.timings.duration);
+   throughputCounter.add(1);
+-  
++
+   if (loginResponse.status === 200) {
+     const token = loginResponse.json('token');
+-    
++
+     // Test authenticated API performance
+     const apiResponse = http.get(`${baseUrl}/api/dashboard`, {
+       headers: { Authorization: `Bearer ${token}` },
+     });
+-    
++
+     check(apiResponse, {
+       'dashboard load successful': (r) => r.status === 200,
+       'dashboard response time OK': (r) => r.timings.duration < 300,
+       'dashboard data complete': (r) => r.json('data.length') > 0,
+     });
+-    
++
+     errorRate.add(apiResponse.status !== 200);
+     responseTimeTrend.add(apiResponse.timings.duration);
+   }
+-  
++
+   sleep(1); // Realistic user think time
+ }
+ 
+@@ -186,7 +186,7 @@ function generateHTMLReport(data) {
+ 
+ ## ⚡ Core Web Vitals Analysis
+ **Largest Contentful Paint**: [LCP measurement with optimization recommendations]
+-**First Input Delay**: [FID analysis with interactivity improvements]
++**Interaction to Next Paint**: [INP p75 analysis across the full page lifecycle with interactivity improvements]
+ **Cumulative Layout Shift**: [CLS measurement with stability enhancements]
+ **Speed Index**: [Visual loading progress optimization]
+ 
+diff --git a/.agents/skills/agency-privacy-engineer/SKILL.md b/.agents/skills/agency-privacy-engineer/SKILL.md
+index f1935a8..7030c75 100644
+--- a/.agents/skills/agency-privacy-engineer/SKILL.md
++++ b/.agents/skills/agency-privacy-engineer/SKILL.md
+@@ -23,6 +23,7 @@ You are **Privacy Engineer**, an expert in turning privacy requirements into wor
+ 
+ ## 🚨 Critical Rules You Must Follow
+ 
++0. **Use metadata and synthetic records by default.** Require explicit approval before inspecting live personal data, executing deletion outside disposable fixtures, or contacting an external processor. Record only field names, store identifiers, retention classes, and redacted evidence references.
+ 1. **You can't protect data you haven't found.** Start with discovery and classification across all stores, including the ones nobody thinks of: logs, error traces, analytics events, caches, search indexes, message queues, and backups. Unclassified PII is unmanaged PII.
+ 2. **Delete must mean deleted, everywhere, provably.** A deletion request has to propagate to every primary, replica, warehouse, index, cache, third party, and (per policy) backup that holds the data — and produce an auditable record that it happened. A delete that clears one table is a false promise.
+ 3. **Consent and purpose must be enforced in code, not just recorded.** A stored "opt-out" that the pipeline doesn't check is theater. The enforcement point is where the data is written or used, and it must actually gate the operation.
+@@ -97,7 +98,7 @@ excluded explicitly, not silently skipped — the record shows what was kept and
+ 
+ ## 🔄 Your Workflow Process
+ 
+-1. **Map the data first**: discover and classify personal data across every store (including logs, caches, indexes, third parties), producing the field → location → purpose → basis → retention → delete-path data map.
++1. **Set the evidence boundary first**: use metadata and synthetic records by default, and obtain explicit approval before inspecting live personal data or involving an external processor. Then map the data: discover and classify personal data across every store (including logs, caches, indexes, third parties), producing the field → location → purpose → basis → retention → delete-path data map.
+ 2. **Find the violations already present**: PII in logs, over-collected fields, undocumented third-party flows, stale data past retention, and "anonymized" sets that re-identify. Rank by risk.
+ 3. **Minimize at the source**: remove or stop collecting fields with no purpose; scrub PII out of logs and traces; make over-collection a code-review failure.
+ 4. **Build enforcement at the boundaries**: consent checks at write/use points, purpose limitation, and pseudonymization/tokenization before data crosses a trust boundary.
+diff --git a/.agents/skills/agency-secrets-credential-hygiene-engineer/SKILL.md b/.agents/skills/agency-secrets-credential-hygiene-engineer/SKILL.md
+index 513b439..019efcf 100644
+--- a/.agents/skills/agency-secrets-credential-hygiene-engineer/SKILL.md
++++ b/.agents/skills/agency-secrets-credential-hygiene-engineer/SKILL.md
+@@ -76,9 +76,9 @@ jobs:
+   gitleaks:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with: { fetch-depth: 0 }   # full history so an old leak is caught too
+-      - uses: gitleaks/gitleaks-action@v2
++      - uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2
+         env: { GITLEAKS_CONFIG: .gitleaks.toml }  # allowlist known-public test fixtures
+ ```
+ 
+@@ -92,7 +92,7 @@ jobs:
+ vault write database/roles/app \
+   db_name=appdb \
+   creation_statements="CREATE ROLE \"{{name}}\" WITH LOGIN PASSWORD '{{password}}' VALID UNTIL '{{expiration}}'; \
+-                       GRANT SELECT, INSERT, UPDATE ON app.* TO \"{{name}}\";" \
++                       GRANT USAGE ON SCHEMA app TO \"{{name}}\"; GRANT SELECT, INSERT, UPDATE ON ALL TABLES IN SCHEMA app TO \"{{name}}\";" \
+   default_ttl="15m" max_ttl="1h"
+ # The app fetches a fresh, least-privilege credential per session; a leaked one is dead in minutes.
+ ```
+diff --git a/.agents/skills/agent-kernel-evolve/SKILL.md b/.agents/skills/agent-kernel-evolve/SKILL.md
+index f2cfcd3..1e8a431 100644
+--- a/.agents/skills/agent-kernel-evolve/SKILL.md
++++ b/.agents/skills/agent-kernel-evolve/SKILL.md
+@@ -1,29 +1,35 @@
+ ---
+ name: agent-kernel-evolve
+-description: Universal Self-Evolve & Self-Learning guide for AI agents. Enables any agent (Claude, Antigravity, Cursor, Codex, Gemini, OpenCode) to automatically capture learning moments, synthesize repeatable Playbooks, and evolve workflows.
++description: Proposal-only workflow learning guide for AI agents. Use repeated failures or corrections to draft reviewed, non-persistent learning proposals before any durable write.
+ ---
+ 
+ # Agent Kernel Self-Evolve Operations Guide
+ 
+-This skill provides step-by-step instructions for AI agents to capture learnings, auto-generate Playbooks, and install self-evolution hooks across all AI agent environments.
++This skill evaluates repeated evidence and drafts a non-persistent proposal by default. It does not authorize automatic learning capture, Playbook creation, Rule creation, hook installation, or durable storage.
+ 
+ ## Triggers & Trigger Phrases
+ Activate this skill when:
+ - The user mentions `self-evolve`, `/learn`, `playbook`, `workflow synthesis`, or `agent learning`.
+-- You resolve a complex multi-step feature or receive a user correction that should be saved as a Playbook or Rule.
++- You resolve a complex multi-step feature or receive a user correction that may justify a future Playbook or Rule. A single event starts proposal evaluation only. Require repeated failures or corrections showing the same pattern before drafting a non-persistent proposal.
+ 
+ ## 1. Playbook Operations (`agent-kernel evolve`)
+-- **Generate a Playbook from Current Workflow:**
++
++Require explicit user approval before any command writes a Playbook, Rule, hook configuration, or durable learning record. Present the repeated evidence, proposed scope, retention, validation cases, rollback, and exact write command before requesting approval. Read-only list and inspect operations may run when already authorized by the task.
++
++- **Generate an approved Playbook from a reviewed proposal:**
+   `agent-kernel evolve generate --title "Full Next.js Auth Setup" --topic "auth"`
+ - **List All Generated Playbooks:**
+   `agent-kernel evolve list`
+ - **Inspect a Playbook & Evolution History:**
+   `agent-kernel evolve inspect <playbookId>`
+-- **Evolve/Repair a Playbook:**
++- **Evolve/Repair a Playbook after explicit user approval:**
+   `agent-kernel evolve repair <playbookId> --reason "Fixed Supabase redirect URL"`
+ 
+ ## 2. Universal Self-Evolve Hooks (`agent-kernel evolve hooks`)
+-- **Install Hooks for Antigravity, Claude, Codex, OpenCode:**
++
++Before either command in this section, obtain explicit opt-in approval for the named agent environments and reviewed paths. Use workflow metadata and synthetic examples only. Reject or redact credentials, personal data, source payloads, command output, and sensitive paths. Define retention, access, and removal controls before enabling durable capture.
++
++- **Install Hooks for Antigravity, Claude, Cursor, Codex, Gemini, OpenCode:**
+   `agent-kernel evolve hooks`
+-- **Execute Hook Background Processing:**
++- **Execute Hook Background Processing after explicit opt-in approval:**
+   `agent-kernel hook self-evolve`
+diff --git a/.agents/skills/architecture-guardian/references/ci-and-gates.md b/.agents/skills/architecture-guardian/references/ci-and-gates.md
+index 87047fd..354cdda 100644
+--- a/.agents/skills/architecture-guardian/references/ci-and-gates.md
++++ b/.agents/skills/architecture-guardian/references/ci-and-gates.md
+@@ -4,7 +4,9 @@ Recommended pull-request sequence:
+ 
+ ```bash
+ agent-kernel architecture policy validate . --json
+-agent-kernel architecture contract validate . --json
++if [ -f .agent-kernel/architecture/change-contract.json ]; then
++  agent-kernel architecture contract validate . --json
++fi
+ agent-kernel architecture check . --base origin/master --strict --json
+ npm run build
+ npm run lint
+@@ -12,7 +14,7 @@ npm run typecheck
+ npm test
+ ```
+ 
+-Run contract validation only when project policy or the task requires a contract.
++Run contract validation only when `.agent-kernel/architecture/change-contract.json` exists or the task explicitly requires a contract
+ 
+ ## Adoption stages
+ 
+@@ -21,12 +23,12 @@ Run contract validation only when project policy or the task requires a contract
+ 3. strict mode on selected blocking rules
+ 4. protected-branch required check after false-positive review
+ 
+-Do not switch directly from no policy to a strict protected gate.
++Do not switch directly from no policy to a strict protected gate
+ 
+ ## Evidence
+ 
+-Archive `.agent-kernel/architecture/reports/latest.json` when CI evidence is needed. The report should identify baseline, contract, mode, findings, suppressions, and status.
++Archive `.agent-kernel/architecture/reports/latest.json` when CI evidence is needed. The report should identify baseline, contract, mode, findings, suppressions, and status
+ 
+-Do not update the baseline, create exceptions, or modify policy automatically in CI.
++Do not update the baseline, create exceptions, or modify policy automatically in CI
+ 
+-Run project tests after architecture checks; conformance does not prove functional correctness.
++Run project tests after architecture checks because conformance does not prove functional correctness
+diff --git a/.agents/skills/architecture-guardian/references/workflow.md b/.agents/skills/architecture-guardian/references/workflow.md
+index 37a9ee8..34a887b 100644
+--- a/.agents/skills/architecture-guardian/references/workflow.md
++++ b/.agents/skills/architecture-guardian/references/workflow.md
+@@ -10,8 +10,9 @@ understand -> validate state -> map -> search reuse -> declare scope
+ ## Before design
+ 
+ 1. Read repository instructions and `.agent-kernel/architecture/policy.json`.
+-2. Run `agent-kernel architecture doctor . --json`.
+-3. Run `agent-kernel architecture discover . --json`.
++2. Run `agent-kernel architecture policy validate . --json`.
++3. Run `agent-kernel architecture doctor . --json`.
++4. Run `agent-kernel architecture discover . --json`.
+ 4. Review source roots, layers, internal edges, external packages, cycles, and current findings.
+ 
+ Do not design from file names alone. Use the discovered import graph and public interfaces.
+diff --git a/.agents/skills/architecture-guardian/schemas/architecture-exceptions.schema.json b/.agents/skills/architecture-guardian/schemas/architecture-exceptions.schema.json
+index 9c1e5f0..b58f334 100644
+--- a/.agents/skills/architecture-guardian/schemas/architecture-exceptions.schema.json
++++ b/.agents/skills/architecture-guardian/schemas/architecture-exceptions.schema.json
+@@ -2,6 +2,7 @@
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "title": "Architecture Exceptions",
+   "type": "object",
++  "additionalProperties": false,
+   "required": ["version", "exceptions"],
+   "properties": {
+     "version": { "const": 1 },
+@@ -9,14 +10,23 @@
+       "type": "array",
+       "items": {
+         "type": "object",
++        "additionalProperties": false,
+         "required": ["id", "reason", "owner", "createdAt", "expiresAt", "status"],
++        "anyOf": [
++          { "required": ["ruleId"], "properties": { "ruleId": { "type": "string", "minLength": 1 } } },
++          { "required": ["fingerprint"], "properties": { "fingerprint": { "type": "string", "minLength": 1 } } }
++        ],
++        "x-agent-kernel-temporal-constraints": {
++          "expiresAfterCreatedAt": true,
++          "maximumLifetimeDays": 90
++        },
+         "properties": {
+-          "id": { "type": "string" },
++          "id": { "type": "string", "minLength": 1 },
+           "ruleId": { "type": ["string", "null"] },
+           "fingerprint": { "type": ["string", "null"] },
+-          "files": { "type": "array", "items": { "type": "string" } },
++          "files": { "type": "array", "minItems": 1, "items": { "type": "string", "minLength": 1 } },
+           "reason": { "type": "string", "minLength": 1 },
+-          "owner": { "type": "string" },
++          "owner": { "type": "string", "minLength": 1 },
+           "createdAt": { "type": "string", "format": "date-time" },
+           "expiresAt": { "type": "string", "format": "date-time" },
+           "status": { "enum": ["active", "revoked"] }
+diff --git a/.agents/skills/architecture-guardian/schemas/architecture-map.schema.json b/.agents/skills/architecture-guardian/schemas/architecture-map.schema.json
+index 925046e..c5b3ef6 100644
+--- a/.agents/skills/architecture-guardian/schemas/architecture-map.schema.json
++++ b/.agents/skills/architecture-guardian/schemas/architecture-map.schema.json
+@@ -2,27 +2,66 @@
+   "$schema": "https://json-schema.org/draft/2020-12/schema",
+   "title": "Architecture Map",
+   "type": "object",
+-  "required": ["version", "generatedAt", "fileCount", "nodes", "edges", "cycles", "externalPackages", "externalImports", "fingerprint"],
++  "additionalProperties": false,
++  "required": ["version", "generatedAt", "root", "fileCount", "languages", "nodes", "edges", "cycles", "externalPackages", "externalImports", "fingerprint"],
+   "properties": {
+     "version": { "const": 1 },
+     "generatedAt": { "type": "string", "format": "date-time" },
++    "root": { "type": "string", "minLength": 1 },
+     "fileCount": { "type": "integer", "minimum": 0 },
+-    "nodes": { "type": "array" },
+-    "edges": { "type": "array" },
+-    "cycles": { "type": "array" },
+-    "externalPackages": { "type": "array", "items": { "type": "string" } },
++    "languages": {
++      "type": "object",
++      "additionalProperties": { "type": "integer", "minimum": 0 }
++    },
++    "nodes": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": ["file", "language", "layer", "symbols", "hash"],
++        "properties": {
++          "file": { "type": "string", "minLength": 1 },
++          "language": { "type": "string", "minLength": 1 },
++          "layer": { "type": ["string", "null"] },
++          "symbols": { "type": "array", "items": { "type": "string", "minLength": 1 } },
++          "hash": { "type": "string", "minLength": 1 }
++        }
++      }
++    },
++    "edges": {
++      "type": "array",
++      "items": {
++        "type": "object",
++        "additionalProperties": false,
++        "required": ["from", "to", "specifier", "fromLayer", "toLayer"],
++        "properties": {
++          "from": { "type": "string", "minLength": 1 },
++          "to": { "type": "string", "minLength": 1 },
++          "specifier": { "type": "string", "minLength": 1 },
++          "fromLayer": { "type": ["string", "null"] },
++          "toLayer": { "type": ["string", "null"] }
++        }
++      }
++    },
++    "cycles": {
++      "type": "array",
++      "items": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } }
++    },
++    "externalPackages": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+     "externalImports": {
+       "type": "array",
+       "items": {
+         "type": "object",
+-        "required": ["from", "package", "specifier"],
++        "additionalProperties": false,
++        "required": ["from", "language", "package", "specifier"],
+         "properties": {
+-          "from": { "type": "string" },
+-          "package": { "type": "string" },
+-          "specifier": { "type": "string" }
++          "from": { "type": "string", "minLength": 1 },
++          "language": { "type": "string", "minLength": 1 },
++          "package": { "type": "string", "minLength": 1 },
++          "specifier": { "type": "string", "minLength": 1 }
+         }
+       }
+     },
+-    "fingerprint": { "type": "string" }
++    "fingerprint": { "type": "string", "minLength": 1 }
+   }
+ }
+diff --git a/.agents/skills/architecture-guardian/templates/github-actions.yml b/.agents/skills/architecture-guardian/templates/github-actions.yml
+index cb6ecab..d05e0f6 100644
+--- a/.agents/skills/architecture-guardian/templates/github-actions.yml
++++ b/.agents/skills/architecture-guardian/templates/github-actions.yml
+@@ -7,12 +7,24 @@ jobs:
+   architecture:
+     runs-on: ubuntu-latest
+     steps:
+-      - uses: actions/checkout@v4
++      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+         with:
+           fetch-depth: 0
+-      - uses: actions/setup-node@v4
++      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+         with:
+           node-version: 22
+-      - run: npm install -g @mamdouh-aboammar/agent-kernel
++      - name: Install verified Agent Kernel
++        shell: bash
++        env:
++          EXPECTED_INTEGRITY: sha512-CuGiS8rgtBWdCRs/qLfN3uiKw6D19gee+Oz8UDlrgZtoY7mMlzH1+/p23Ey3olXakiqz5Yb8n1cFqcweEoMWzg==
++        run: |
++          npm pack @mamdouh-aboammar/agent-kernel@1.19.0 --json --ignore-scripts > agent-kernel-pack.json
++          node <<'NODE'
++          const fs = require('node:fs')
++          const pack = JSON.parse(fs.readFileSync('agent-kernel-pack.json', 'utf8'))[0]
++          if (pack.integrity !== process.env.EXPECTED_INTEGRITY) throw new Error('Agent Kernel integrity mismatch')
++          fs.writeFileSync('agent-kernel-package.txt', pack.filename)
++          NODE
++          npm install -g "./$(cat agent-kernel-package.txt)" --ignore-scripts
+       - run: agent-kernel architecture policy validate .
+       - run: agent-kernel architecture check . --base "${{ github.event.pull_request.base.sha }}" --strict --json

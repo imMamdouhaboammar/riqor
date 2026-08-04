@@ -5,6 +5,7 @@ import { join, resolve } from "node:path";
 import { canonicalDigest, deriveScenarioResult, validateScenarioSet } from "./harness";
 import { runSandboxedCheck } from "./checks";
 import { createCapsule, destroyCapsule, selectedCapabilities } from "./capsule";
+import { harnessPathById } from "../plugins/codex-self-improvement/hooks/paths";
 import { holdouts } from "./holdouts";
 import {
   buildCodexCommand,
@@ -154,8 +155,13 @@ async function agentRun(input: ScenarioRun, repo: string, finalPath: string) {
   if (input.mode === "control") {
     return runProcess(buildCodexCommand(repo, finalPath, input.scenario.prompt), repo, process.env);
   }
-  const capabilities = selectedCapabilities(input.scenario.prompt);
-  const capsule = await createCapsule({ authPath: join(homedir(), ".codex", "auth.json"), capabilities });
+  const selectedPath = harnessPathById(input.scenario.harnessPath);
+  const capabilities = selectedCapabilities(input.scenario.prompt, selectedPath);
+  const capsule = await createCapsule({
+    authPath: join(homedir(), ".codex", "auth.json"),
+    capabilities,
+    path: selectedPath,
+  });
   try {
     const environment = { ...process.env, CODEX_HOME: capsule };
     return runProcess(buildCodexCommand(repo, finalPath, input.scenario.prompt), repo, environment);
@@ -195,6 +201,7 @@ async function runScenario(input: ScenarioRun): Promise<PublicScenarioResult> {
     checkEvidence: checks,
     agentExitCode: agent.exitCode,
     finalOutputDigest: finalOutput === null ? null : sha256(finalOutput),
+    harnessPath: mode === "candidate" ? scenario.harnessPath : null,
   };
 }
 

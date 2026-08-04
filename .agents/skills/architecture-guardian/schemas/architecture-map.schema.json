@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Architecture Map",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "generatedAt", "root", "fileCount", "languages", "nodes", "edges", "cycles", "externalPackages", "externalImports", "fingerprint"],
+  "properties": {
+    "version": { "const": 1 },
+    "generatedAt": { "type": "string", "format": "date-time" },
+    "root": { "type": "string", "minLength": 1 },
+    "fileCount": { "type": "integer", "minimum": 0 },
+    "languages": {
+      "type": "object",
+      "additionalProperties": { "type": "integer", "minimum": 0 }
+    },
+    "nodes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["file", "language", "layer", "symbols", "hash"],
+        "properties": {
+          "file": { "type": "string", "minLength": 1 },
+          "language": { "type": "string", "minLength": 1 },
+          "layer": { "type": ["string", "null"] },
+          "symbols": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+          "hash": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "to", "specifier", "fromLayer", "toLayer"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "to": { "type": "string", "minLength": 1 },
+          "specifier": { "type": "string", "minLength": 1 },
+          "fromLayer": { "type": ["string", "null"] },
+          "toLayer": { "type": ["string", "null"] }
+        }
+      }
+    },
+    "cycles": {
+      "type": "array",
+      "items": { "type": "array", "minItems": 2, "items": { "type": "string", "minLength": 1 } }
+    },
+    "externalPackages": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "externalImports": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["from", "language", "package", "specifier"],
+        "properties": {
+          "from": { "type": "string", "minLength": 1 },
+          "language": { "type": "string", "minLength": 1 },
+          "package": { "type": "string", "minLength": 1 },
+          "specifier": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
+    "fingerprint": { "type": "string", "minLength": 1 }
+  }
+}

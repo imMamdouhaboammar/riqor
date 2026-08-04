@@ -1,0 +1,59 @@
+{
+  "version": 1,
+  "skills": {
+    "agency-application-security-engineer": {
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/security-appsec-engineer/SKILL.md",
+      "computedHash": "0b9eb3bda9f0f509251c67362bc285af0f43c7271b7f71356f7d0d6b8641c481"
+    },
+    "agency-multi-agent-systems-architect": {
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/engineering-multi-agent-systems-architect/SKILL.md",
+      "computedHash": "0b02c937cde8b87c8a01de427cd9a6020232c6d96298ed7d632982a8c402e526"
+    },
+    "agency-performance-benchmarker": {
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/testing-performance-benchmarker/SKILL.md",
+      "computedHash": "3ffa0252a66925cdb9c48b8e5a2db67d4c4efe17e8ffb33dbace8184bae302a6"
+    },
+    "agency-privacy-engineer": {
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/engineering-privacy-engineer/SKILL.md",
+      "computedHash": "93df597f87d7dce600b21632178c235ae2a50d274ddebded099e16009272a819"
+    },
+    "agency-secrets-credential-hygiene-engineer": {
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/security-secrets-credential-engineer/SKILL.md",
+      "computedHash": "5d64a30aa9efe70b4b394bc1323959eacc50fc0794f7a0f2a55ee2521bdbda57"
+    },
+    "agency-test-automation-engineer": {
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "sourceType": "github",
+      "skillPath": "skills/testing-test-automation-engineer/SKILL.md",
+      "computedHash": "340cab86d415786d66d1bc11b6e7688b53f70bfe7dae494af647491f3c1a36b5"
+    },
+    "agent-kernel-evolve": {
+      "source": "imMamdouhaboammar/agent-kernel",
+      "sourceType": "github",
+      "skillPath": "skills/agent-kernel-evolve/SKILL.md",
+      "computedHash": "40f0769dfdf74d54b515ee52a7258a5cce9089d5f67981886211932eaea4870c"
+    },
+    "architecture-guardian": {
+      "source": "imMamdouhaboammar/agent-kernel",
+      "sourceType": "github",
+      "skillPath": "skills/architecture-guardian/SKILL.md",
+      "computedHash": "59199ff6150625f71cfffe22cd755dfcc3b7976ee06ca4187e5c32bae395951a"
+    },
+    "code-review": {
+      "source": "mattpocock/skills",
+      "sourceType": "github",
+      "skillPath": "skills/engineering/code-review/SKILL.md",
+      "computedHash": "31d149a480eaa68c11e32f5ee77f0fd0b98a906834d531d881d502352edd0b8e"
+    }
+  }
+}

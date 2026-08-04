@@ -92,6 +92,7 @@ test("every benchmark scenario has a bounded prompt, fixture, and derived checks
   for (const scenario of scenarios) {
     expect(scenario.prompt.length).toBeGreaterThan(80);
     expect(scenario.checks.length).toBeGreaterThan(0);
+    expect(scenario.harnessPath).toMatch(/^(architecture-conformance|controlled-evolution|evidence-loop|independent-review|privacy-minimization|secure-change|performance-evidence|e2e-evidence)$/);
     expect(await Bun.file(new URL(`../fixtures/${scenario.id}/TASK.md`, import.meta.url)).exists()).toBe(true);
     expect(await Bun.file(new URL(`../graders/${scenario.id}.ts`, import.meta.url)).exists()).toBe(true);
   }

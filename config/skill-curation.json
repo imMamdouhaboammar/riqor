@@ -1,0 +1,156 @@
+{
+  "version": 1,
+  "packUrl": "https://skills.sh/p/Hdo5gpURfnt2T9GG",
+  "packInstall": {
+    "status": "source-fallback",
+    "reason": "The pack well-known endpoint returned HTTP 429 after discovery, so the same selected skills were installed from their primary GitHub sources",
+    "checkedAt": "2026-08-04"
+  },
+  "sources": {
+    "agent-kernel": {
+      "repository": "imMamdouhaboammar/agent-kernel",
+      "commit": "0a37e31d584be9050aec0d49917970f1795bde63"
+    },
+    "antigravity-superpowers": {
+      "repository": "imMamdouhaboammar/antigravity-superpowers",
+      "commit": "62d620e4fc009d211dd53b34a3e722d22eb396f4"
+    },
+    "mattpocock-skills": {
+      "repository": "mattpocock/skills",
+      "commit": "2ab958093e83e0ec752e6c1c5932da465bf23e0c"
+    }
+  },
+  "approvedSkills": [
+    {
+      "name": "agency-application-security-engineer",
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "skillPath": "skills/security-appsec-engineer/SKILL.md",
+      "role": "Secure code review and threat-focused implementation checklist",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "0b9eb3bda9f0f509251c67362bc285af0f43c7271b7f71356f7d0d6b8641c481",
+      "curatedContentHash": "9f1166e0fe3120a7542848b68ea5491575c319222425cbd0658a9ccc823ef1e9"
+    },
+    {
+      "name": "agency-multi-agent-systems-architect",
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "skillPath": "skills/engineering-multi-agent-systems-architect/SKILL.md",
+      "role": "Independent reviewer topology and failure isolation",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "0b02c937cde8b87c8a01de427cd9a6020232c6d96298ed7d632982a8c402e526",
+      "curatedContentHash": "d3a8178d408e132c1d91f01738824f92d11a082e2a3bfd69c2a192c51ed28425"
+    },
+    {
+      "name": "agency-performance-benchmarker",
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "skillPath": "skills/testing-performance-benchmarker/SKILL.md",
+      "role": "Controlled local performance measurement",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "3ffa0252a66925cdb9c48b8e5a2db67d4c4efe17e8ffb33dbace8184bae302a6",
+      "curatedContentHash": "734da2af22bc8ea43d0444cfe0eab01b0ded33a910b97af772be8bcb2b35a73a"
+    },
+    {
+      "name": "agency-privacy-engineer",
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "skillPath": "skills/engineering-privacy-engineer/SKILL.md",
+      "role": "Data minimization, retention, and deletion controls",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "93df597f87d7dce600b21632178c235ae2a50d274ddebded099e16009272a819",
+      "curatedContentHash": "74214213ba56a55aabd0230f38b03736b7d2d37ff8be4c12b109c6f883d30676"
+    },
+    {
+      "name": "agency-secrets-credential-hygiene-engineer",
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "skillPath": "skills/security-secrets-credential-engineer/SKILL.md",
+      "role": "Credential lifecycle and leak-response checklist",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "5d64a30aa9efe70b4b394bc1323959eacc50fc0794f7a0f2a55ee2521bdbda57",
+      "curatedContentHash": "8ace304bdfbd96bc9d4a22efeb5fc2f014ec51f2c142091bbed1168547913b49"
+    },
+    {
+      "name": "agency-test-automation-engineer",
+      "source": "imMamdouhaboammar/antigravity-superpowers",
+      "skillPath": "skills/testing-test-automation-engineer/SKILL.md",
+      "role": "Deterministic browser and end-to-end evidence",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "340cab86d415786d66d1bc11b6e7688b53f70bfe7dae494af647491f3c1a36b5",
+      "curatedContentHash": "966ecb578a2fb83876454c2833285345a8463e19fe93d9c15a11c31126bdd33e"
+    },
+    {
+      "name": "agent-kernel-evolve",
+      "source": "imMamdouhaboammar/agent-kernel",
+      "skillPath": "skills/agent-kernel-evolve/SKILL.md",
+      "role": "Proposal-only workflow learning and playbook synthesis",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "40f0769dfdf74d54b515ee52a7258a5cce9089d5f67981886211932eaea4870c",
+      "curatedContentHash": "ff4325f657d45db444908b8ae73bae4db7a8a5cad98c591418fe37dce1d85ac9"
+    },
+    {
+      "name": "architecture-guardian",
+      "source": "imMamdouhaboammar/agent-kernel",
+      "skillPath": "skills/architecture-guardian/SKILL.md",
+      "role": "Reuse-first architecture discovery and conformance checks",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "59199ff6150625f71cfffe22cd755dfcc3b7976ee06ca4187e5c32bae395951a",
+      "curatedContentHash": "a8b6f2cb5e47079fbc8876d1b4ef82e8854c707e643bd4f7fb8506eca4728f64"
+    },
+    {
+      "name": "code-review",
+      "source": "mattpocock/skills",
+      "skillPath": "skills/engineering/code-review/SKILL.md",
+      "role": "Two-axis standards and specification review",
+      "mode": "bounded-reference",
+      "upstreamComputedHash": "31d149a480eaa68c11e32f5ee77f0fd0b98a906834d531d881d502352edd0b8e",
+      "curatedContentHash": "d45f786768d013c1e387aa5b3d067f7a2540c9350b1ef116d0245d9881a61bde"
+    }
+  ],
+  "rejectedSkills": [
+    {
+      "name": "agent-kernel",
+      "reason": "The root skill copied 687 files and 4.1 MB of runtime, tests, installers, and documentation into the project while the reviewed CLI is already installed separately"
+    },
+    {
+      "name": "agent-kernel-ops",
+      "reason": "Includes environment push and pull plus publish operations that are outside automatic harness scope"
+    },
+    {
+      "name": "antigravity-superpowers",
+      "reason": "Broad umbrella instructions create routing conflicts and unbounded orchestration"
+    },
+    {
+      "name": "agency-reality-checker",
+      "reason": "The supplied workflow is overfitted to Laravel and visual website approval"
+    },
+    {
+      "name": "agency-test-results-analyzer",
+      "reason": "Introduces heavy statistical dependencies and generic analysis unrelated to the bounded harness evidence model"
+    },
+    {
+      "name": "agency-workflow-optimizer",
+      "reason": "Introduces generic process-analysis dependencies without a direct correctness gate"
+    },
+    {
+      "name": "aonios-agent",
+      "reason": "May delegate source and prompts to external model providers"
+    },
+    {
+      "name": "apeiron",
+      "reason": "Invokes a broad orchestration chain and external integrations beyond the reviewed task boundary"
+    },
+    {
+      "name": "test-driven-development",
+      "reason": "Already supplied by the installed Superpowers plugin"
+    },
+    {
+      "name": "grill-me",
+      "reason": "Interactive design interrogation is not a runtime evidence path"
+    }
+  ],
+  "policies": {
+    "noAutomaticMemoryPublish": true,
+    "noEnvironmentMutation": true,
+    "noExternalDelegation": true,
+    "noProductionLoad": true,
+    "noSecretRetention": true,
+    "reviewerOutputIsNotProof": true
+  }
+}
