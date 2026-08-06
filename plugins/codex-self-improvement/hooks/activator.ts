@@ -1,5 +1,5 @@
 import { createHash, randomUUID } from "node:crypto";
-import { chmod, lstat, mkdir, readdir, readFile, rename, rm, stat, writeFile } from "node:fs/promises";
+import { chmod, lstat, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 
 export type ActivatorConfig = Readonly<{
@@ -33,6 +33,7 @@ const maxIntervalMs = 24 * 60 * 60 * 1_000;
 const minWatchdogMs = 10_000;
 const maxWatchdogMs = 30 * 60 * 1_000;
 const maxStateBytes = 1_024;
+const maxStateFiles = 128;
 const staleStateMs = 24 * 60 * 60 * 1_000;
 const staleLockMs = 60_000;
 const lockAttempts = 40;
@@ -72,12 +73,17 @@ function lockPath(dataDir: string, key: string) {
   return join(activatorDirectory(dataDir), `.${key}.lock`);
 }
 
+async function secureRealDirectory(path: string, label: string) {
+  await mkdir(path, { recursive: true, mode: 0o700 });
+  const info = await lstat(path);
+  if (!info.isDirectory() || info.isSymbolicLink()) throw new Error(`${label} must be a real directory`);
+  await chmod(path, 0o700);
+}
+
 async function secureDirectory(dataDir: string) {
+  await secureRealDirectory(dataDir, "PLUGIN_DATA");
   const directory = activatorDirectory(dataDir);
-  await mkdir(directory, { recursive: true, mode: 0o700 });
-  const info = await lstat(directory);
-  if (!info.isDirectory() || info.isSymbolicLink()) throw new Error("activator state path must be a real directory");
-  await chmod(directory, 0o700);
+  await secureRealDirectory(directory, "activator state path");
   return directory;
 }
 
@@ -91,7 +97,7 @@ function parseState(contents: string, config: ActivatorConfig): ActivatorState |
     if (value.version !== 1) return undefined;
     if (value.intervalMs !== config.intervalMs || value.watchdogMs !== config.watchdogMs) return undefined;
     if (!validTime(value.startedAt) || !validTime(value.lastActivityAt) || !validTime(value.lastActivatedAt)) return undefined;
-    if (!validTime(value.nextDueAt) || !Number.isSafeInteger(value.cycle) || Number(value.cycle) < 0) return undefined;
+    if (!validTime(value.nextDueAt) || typeof value.cycle !== "number" || !Number.isSafeInteger(value.cycle) || value.cycle < 0) return undefined;
     if (value.phase !== "waiting" && value.phase !== "reviewing") return undefined;
     if (value.phase === "reviewing") {
       if (!validTime(value.reviewStartedAt) || !validTime(value.reviewDeadlineAt)) return undefined;
@@ -141,12 +147,6 @@ async function acquireLock(dataDir: string, key: string) {
   for (let attempt = 0; attempt < lockAttempts; attempt += 1) {
     try {
       await mkdir(path, { mode: 0o700 });
-      await writeFile(join(path, "owner.json"), `${JSON.stringify({ version: 1, pid: process.pid, createdAt: Date.now() })}\n`, {
-        encoding: "utf8",
-        flag: "wx",
-        mode: 0o600,
-      });
-      return path;
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "EEXIST") throw error;
       try {
@@ -160,6 +160,19 @@ async function acquireLock(dataDir: string, key: string) {
         throw readError;
       }
       await delay(lockRetryMs);
+      continue;
+    }
+
+    try {
+      await writeFile(join(path, "owner.json"), `${JSON.stringify({ version: 1, pid: process.pid, createdAt: Date.now() })}\n`, {
+        encoding: "utf8",
+        flag: "wx",
+        mode: 0o600,
+      });
+      return path;
+    } catch (error) {
+      await rm(path, { recursive: true, force: true });
+      throw error;
     }
   }
   throw new Error("timed out acquiring activator state lock");
@@ -189,17 +202,44 @@ function initialState(config: ActivatorConfig, now: number): ActivatorState {
   };
 }
 
+async function pathExists(path: string) {
+  try {
+    await lstat(path);
+    return true;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return false;
+    throw error;
+  }
+}
+
 async function pruneActivatorState(dataDir: string, now = Date.now()) {
   const directory = await secureDirectory(dataDir);
+  const candidates: Array<{ key: string; path: string; modifiedAt: number }> = [];
   for (const name of await readdir(directory)) {
-    if (!keyPattern.test(name.replace(/\.json$/, "")) || !name.endsWith(".json")) continue;
+    if (!name.endsWith(".json")) continue;
+    const key = name.slice(0, -5);
+    if (!keyPattern.test(key)) continue;
     const path = join(directory, name);
     try {
-      const info = await stat(path);
-      if (now - info.mtimeMs > staleStateMs) await rm(path, { force: true });
+      const info = await lstat(path);
+      if (!info.isFile() || info.isSymbolicLink()) {
+        await rm(path, { force: true });
+        continue;
+      }
+      candidates.push({ key, path, modifiedAt: info.mtimeMs });
     } catch (error) {
       if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
     }
+  }
+
+  candidates.sort((left, right) => left.modifiedAt - right.modifiedAt);
+  const excess = Math.max(0, candidates.length - maxStateFiles);
+  for (let index = 0; index < candidates.length; index += 1) {
+    const candidate = candidates[index]!;
+    const stale = now - candidate.modifiedAt > staleStateMs;
+    if (!stale && index >= excess) continue;
+    if (await pathExists(lockPath(dataDir, candidate.key))) continue;
+    await rm(candidate.path, { force: true });
   }
 }
 
