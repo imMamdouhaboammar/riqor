@@ -1,0 +1,75 @@
+project:
+  name: Riqor Docs Preview
+  baseUrl: http://127.0.0.1:4173
+
+output:
+  dir: artifacts/autodemo
+  clean: true
+  branding: false
+
+browser:
+  headless: true
+  viewport:
+    width: 1600
+    height: 900
+  recordVideo: true
+  cursor:
+    showCursor: false
+    highlightClicks: false
+  transitions:
+    transitionMs: 700
+    endPauseMs: 1200
+  capture:
+    hideDevOverlays: true
+  video:
+    trimStartBeforeMs: 300
+
+scenarios:
+  readme-overview:
+    description: "Riqor product overview for README and release marketing"
+    steps:
+      - type: goto
+        url: /
+      - type: waitFor
+        text: "Proof before done"
+      - type: screenshot
+        name: riqor-hero
+        selector: "#hero"
+        capture: false
+        note: "Product message and managed terminal example"
+      - type: scrollIntoView
+        selector: "#controls"
+        behavior: smooth
+        block: start
+      - type: screenshot
+        name: riqor-controls
+        selector: "#controls"
+        capture: false
+        note: "Evidence gate, session activator, and rollback"
+      - type: scrollIntoView
+        selector: "#flow"
+        behavior: smooth
+        block: start
+      - type: screenshot
+        name: riqor-flow
+        selector: "#flow"
+        capture: false
+        note: "From workspace change to supported completion claim"
+      - type: scrollIntoView
+        selector: "#security"
+        behavior: smooth
+        block: start
+      - type: screenshot
+        name: riqor-security
+        selector: "#security"
+        capture: false
+        note: "Local trust boundaries and retained state"
+      - type: scrollTo
+        y: 0
+        behavior: smooth
+        durationMs: 700
+      - type: screenshot
+        name: riqor-full-page
+        fullPage: true
+        capture: false
+        note: "Full product overview"

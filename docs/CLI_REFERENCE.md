@@ -1,0 +1,293 @@
+# CLI Reference
+
+Riqor exposes the `riqor` command plus the compatibility aliases `codex-harness` and `cxh`.
+
+```text
+riqor <command> [subcommand] [options]
+```
+
+## Global Output Option
+
+Several status and diagnostic commands accept `--json`.
+
+```bash
+riqor status --json
+riqor doctor --json
+riqor terminal status --json
+```
+
+Use JSON output for scripts and integrations. Text output is intended for terminal use.
+
+## Package Commands
+
+### `riqor version`
+
+Reports the Riqor package version and bundled plugin version.
+
+```bash
+riqor version --json
+```
+
+### `riqor status`
+
+Reports the package version, plugin version, and known integration surfaces.
+
+```bash
+riqor status
+riqor status --json
+```
+
+### `riqor doctor`
+
+Checks package health and the local environment.
+
+```bash
+riqor doctor
+riqor doctor --json
+riqor doctor --package-only --json
+```
+
+Options:
+
+| Option | Meaning |
+| --- | --- |
+| `--json` | Print a structured report |
+| `--package-only` | Skip installed shims, Codex, and Kaku checks |
+
+Exit status is non-zero when required checks fail.
+
+### `riqor install`
+
+Installs the versioned package payload and managed local integrations.
+
+```bash
+riqor install
+```
+
+The command creates versioned package data, updates the `current` symlink, creates executable shims, attempts shell integration, writes an install manifest, and returns a rollback command.
+
+### `riqor uninstall`
+
+Removes the Riqor-managed installation.
+
+```bash
+riqor uninstall
+```
+
+## Codex Commands
+
+### `riqor codex`
+
+Starts Codex as a direct child process with the Riqor environment enabled.
+
+```bash
+riqor codex
+riqor codex [codex arguments]
+```
+
+Riqor uses a direct argument array and does not launch Codex through a shell.
+
+### `riqor codex --activator`
+
+Starts a managed Codex session with periodic task checkpoints.
+
+```bash
+riqor codex --activator
+```
+
+Options:
+
+| Option | Default | Allowed range | Meaning |
+| --- | ---: | ---: | --- |
+| `--activator` | off | opt-in | Enable periodic checkpoints for this child process |
+| `--activator-interval <duration>` | `15m` | `1m` to `24h` | Time between eligible checkpoint cycles |
+| `--activator-watchdog <duration>` | `3m` | `10s` to `30m` | Maximum duration of one review phase |
+
+Duration suffixes:
+
+```text
+ms  milliseconds
+s   seconds
+m   minutes
+h   hours
+```
+
+Both timing options also accept inline values:
+
+```bash
+riqor codex --activator \
+  --activator-interval=20m \
+  --activator-watchdog=2m
+```
+
+Rules:
+
+- Timing options require `--activator`
+- Invalid or missing durations are rejected before Codex starts
+- Riqor removes its activator options before forwarding the remaining arguments
+- Inherited activator environment values are cleared unless the current command opts in
+- Activator state applies only to the current managed Codex child process
+- Closing the child process ends the activator
+
+Invalid command usage exits with status `64`.
+
+## Terminal State Commands
+
+These commands are normally called by installed shell hooks. They are public for diagnostics and integrations.
+
+### `riqor terminal preexec`
+
+Records a command before execution.
+
+```bash
+riqor terminal preexec \
+  --session <session-id> \
+  --command '<command>'
+```
+
+`--session` is optional. Riqor otherwise uses the current TTY or parent process identifier.
+
+### `riqor terminal postexec`
+
+Records the command exit status and updates verification state.
+
+```bash
+riqor terminal postexec \
+  --session <session-id> \
+  --exit-code 0
+```
+
+`--exit-code` must be an integer.
+
+### `riqor terminal status`
+
+Shows the verification state for a terminal session.
+
+```bash
+riqor terminal status
+riqor terminal status --json
+riqor terminal status --session <session-id>
+```
+
+Text output is one of:
+
+```text
+clear
+verification-pending
+```
+
+## Plugin Commands
+
+### `riqor plugin status`
+
+Shows whether the Codex plugin is installed and enabled.
+
+```bash
+riqor plugin status
+riqor plugin status --json
+```
+
+### `riqor plugin install`
+
+Runs the bundled Codex plugin installer.
+
+```bash
+riqor plugin install
+```
+
+### `riqor plugin uninstall`
+
+Runs the bundled Codex plugin uninstaller.
+
+```bash
+riqor plugin uninstall
+```
+
+## Shell Commands
+
+### `riqor shell status`
+
+Shows detected local shell integration files.
+
+```bash
+riqor shell status
+riqor shell status --json
+```
+
+### `riqor shell install`
+
+Runs the bundled shell integration installer.
+
+```bash
+riqor shell install
+```
+
+### `riqor shell uninstall`
+
+Removes managed shell integration.
+
+```bash
+riqor shell uninstall
+```
+
+## Workflow Path Commands
+
+### `riqor paths list`
+
+Lists reviewed workflow paths and their objectives.
+
+```bash
+riqor paths list
+riqor paths list --json
+```
+
+JSON output includes each path identifier, objective, curated skills, required evidence, guardrails, and whether explicit approval is required.
+
+## Compatibility Aliases
+
+These commands resolve to the same packaged CLI:
+
+```bash
+codex-harness status
+cxh status
+```
+
+Use `riqor` in new documentation and scripts. The aliases exist for existing installations and workflows.
+
+## Common Examples
+
+Install and diagnose:
+
+```bash
+npx riqor install
+riqor doctor --json
+```
+
+Start a managed session with defaults:
+
+```bash
+riqor codex --activator
+```
+
+Start a longer checkpoint cycle:
+
+```bash
+riqor codex --activator \
+  --activator-interval 30m \
+  --activator-watchdog 3m
+```
+
+Inspect local state:
+
+```bash
+riqor status --json
+riqor plugin status --json
+riqor shell status --json
+riqor terminal status --json
+```
+
+Remove the installation:
+
+```bash
+riqor uninstall
+```

@@ -1,0 +1,615 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Riqor keeps AI coding completion claims tied to local evidence and managed Codex checkpoints.">
+  <title>Riqor | Proof before done</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --paper: #f5f2eb;
+      --surface: #ffffff;
+      --ink: #171914;
+      --muted: #62665c;
+      --line: #d8d6ce;
+      --accent: #2f6b4f;
+      --accent-soft: #dfece5;
+      --dark: #171d19;
+      --code: #0f1512;
+      --code-line: #29322d;
+      --success: #8ed1ac;
+      --warning: #f0c678;
+      --max: 1180px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a {
+      color: inherit;
+    }
+
+    .shell {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 76px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 760;
+      letter-spacing: -0.03em;
+      text-decoration: none;
+      font-size: 1.12rem;
+    }
+
+    .brand-mark {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--ink);
+      border-radius: 50%;
+      font-size: 0.8rem;
+      letter-spacing: 0;
+    }
+
+    .nav {
+      display: flex;
+      gap: 24px;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+
+    .nav a {
+      text-decoration: none;
+    }
+
+    .nav a:hover,
+    .nav a:focus-visible {
+      color: var(--ink);
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 72px;
+      align-items: center;
+      min-height: 680px;
+      padding: 80px 0 94px;
+    }
+
+    .eyebrow {
+      margin: 0 0 20px;
+      color: var(--accent);
+      font-size: 0.78rem;
+      font-weight: 760;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1,
+    h2,
+    h3,
+    p {
+      margin-top: 0;
+    }
+
+    h1 {
+      max-width: 760px;
+      margin-bottom: 26px;
+      font-size: clamp(3.2rem, 7vw, 6.5rem);
+      line-height: 0.96;
+      letter-spacing: -0.065em;
+      font-weight: 790;
+    }
+
+    .hero-copy {
+      max-width: 640px;
+      margin-bottom: 32px;
+      color: var(--muted);
+      font-size: clamp(1.08rem, 2vw, 1.3rem);
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 0 20px;
+      border: 1px solid var(--ink);
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 0.92rem;
+    }
+
+    .button.primary {
+      background: var(--ink);
+      color: #fff;
+    }
+
+    .button.secondary {
+      background: transparent;
+    }
+
+    .terminal {
+      overflow: hidden;
+      border: 1px solid #2b342f;
+      border-radius: 22px;
+      background: var(--code);
+      color: #edf3ef;
+      box-shadow: 0 28px 70px rgba(22, 29, 25, 0.13);
+    }
+
+    .terminal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 52px;
+      padding: 0 18px;
+      border-bottom: 1px solid var(--code-line);
+      color: #aebbb3;
+      font-size: 0.78rem;
+    }
+
+    .dots {
+      display: flex;
+      gap: 7px;
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: #59635d;
+    }
+
+    .terminal-body {
+      min-height: 420px;
+      padding: 26px 24px 30px;
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      font-size: 0.91rem;
+      line-height: 1.75;
+    }
+
+    .command {
+      color: #ffffff;
+    }
+
+    .prompt {
+      color: var(--success);
+    }
+
+    .dim {
+      color: #8f9d94;
+    }
+
+    .pass {
+      color: var(--success);
+    }
+
+    .pending {
+      color: var(--warning);
+    }
+
+    .terminal-block {
+      margin-bottom: 22px;
+    }
+
+    section {
+      padding: 96px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .section-heading {
+      display: grid;
+      grid-template-columns: 0.8fr 1.2fr;
+      gap: 64px;
+      margin-bottom: 48px;
+    }
+
+    .section-heading h2 {
+      margin-bottom: 0;
+      font-size: clamp(2.2rem, 4vw, 4.3rem);
+      line-height: 1.02;
+      letter-spacing: -0.055em;
+    }
+
+    .section-heading p {
+      align-self: end;
+      margin-bottom: 4px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--ink);
+      border-bottom: 1px solid var(--ink);
+    }
+
+    .card {
+      min-height: 310px;
+      padding: 32px 28px 34px;
+      border-right: 1px solid var(--line);
+    }
+
+    .card:last-child {
+      border-right: 0;
+    }
+
+    .card-number {
+      display: block;
+      margin-bottom: 92px;
+      color: var(--accent);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.8rem;
+    }
+
+    .card h3 {
+      margin-bottom: 14px;
+      font-size: 1.35rem;
+      letter-spacing: -0.025em;
+    }
+
+    .card p {
+      margin-bottom: 0;
+      color: var(--muted);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      margin-top: 30px;
+      border: 1px solid var(--ink);
+      background: var(--surface);
+    }
+
+    .flow-step {
+      position: relative;
+      min-height: 180px;
+      padding: 28px 22px;
+      border-right: 1px solid var(--line);
+    }
+
+    .flow-step:last-child {
+      border-right: 0;
+    }
+
+    .flow-step span {
+      display: block;
+      margin-bottom: 58px;
+      color: var(--accent);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.76rem;
+    }
+
+    .flow-step strong {
+      display: block;
+      max-width: 150px;
+      line-height: 1.25;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+
+    .panel {
+      min-height: 430px;
+      padding: 42px;
+      border: 1px solid var(--line);
+      background: var(--surface);
+    }
+
+    .panel.dark {
+      background: var(--dark);
+      border-color: var(--dark);
+      color: #fff;
+    }
+
+    .panel h3 {
+      margin-bottom: 26px;
+      font-size: 2rem;
+      letter-spacing: -0.04em;
+    }
+
+    .clean-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .clean-list li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 12px;
+      padding: 15px 0;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+    }
+
+    .dark .clean-list li {
+      border-color: #354039;
+      color: #c7d0ca;
+    }
+
+    .check {
+      color: var(--accent);
+      font-weight: 800;
+    }
+
+    .dark .check {
+      color: var(--success);
+    }
+
+    .cta {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 64px;
+      align-items: end;
+      padding: 92px 0 110px;
+    }
+
+    .cta h2 {
+      margin-bottom: 0;
+      font-size: clamp(2.7rem, 5vw, 5.2rem);
+      line-height: 0.98;
+      letter-spacing: -0.06em;
+    }
+
+    .cta-side {
+      display: grid;
+      gap: 16px;
+    }
+
+    .install {
+      padding: 18px 20px;
+      border: 1px solid var(--ink);
+      background: var(--surface);
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 0.91rem;
+      overflow-x: auto;
+    }
+
+    footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      min-height: 84px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 0.85rem;
+    }
+
+    @media (max-width: 900px) {
+      .nav {
+        display: none;
+      }
+
+      .hero,
+      .section-heading,
+      .split,
+      .cta {
+        grid-template-columns: 1fr;
+      }
+
+      .hero {
+        gap: 48px;
+        min-height: auto;
+      }
+
+      .cards,
+      .flow {
+        grid-template-columns: 1fr;
+      }
+
+      .card,
+      .flow-step {
+        min-height: auto;
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .card:last-child,
+      .flow-step:last-child {
+        border-bottom: 0;
+      }
+
+      .card-number,
+      .flow-step span {
+        margin-bottom: 34px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="shell topbar">
+    <a class="brand" href="#hero" aria-label="Riqor home">
+      <span class="brand-mark">RQ</span>
+      <span>Riqor</span>
+    </a>
+    <nav class="nav" aria-label="Primary navigation">
+      <a href="#controls">Controls</a>
+      <a href="#flow">How it works</a>
+      <a href="#security">Security</a>
+      <a href="https://github.com/imMamdouhaboammar/riqor">GitHub</a>
+    </nav>
+  </header>
+
+  <main>
+    <section id="hero" class="shell hero">
+      <div>
+        <p class="eyebrow">Local controls for AI coding sessions</p>
+        <h1>Proof before done</h1>
+        <p class="hero-copy">
+          Riqor keeps completion claims tied to observable checks, then adds bounded task checkpoints to Codex sessions started through Riqor
+        </p>
+        <div class="actions">
+          <a class="button primary" href="https://github.com/imMamdouhaboammar/riqor#quick-start">Install Riqor</a>
+          <a class="button secondary" href="https://github.com/imMamdouhaboammar/riqor/tree/main/docs">Read the docs</a>
+        </div>
+      </div>
+
+      <div class="terminal" aria-label="Example Riqor terminal session">
+        <div class="terminal-head">
+          <div class="dots" aria-hidden="true">
+            <span class="dot"></span>
+            <span class="dot"></span>
+            <span class="dot"></span>
+          </div>
+          <span>managed session</span>
+        </div>
+        <div class="terminal-body">
+          <div class="terminal-block">
+            <div><span class="prompt">$</span> <span class="command">riqor codex --activator</span></div>
+            <div class="dim">activator interval 15m</div>
+            <div class="dim">watchdog window 3m</div>
+          </div>
+
+          <div class="terminal-block">
+            <div><span class="prompt">$</span> <span class="command">apply_patch</span></div>
+            <div class="pending">successful mutation recorded</div>
+            <div class="dim">focused verification required</div>
+          </div>
+
+          <div class="terminal-block">
+            <div><span class="prompt">$</span> <span class="command">bun test</span></div>
+            <div class="pass">tests passed</div>
+            <div class="pass">verification state clear</div>
+          </div>
+
+          <div>
+            <div class="dim">checkpoint</div>
+            <div>task goal restored</div>
+            <div>current evidence reviewed</div>
+            <div>next action selected</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="controls">
+      <div class="shell">
+        <div class="section-heading">
+          <h2>Three controls around the work</h2>
+          <p>Riqor stays close to the local workflow. It does not change the model or attach to unrelated sessions</p>
+        </div>
+
+        <div class="cards">
+          <article class="card">
+            <span class="card-number">01</span>
+            <h3>Evidence gate</h3>
+            <p>Successful workspace mutations keep verification pending until a relevant check completes successfully</p>
+          </article>
+          <article class="card">
+            <span class="card-number">02</span>
+            <h3>Session activator</h3>
+            <p>At a safe Codex lifecycle point, Riqor reviews the goal, progress, evidence, and scope before work continues</p>
+          </article>
+          <article class="card">
+            <span class="card-number">03</span>
+            <h3>Clean rollback</h3>
+            <p>Versioned payloads and managed shell files can be removed through one documented uninstall path</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="flow">
+      <div class="shell">
+        <div class="section-heading">
+          <h2>From change to supported claim</h2>
+          <p>The workflow remains readable. Each step has a clear state, boundary, and next action</p>
+        </div>
+
+        <div class="flow" role="list" aria-label="Riqor workflow">
+          <div class="flow-step" role="listitem"><span>01</span><strong>Start Codex through Riqor</strong></div>
+          <div class="flow-step" role="listitem"><span>02</span><strong>Make a workspace change</strong></div>
+          <div class="flow-step" role="listitem"><span>03</span><strong>Record pending evidence</strong></div>
+          <div class="flow-step" role="listitem"><span>04</span><strong>Run a relevant check</strong></div>
+          <div class="flow-step" role="listitem"><span>05</span><strong>Continue with current evidence</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security">
+      <div class="shell">
+        <div class="section-heading">
+          <h2>Explicit local boundaries</h2>
+          <p>The security model documents what Riqor reads, stores, launches, ignores, and removes</p>
+        </div>
+
+        <div class="split">
+          <article class="panel dark">
+            <h3>What stays local</h3>
+            <ul class="clean-list">
+              <li><span class="check">✓</span><span>Verification state and lifecycle timing</span></li>
+              <li><span class="check">✓</span><span>Versioned package payloads and command shims</span></li>
+              <li><span class="check">✓</span><span>Managed Codex child process scope</span></li>
+              <li><span class="check">✓</span><span>Bounded activator records with hashed filenames</span></li>
+            </ul>
+          </article>
+
+          <article class="panel">
+            <h3>What Riqor does not do</h3>
+            <ul class="clean-list">
+              <li><span class="check">✓</span><span>No model weight modification</span></li>
+              <li><span class="check">✓</span><span>No attachment to unrelated Codex sessions</span></li>
+              <li><span class="check">✓</span><span>No network listener or activator daemon</span></li>
+              <li><span class="check">✓</span><span>No prompt, transcript, command, or source retention in activator state</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <div class="shell cta">
+      <h2>Start with one managed session</h2>
+      <div class="cta-side">
+        <div class="install">npx riqor install</div>
+        <div class="install">riqor codex --activator</div>
+        <a class="button primary" href="https://github.com/imMamdouhaboammar/riqor">View the repository</a>
+      </div>
+    </div>
+  </main>
+
+  <footer class="shell">
+    <span>Riqor</span>
+    <span>MIT licensed local developer tooling</span>
+  </footer>
+</body>
+</html>

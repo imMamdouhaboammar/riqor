@@ -5,15 +5,18 @@ import { join, resolve } from "node:path";
 const root = resolve(import.meta.dir, "..");
 
 describe("public repository surface", () => {
-  test("README.md contains public marketing structure and boundary claims", async () => {
+  test("README.md contains product structure and boundary claims", async () => {
     const readme = await readFile(join(root, "README.md"), "utf8");
     expect(readme).toContain("# Riqor");
-    expect(readme).toContain("Your coding agent said it was done");
-    expect(readme).toContain("Riqor checks the evidence");
+    expect(readme).toContain("Proof before done");
+    expect(readme).toContain("Evidence gate");
+    expect(readme).toContain("Session activator");
     expect(readme).toContain("npx riqor install");
     expect(readme).toContain("brew install imMamdouhaboammar/tap/riqor");
     expect(readme).toContain("Hosted ChatGPT conversations do not execute local Riqor code");
-    expect(readme).not.toMatch(/deterministic AI|modifies the model|guarantees correctness/i);
+    expect(readme).toContain("docs/CLI_REFERENCE.md");
+    expect(readme).toContain("actions/workflows/secureai.yml/badge.svg");
+    expect(readme).not.toMatch(/deterministic AI|guarantees correctness/i);
   });
 
   test("governance files exist without placeholders", async () => {
@@ -21,6 +24,22 @@ describe("public repository surface", () => {
       const content = await readFile(join(root, filename), "utf8");
       expect(content).not.toContain("TODO");
       expect(content).not.toContain("YOUR_NAME");
+    }
+  });
+
+  test("public documentation and preview files exist", async () => {
+    for (const filename of [
+      "docs/README.md",
+      "docs/GETTING_STARTED.md",
+      "docs/CLI_REFERENCE.md",
+      "docs/ARCHITECTURE.md",
+      "docs/SECURITY_MODEL.md",
+      "docs/TROUBLESHOOTING.md",
+      "docs/AUTOMATION.md",
+      "docs/preview/index.html",
+      ".autodemo.yml",
+    ]) {
+      await access(join(root, filename));
     }
   });
 

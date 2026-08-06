@@ -1,10 +1,20 @@
-import { readFile } from "node:fs/promises";
+import { readdir, readFile } from "node:fs/promises";
+import { extname, join } from "node:path";
 
-export async function verifyActionPins(workflowPaths: string[]): Promise<void> {
+export async function listWorkflowPaths(workflowsDir = ".github/workflows"): Promise<string[]> {
+  const entries = await readdir(workflowsDir, { withFileTypes: true });
+  return entries
+    .filter((entry) => entry.isFile() && [".yml", ".yaml"].includes(extname(entry.name)))
+    .map((entry) => join(workflowsDir, entry.name))
+    .sort();
+}
+
+export async function verifyActionPins(workflowPaths?: string[]): Promise<void> {
+  const paths = workflowPaths ?? await listWorkflowPaths();
   const errors: string[] = [];
   const shaRegex = /uses:\s+[^\s]+@([a-f0-9]{40})\b/;
 
-  for (const path of workflowPaths) {
+  for (const path of paths) {
     const content = await readFile(path, "utf8");
     const lines = content.split("\n");
     for (let i = 0; i < lines.length; i++) {
@@ -23,10 +33,7 @@ export async function verifyActionPins(workflowPaths: string[]): Promise<void> {
 }
 
 if (import.meta.main) {
-  verifyActionPins([
-    ".github/workflows/ci.yml",
-    ".github/workflows/release.yml",
-  ]).then(() => {
+  verifyActionPins().then(() => {
     console.log("Action pin verification passed.");
   }).catch((err) => {
     console.error(err.message);

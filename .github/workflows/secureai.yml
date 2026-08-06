@@ -1,0 +1,52 @@
+name: SecureAI-Scan
+
+on:
+  push:
+    branches: ["main"]
+  pull_request:
+    branches: ["main"]
+  schedule:
+    - cron: "27 3 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+
+      - name: Scan AI, MCP, and Agent Skill surfaces
+        uses: akanthed/SecureAI-Scan@b9c60bd22675864ddd5df551b265a7edfea9cfa3 # v0.8.0
+        with:
+          scanner-version: "0.8.0"
+          path: "."
+          fail-on: "high"
+          paranoid: "false"
+          sarif-file: "secureai.sarif"
+          upload-sarif: "false"
+
+      - name: Upload SARIF to GitHub code scanning
+        if: ${{ always() && hashFiles('secureai.sarif') != '' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
+        uses: github/codeql-action/upload-sarif@e4fba868fa4b1b91e1fdab776edc8cfbe6e9fb81 # v4.37.3
+        with:
+          sarif_file: secureai.sarif
+          category: secureai-scan
+
+      - name: Preserve scanner report
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: secureai-sarif-${{ github.run_id }}
+          path: secureai.sarif
+          if-no-files-found: warn
+          retention-days: 14
