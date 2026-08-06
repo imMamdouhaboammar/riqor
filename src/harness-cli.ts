@@ -10,8 +10,11 @@ import {
   type TerminalState,
 } from "./terminal-runtime";
 
-const root = resolve(import.meta.dir, "..");
-const pluginRoot = join(root, "plugins", "codex-self-improvement");
+import { resolveRuntimeLayout } from "./runtime-paths";
+
+const layout = resolveRuntimeLayout();
+const root = layout.runtimeRoot;
+const pluginRoot = layout.pluginRoot;
 const pluginId = "codex-self-improvement@codex-self-improvement-dev";
 const usage = "usage: codex-harness <version|status|doctor|paths list|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]";
 
@@ -71,7 +74,7 @@ export function assessCodexDoctor(output: string) {
 }
 
 async function versionRecord() {
-  const pkg = JSON.parse(await readFile(join(root, "package.json"), "utf8"));
+  const pkg = JSON.parse(await readFile(layout.packageJsonPath, "utf8"));
   const plugin = JSON.parse(await readFile(join(pluginRoot, ".codex-plugin", "plugin.json"), "utf8"));
   return { name: pkg.name, version: pkg.version, pluginVersion: plugin.version };
 }
@@ -131,7 +134,7 @@ async function doctorRecord() {
   const codexDoctor = run(["codex", "doctor", "--json"]);
   const codexAssessment = assessCodexDoctor(codexDoctor.stdout);
   const kakuDoctor = run(["kaku", "doctor"]);
-  const health = run(["bun", "run", join(root, "scripts", "plugin-health.ts"), pluginRoot]);
+  const health = run(["bun", "run", join(layout.scriptsRoot, "plugin-health.ts"), pluginRoot]);
   const checks: Check[] = [
     { id: "codex-cli", ok: (status.codex as any).available, detail: (status.codex as any).version ?? "missing" },
     { id: "codex-core", ok: codexAssessment.coreOk, detail: codexAssessment.coreOk ? `core passed; overall ${codexAssessment.overallStatus}` : `core failed; overall ${codexAssessment.overallStatus}` },
@@ -202,7 +205,7 @@ async function passthroughCodex(args: string[]) {
 }
 
 async function lifecycle(script: string) {
-  const child = Bun.spawn(["bash", join(root, "scripts", script)], {
+  const child = Bun.spawn(["bash", join(layout.scriptsRoot, script)], {
     cwd: root,
     env: process.env,
     stdin: "inherit",

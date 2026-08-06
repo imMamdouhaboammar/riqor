@@ -39,8 +39,9 @@ def replace_block(path: Path, managed: str) -> None:
     path.write_text((text + "\n\n" if text else "") + managed + "\n")
 
 
+shell_templates_dir = Path(os.environ.get("SHELL_TEMPLATES_DIR", str(root / "config/shell")))
 rendered = (
-    root / "config/shell/codex-self-improvement-env.zsh"
+    shell_templates_dir / "codex-self-improvement-env.zsh"
 ).read_text().replace("__HARNESS_ROOT__", str(root))
 env_path = config_dir / "env.zsh"
 env_path.write_text(rendered)
@@ -48,7 +49,7 @@ env_path.chmod(0o600)
 
 kaku_path = kaku_dir / "codex-self-improvement.zsh"
 kaku_path.write_text(
-    (root / "config/shell/codex-self-improvement-kaku.zsh").read_text()
+    (shell_templates_dir / "codex-self-improvement-kaku.zsh").read_text()
 )
 kaku_path.chmod(0o600)
 
