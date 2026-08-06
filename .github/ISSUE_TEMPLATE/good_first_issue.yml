@@ -1,0 +1,12 @@
+name: Good First Issue
+description: Propose or request a beginner-friendly contribution
+title: "[Good First Issue]: "
+labels: ["good first issue"]
+body:
+  - type: textarea
+    id: overview
+    attributes:
+      label: Issue Summary
+      description: Describe the beginner-friendly task or documentation fix.
+    validations:
+      required: true

@@ -1,36 +1,20 @@
-# Riqor
+# riqor
 
-**AI agents should prove the work**
+> AI agents should prove the work
 
-Your coding agent said it was done. Riqor checks the evidence.
+`riqor` is the official npm package distribution for Riqor.
 
-Riqor adds local hooks, verification gates, reviewed workflows, and session continuity to Codex App, Codex CLI, and supported terminals.
-
-## Installation
+## Quick Install
 
 ```bash
 npx riqor install
 ```
 
-Or via Homebrew:
+## Commands
 
-```bash
-brew install imMamdouhaboammar/tap/riqor
-```
+- `riqor install` - Install Riqor runtime payload and shell integration shims.
+- `riqor doctor` - Verify system compatibility and environment health.
+- `riqor status` - Display active runtime version and integrated surfaces.
+- `riqor uninstall` - Remove Riqor runtime payload and restore shell state cleanly.
 
-## Status & Diagnostics
-
-```bash
-riqor status
-riqor doctor
-```
-
-## Features
-
-- **Evidence Gates**: Ensures fresh checks are run after mutations before claims of task completion.
-- **Session Continuity**: Preserves task state, turn history, and evidence tokens across sessions.
-- **Relocatable Runtime**: Standalone installation without global dependencies or modified model weights.
-
-## License
-
-MIT © Mamdouh Aboammar
+For full documentation, visit [imMamdouhaboammar/riqor](https://github.com/imMamdouhaboammar/riqor).

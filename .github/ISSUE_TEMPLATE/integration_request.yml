@@ -1,0 +1,12 @@
+name: Integration Request
+description: Request integration support for a terminal or shell tool
+title: "[Integration]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: overview
+    attributes:
+      label: Target Environment / Tool
+      description: Describe the terminal, shell, or agent environment to integrate.
+    validations:
+      required: true
