@@ -11,6 +11,8 @@ Use this page to move from installation to implementation details without search
 | Understand components and data flow | [Architecture](ARCHITECTURE.md) |
 | Review trust boundaries and local state | [Security Model](SECURITY_MODEL.md) |
 | Diagnose an installation or session problem | [Troubleshooting](TROUBLESHOOTING.md) |
+| Configure security scans, badges, and demo captures | [Automation](AUTOMATION.md) |
+| Review the visual product preview | [Preview source](preview/index.html) |
 | Contribute code or documentation | [Contributing](../CONTRIBUTING.md) |
 | Review release history | [Changelog](../CHANGELOG.md) |
 
@@ -49,6 +51,10 @@ The activator watchdog limits a checkpoint cycle. If the review phase exceeds th
 ### Reviewed workflow paths
 
 Riqor includes curated workflow paths with objectives, evidence requirements, guardrails, relevant skills, and approval requirements. List them with `riqor paths list`.
+
+### Repository automation
+
+SecureAI-Scan checks AI, MCP, and Agent Skill surfaces. Dynamic Badges publishes Gist-backed endpoints after credentials are configured. AutoDemo records the static product preview as versioned workflow artifacts.
 
 ## Scope Notes
 
