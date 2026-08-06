@@ -253,74 +253,4 @@ function initiativeCycleErrors(initiatives: readonly BacklogInitiative[]): strin
 }
 
 function readinessErrors(backlog: Backlog): string[] {
-  const byId = new Map(backlog.items.map((item) => [item.id, item]));
-  const errors: string[] = [];
-  for (const item of backlog.items) {
-    if (!["ready", "in-progress", "review", "done"].includes(item.status)) continue;
-    if (!Array.isArray(item.dependencies)) continue;
-    for (const dependency of item.dependencies) {
-      const prerequisite = byId.get(dependency);
-      if (prerequisite && prerequisite.status !== "done") {
-        errors.push(`${item.id}: ${item.status} requires completed dependency ${dependency}`);
-      }
-    }
-  }
-  return errors;
-}
-
-function workClass(item: BacklogItem): WorkClass {
-  if (item.type === "release") return "release";
-  if (item.type === "documentation" || item.type === "maintenance") return "governance";
-  return "runtime";
-}
-
-function wipErrors(backlog: Backlog): string[] {
-  const active = backlog.items.filter((item) => item.status === "in-progress");
-  const errors: string[] = [];
-  const byClass = new Map<WorkClass, Set<string>>();
-  for (const item of active) {
-    const category = workClass(item);
-    const reference = Number.isInteger(item.github?.pr) ? `pr:${item.github.pr}` : `item:${item.id}`;
-    const values = byClass.get(category) ?? new Set<string>();
-    values.add(reference);
-    byClass.set(category, values);
-  }
-  for (const [category, limit] of Object.entries(WIP_LIMITS) as Array<[WorkClass, number]>) {
-    const count = byClass.get(category)?.size ?? 0;
-    if (count > limit) {
-      errors.push(`WIP limit exceeded: ${category} has ${count} active pull requests, maximum ${limit}`);
-    }
-  }
-  return errors;
-}
-
-function baseValidationErrors(backlog: Backlog): string[] {
-  try {
-    return validateBacklog(backlog).filter(
-      (error) => error !== "WIP limit exceeded: more than two in-progress items",
-    );
-  } catch (error) {
-    return [`malformed backlog collection: ${(error as Error).message}`];
-  }
-}
-
-export function validateBacklogPolicy(backlog: Backlog): string[] {
-  const errors = [
-    ...baseValidationErrors(backlog),
-    ...backlog.initiatives.flatMap(initiativeFieldErrors),
-    ...backlog.items.flatMap(itemFieldErrors),
-    ...initiativeCycleErrors(backlog.initiatives),
-    ...readinessErrors(backlog),
-    ...wipErrors(backlog),
-  ];
-  return [...new Set(errors)].sort();
-}
-
-export function assertBacklogPolicy(backlog: Backlog): void {
-  const errors = validateBacklogPolicy(backlog);
-  if (errors.length > 0) {
-    throw new Error(
-      `backlog policy validation failed\n${errors.map((error) => `- ${error}`).join("\n")}`,
-    );
-  }
-}
+  const byId = new Map(‰…­±½œ¹¥Ñ•µÌ¹µ…À ¡¥Ñ•´¤€ôøm¥Ñ•´¹¥°¥Ñ•µt¤¤ì(€½¹ÍÐ•ÉÉ½ÉÌèÍÑÉ¥¹mt€ômtì(€™½È€¡½¹ÍÐ¥Ñ•´½˜‰…­±½œ¹¥Ñ•µÌ¤ì(€€€¥˜€ …l‰É•…‘äˆ°€‰¥¸µÁÉ½É•ÍÌˆ°€‰É•Ù¥•Üˆ°€‰‘½¹”‰t¹¥¹±Õ‘•Ì¡¥Ñ•´¹ÍÑ…ÑÕÌ¤¤½¹Ñ¥¹Õ”ì(€€€¥˜€ …ÉÉ…ä¹¥ÍÉÉ…ä¡¥Ñ•´¹‘•Á•¹‘•¹¥•Ì¤¤½¹Ñ¥¹Õ”ì(€€€™½È€¡½¹ÍÐ‘•Á•¹‘•¹ä½˜¥Ñ•´¹‘•Á•¹‘•¹¥•Ì¤ì(€€€€€½¹ÍÐÁÉ•É•ÅÕ¥Í¥Ñ”€ô‰å%¹•Ð¡‘•Á•¹‘•¹ä¤ì(€€€€€¥˜€¡ÁÉ•É•ÅÕ¥Í¥Ñ”€˜˜ÁÉ•É•ÅÕ¥Í¥Ñ”¹ÍÑ…ÑÕÌ€„ôô€‰‘½¹”ˆ¤ì(€€€€€€€•ÉÉ½ÉÌ¹ÁÕÍ ¡€‘í¥Ñ•´¹¥‘ôè€‘í¥Ñ•´¹ÍÑ…ÑÕÍôÉ•ÅÕ¥É•Ì½µÁ±•Ñ•‘•Á•¹‘•¹ä€‘í‘•Á•¹‘•¹åõ€¤ì(€€€€€ô(€€€ô(€ô(€É•ÑÕÉ¸•ÉÉ½ÉÌì)ô()™Õ¹Ñ¥½¸Ý½É­±…ÍÌ¡¥Ñ•´è	…­±½%Ñ•´¤è]½É­±…ÍÌì(€¥˜€¡¥Ñ•´¹ÑåÁ”€ôôô€‰É•±•…Í”ˆ¤É•ÑÕÉ¸€‰É•±•…Í”ˆì(€¥˜€¡¥Ñ•´¹ÑåÁ”€ôôô€‰‘½Õµ•¹Ñ…Ñ¥½¸ˆñð¥Ñ•´¹ÑåÁ”€ôôô€‰µ…¥¹Ñ•¹…¹”ˆ¤É•ÑÕÉ¸€‰½Ù•É¹…¹”ˆì(€É•ÑÕÉ¸€‰ÉÕ¹Ñ¥µ”ˆì)ô()™Õ¹Ñ¥½¸Ý¥ÁÉÉ½ÉÌ¡‰…­±½œè	…­±½œ¤èÍÑÉ¥¹mtì(€½¹ÍÐ…Ñ¥Ù”€ô‰…­±½œ¹¥Ñ•µÌ¹™¥±Ñ•È ¡¥Ñ•´¤€ôø¥Ñ•´¹ÍÑ…ÑÕÌ€ôôô€‰¥¸µÁÉ½É•ÍÌˆ¤ì(€½¹ÍÐ•ÉÉ½ÉÌèÍÑÉ¥¹mt€ômtì(€½¹ÍÐ‰å±…ÍÌ€ô¹•Ü5…Àñ]½É­±…ÍÌ°M•ÐñÍÑÉ¥¹œøø ¤ì(€™½È€¡½¹ÍÐ¥Ñ•´½˜…Ñ¥Ù”¤ì(€€€½¹ÍÐ…Ñ•½Éä€ôÝ½É­±…ÍÌ¡¥Ñ•´¤ì(€€€½¹ÍÐÉ•™•É•¹”€ô9Õµ‰•È¹¥Í%¹Ñ••È¡¥Ñ•´¹¥Ñ¡Õˆü¹ÁÈ¤€üÁÈè‘í¥Ñ•´¹¥Ñ¡Õˆ¹ÁÉõ€€è¥Ñ•´è‘í¥Ñ•´¹¥‘õ€ì(€€€½¹ÍÐÙ…±Õ•Ì€ô‰å±…ÍÌ¹•Ð¡…Ñ•½Éä¤€üü¹•ÜM•ÐñÍÑÉ¥¹œø ¤ì(€€€Ù…±Õ•Ì¹…‘¡É•™•É•¹”¤ì(€€€‰å±…ÍÌ¹Í•Ð¡…Ñ•½Éä°Ù…±Õ•Ì¤ì(€ô(€™½È€¡½¹ÍÐm…Ñ•½Éä°±¥µ¥Ñt½˜=‰©•Ð¹•¹ÑÉ¥•Ì¡]%A}1%5%QL¤…ÌÉÉ…äñm]½É­±…ÍÌ°¹Õµ‰•Étø¤ì(€€€½¹ÍÐ½Õ¹Ð€ô‰å±…ÍÌ¹•Ð¡…Ñ•½Éä¤ü¹Í¥é”€üü€Àì(€€€¥˜€¡½Õ¹Ð€ø±¥µ¥Ð¤ì(€€€€€•ÉÉ½ÉÌ¹ÁÕÍ ¡]%@±¥µ¥Ð•á••‘•è€‘í…Ñ•½Éåô¡…Ì€‘í½Õ¹Ñô…Ñ¥Ù”ÁÕ±°É•ÅÕ•ÍÑÌ°µ…á¥µÕ´€‘í±¥µ¥Ñõ€¤ì(€€€ô(€ô(€É•ÑÕÉ¸•ÉÉ½ÉÌì)ô()™Õ¹Ñ¥½¸‰…Í•Y…±¥‘…Ñ¥½¹ÉÉ½ÉÌ¡‰…­±½œè	…­±½œ¤èÍÑÉ¥¹mtì(€ÑÉäì(€€€É•ÑÕÉ¸Ù…±¥‘…Ñ•	…­±½œ¡‰…­±½œ¤ì(€ô…Ñ €¡•ÉÉ½È¤ì(€€€É•ÑÕÉ¸mµ…±™½Éµ•‰…­±½œ½±±•Ñ¥½¸è€‘ì¡•ÉÉ½È…ÌÉÉ½È¤¹µ•ÍÍ…•õtì(€ô)ô()•áÁ½ÉÐ™Õ¹Ñ¥½¸Ù…±¥‘…Ñ•	…­±½A½±¥ä¡‰…­±½œè	…­±½œ¤èÍÑÉ¥¹mtì(€½¹ÍÐ•ÉÉ½ÉÌ€ôl(€€€€¸¸¹‰…Í•Y…±¥‘…Ñ¥½¹ÉÉ½ÉÌ¡‰…­±½œ¤°(€€€€¸¸¹‰…­±½œ¹¥¹¥Ñ¥…Ñ¥Ù•Ì¹™±…Ñ5…À¡¥¹¥Ñ¥…Ñ¥Ù•¥•±‘ÉÉ½ÉÌ¤°(€€€€¸¸¹‰…­±½œ¹¥Ñ•µÌ¹™±…Ñ5…À¡¥Ñ•µ¥•±‘ÉÉ½ÉÌ¤°(€€€€¸¸¹¥¹¥Ñ¥…Ñ¥Ù•å±•ÉÉ½ÉÌ¡‰…­±½œ¹¥¹¥Ñ¥…Ñ¥Ù•Ì¤°(€€€€¸¸¹É•…‘¥¹•ÍÍÉÉ½ÉÌ¡‰…­±½œ¤°(€€€€¸¸¹Ý¥ÁÉÉ½ÉÌ¡‰…­±½œ¤°(€tì(€É•ÑÕÉ¸l¸¸¹¹•ÜM•Ð¡•ÉÉ½ÉÌ¥t¹Í½ÉÐ ¤ì)ô()•áÁ½ÉÐ™Õ¹Ñ¥½¸…ÍÍ•ÉÑ	…­±½A½±¥ä¡‰…­±½œè	…­±½œ¤èÙ½¥ì(€½¹ÍÐ•ÉÉ½ÉÌ€ôÙ…±¥‘…Ñ•	…­±½A½±¥ä¡‰…­±½œ¤ì(€¥˜€¡•ÉÉ½ÉÌ¹±•¹Ñ €ø€À¤ì(€€€Ñ¡É½Ü¹•ÜÉÉ½È (€€€€€‰…­±½œÁ½±¥äÙ…±¥‘…Ñ¥½¸™…¥±•‘q¸‘í•ÉÉ½ÉÌ¹µ…À ¡•ÉÉ½È¤€ôø€´€‘í•ÉÉ½Éõ€¤¹©½¥¸ ‰q¸ˆ¥õ€°(€€€€¤ì(€ô)ô(
