@@ -47,4 +47,4 @@ Exit condition: GitHub mirrors can be created and audited explicitly while repos
 
 ## Sequencing Rule
 
-Do not start a dependent release slice while its prerequisite item is in `in-progress`, `blocked`, or `review`
+Do not start a dependent release slice until every prerequisite item is `done`
