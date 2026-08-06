@@ -1,35 +1,30 @@
 import { afterEach, describe, expect, test } from "bun:test";
+import { createHash } from "node:crypto";
 import { mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
-import { createHash } from "node:crypto";
 import { inspectRepositoryIdentity } from "../src/assurance/repository-identity";
 import { createRun, readRun, readRunEvents } from "../src/assurance/run-store";
 import { recordActiveRunTerminalTransition } from "../src/assurance/terminal-trace";
 import type { TerminalPostexecTransition } from "../src/terminal-runtime";
+import { runGit } from "./helpers/git";
 
-const temporaryPaths: string[] = [];
+const TEMPORARY_PATHS: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(temporaryPaths.splice(0).map((path) => rm(path, { recursive: true, force: true })));
+  await Promise.all(TEMPORARY_PATHS.splice(0).map((path) => rm(path, { recursive: true, force: true })));
 });
-
-function git(cwd: string, ...args: string[]) {
-  const result = spawnSync("git", args, { cwd, encoding: "utf8", shell: false });
-  if (result.status !== 0) throw new Error(result.stderr || `git ${args.join(" ")} failed`);
-}
 
 async function fixture() {
   const stateRoot = await mkdtemp(join(tmpdir(), "riqor-terminal-trace-state-"));
   const repository = await mkdtemp(join(tmpdir(), "riqor-terminal-trace-repo-"));
-  temporaryPaths.push(stateRoot, repository);
-  git(repository, "init", "-q");
-  git(repository, "config", "user.email", "test@example.com");
-  git(repository, "config", "user.name", "Test");
+  TEMPORARY_PATHS.push(stateRoot, repository);
+  runGit(repository, "init", "-q");
+  runGit(repository, "config", "user.email", "test@example.com");
+  runGit(repository, "config", "user.name", "Test");
   await writeFile(join(repository, "README.md"), "fixture\n");
-  git(repository, "add", "README.md");
-  git(repository, "commit", "-qm", "initial");
+  runGit(repository, "add", "README.md");
+  runGit(repository, "commit", "-qm", "initial");
   const identity = await inspectRepositoryIdentity(repository);
   await createRun({
     stateRoot,
@@ -130,7 +125,7 @@ describe("active run terminal trace", () => {
   test("returns null when the repository has no active run", async () => {
     const stateRoot = await mkdtemp(join(tmpdir(), "riqor-terminal-trace-empty-state-"));
     const repository = await mkdtemp(join(tmpdir(), "riqor-terminal-trace-empty-repo-"));
-    temporaryPaths.push(stateRoot, repository);
+    TEMPORARY_PATHS.push(stateRoot, repository);
     const result = await recordActiveRunTerminalTransition({
       stateRoot,
       cwd: repository,
