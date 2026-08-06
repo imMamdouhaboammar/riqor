@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readdir, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { canonicalSkillDigest } from "../scripts/skill-curation-health";
+import { canonicalSkillDigest, repositorySkillDirectories } from "../scripts/skill-curation-health";
 
 const root = resolve(import.meta.dir, "..");
 const skillsRoot = join(root, ".agents", "skills");
@@ -19,16 +19,27 @@ const expected = [
 
 const json = async (path: string) => JSON.parse(await readFile(path, "utf8")) as Record<string, any>;
 
+async function installedSkillDirectories() {
+  return (await readdir(skillsRoot, { withFileTypes: true }))
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort();
+}
+
 describe("curated external skills", () => {
-  test("installs only the reviewed allowlist and locks every directory", async () => {
+  test("separates the generated repository skill from the reviewed external allowlist", async () => {
     const lock = await json(join(root, "skills-lock.json"));
     const curation = await json(join(root, "config", "skill-curation.json"));
-    const actual = (await readdir(skillsRoot, { withFileTypes: true }))
-      .filter((entry) => entry.isDirectory())
-      .map((entry) => entry.name)
-      .sort();
+    const ecc = await json(join(root, ".claude", "ecc-tools.json"));
+    const repositorySkills = repositorySkillDirectories(ecc.managedFiles);
+    const installed = await installedSkillDirectories();
+    const actual = installed.filter((name) => !repositorySkills.includes(name));
+
+    expect(repositorySkills).toEqual(["riqor"]);
+    expect(installed).toContain("riqor");
     expect(actual).toEqual(expected);
     expect(Object.keys(lock.skills).sort()).toEqual(expected);
+
     for (const name of actual) {
       const definition = await readFile(join(skillsRoot, name, "SKILL.md"), "utf8");
       expect(definition.startsWith("---\n")).toBe(true);
