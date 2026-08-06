@@ -24,6 +24,8 @@ describe("backlog record contracts", () => {
     expect(itemSchema.$schema).toContain("2020-12");
     expect(initiativeSchema.additionalProperties).toBe(false);
     expect(itemSchema.additionalProperties).toBe(false);
+    expect(new RegExp(initiativeSchema.properties.id.pattern).test("RIQ-099")).toBe(true);
+    expect(new RegExp(itemSchema.properties.initiative.pattern).test("RIQ-099")).toBe(true);
   });
 
   test("keeps initiative and item IDs unique", async () => {
