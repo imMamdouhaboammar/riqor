@@ -44,6 +44,11 @@ describe("backlog governance policy", () => {
       evidenceRequired: ["focused-test", "focused-test"],
       risk: { ...item.risk, areas: [item.risk.areas[0]!, item.risk.areas[0]!] },
       inspirations: [{ project: "internal", concepts: ["one", "one"] }],
+      completion: {
+        mergedPr: 99,
+        commit: "a".repeat(40),
+        evidence: ["same-evidence", "same-evidence"],
+      },
     };
     const errors = validateBacklogPolicy({
       initiatives: [duplicateInitiative, ...backlog.initiatives.slice(1)],
@@ -60,6 +65,7 @@ describe("backlog governance policy", () => {
       "acceptance.id",
       "evidenceRequired",
       "risk.areas",
+      "completion.evidence",
       "concepts",
     ]) {
       expect(errors.some((error) => error.includes(`duplicate ${label} value`))).toBe(true);
