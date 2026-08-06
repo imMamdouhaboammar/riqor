@@ -135,3 +135,50 @@ test("rejects malformed trace fields with a controlled schema error", async () =
   await expect(readRun({ stateRoot, identity, runId: run.runId }))
     .rejects.toThrow("invalid trace event subject");
 });
+
+test("isolates trace persistence failures from terminal tracking", async () => {
+  const stateRoot = await mkdtemp(join(tmpdir(), "riqor-trace-isolation-"));
+  temporaryPaths.push(stateRoot);
+  const identity: RepositoryIdentity = {
+    rootDigest: "f".repeat(64),
+    headSha: "1".repeat(40),
+    dirty: false,
+    rootPath: "/isolation",
+  };
+  const run = await createRun({
+    stateRoot,
+    identity,
+    goal: "Keep shell tracking alive",
+    pathId: "evidence-loop",
+    profileId: "assured",
+    randomId: () => "isolation-run",
+  });
+  const runPath = join(
+    stateRoot,
+    "projects",
+    identity.rootDigest,
+    "runs",
+    run.runId,
+    "run.json",
+  );
+  await appendFile(runPath, "not-json");
+  let warning = "";
+
+  const result = await recordActiveRunTerminalTransition({
+    stateRoot,
+    cwd: identity.rootPath,
+    transition: transition("isolation"),
+    locateRepository: async () => ({
+      rootDigest: identity.rootDigest,
+      rootPath: identity.rootPath,
+      gitRepository: true,
+    }),
+    inspectRepository: async () => identity,
+    onWarning: (error) => {
+      warning = error.message;
+    },
+  });
+
+  expect(result).toBeNull();
+  expect(warning).toContain("invalid run JSON");
+});
