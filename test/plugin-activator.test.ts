@@ -141,48 +141,47 @@ describe("managed Codex activator state", () => {
 describe("managed Codex activator hook integration", () => {
   test("leaves unmanaged sessions unchanged", async () => {
     const root = await dataDir();
-    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, {});
-    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root, {})).toEqual({});
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, {}, 0);
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root, {}, 60_000)).toEqual({});
   });
 
   test("blocks a due managed session once and completes on the active Stop continuation", async () => {
     const root = await dataDir();
-    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup", now: 0 }, root, env);
-    const due = await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false, now: 60_000 }, root, env);
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, env, 0);
+    const due = await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root, env, 60_000);
     expect(due).toMatchObject({ decision: "block", reason: expect.stringContaining("Riqor activator checkpoint") });
-    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true, now: 65_000 }, root, env)).toEqual({});
-    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false, now: 65_001 }, root, env)).toEqual({});
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root, env, 65_000)).toEqual({});
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root, env, 65_001)).toEqual({});
   });
 
   test("keeps the evidence gate ahead of an activator checkpoint", async () => {
     const root = await dataDir();
-    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup", now: 0 }, root, env);
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, env, 0);
     await handleHook({
       ...common,
       hook_event_name: "PostToolUse",
       tool_name: "apply_patch",
       tool_input: { command: "*** Update File: src/a.ts" },
       tool_response: {},
-      now: 60_000,
-    }, root, env);
-    const output = await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false, now: 60_000 }, root, env);
+    }, root, env, 60_000);
+    const output = await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root, env, 60_000);
     expect(output.reason).toContain("Riqor evidence gate");
     expect(output.reason).not.toContain("activator checkpoint");
   });
 
   test("watchdog timeout emits a bounded message and allows completion", async () => {
     const root = await dataDir();
-    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup", now: 0 }, root, env);
-    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false, now: 60_000 }, root, env)).toMatchObject({ decision: "block" });
-    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true, now: 70_001 }, root, env)).toMatchObject({
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, env, 0);
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root, env, 60_000)).toMatchObject({ decision: "block" });
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root, env, 70_001)).toMatchObject({
       systemMessage: expect.stringContaining("watchdog"),
     });
   });
 
   test("SessionEnd removes managed activator state", async () => {
     const root = await dataDir();
-    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup", now: 0 }, root, env);
-    await handleHook({ ...common, hook_event_name: "SessionEnd", now: 1 }, root, env);
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, env, 0);
+    await handleHook({ ...common, hook_event_name: "SessionEnd" }, root, env, 1);
     expect((await readdir(join(root, "activator"))).filter((name) => name.endsWith(".json"))).toHaveLength(0);
   });
 });
