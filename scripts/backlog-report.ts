@@ -1,12 +1,12 @@
 import { readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import {
-  assertBacklogValid,
   loadBacklog,
   renderBacklogMarkdown,
   renderCurrentMarkdown,
   repositoryRootFromModule,
 } from "./backlog-lib";
+import { assertBacklogPolicy } from "./backlog-policy";
 
 type Mode = "print" | "write" | "check";
 
@@ -30,7 +30,7 @@ async function matches(path: string, expected: string): Promise<boolean> {
 export async function main(args = process.argv.slice(2)): Promise<void> {
   const root = repositoryRootFromModule(import.meta.url);
   const backlog = await loadBacklog(root);
-  assertBacklogValid(backlog);
+  assertBacklogPolicy(backlog);
 
   const portfolio = renderBacklogMarkdown(backlog);
   const current = renderCurrentMarkdown(backlog);
