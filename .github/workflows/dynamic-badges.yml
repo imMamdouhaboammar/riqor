@@ -1,0 +1,62 @@
+name: Dynamic Badges
+
+on:
+  workflow_run:
+    workflows: ["CI"]
+    types: [completed]
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    if: ${{ github.event.workflow_run.head_branch == 'main' }}
+    runs-on: ubuntu-latest
+    env:
+      GIST_ID: ${{ vars.RIQOR_BADGES_GIST_ID }}
+      GIST_SECRET: ${{ secrets.GIST_SECRET }}
+    steps:
+      - name: Explain missing badge configuration
+        if: ${{ env.GIST_ID == '' || env.GIST_SECRET == '' }}
+        run: |
+          echo "::notice::Dynamic badges are ready but disabled. Set repository variable RIQOR_BADGES_GIST_ID and Actions secret GIST_SECRET."
+
+      - name: Checkout verified commit
+        if: ${{ env.GIST_ID != '' && env.GIST_SECRET != '' }}
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Read package version
+        if: ${{ env.GIST_ID != '' && env.GIST_SECRET != '' }}
+        run: echo "RIQOR_VERSION=$(node -p \"require('./packages/riqor/package.json').version\")" >> "$GITHUB_ENV"
+
+      - name: Publish quality gate badge
+        if: ${{ env.GIST_ID != '' && env.GIST_SECRET != '' }}
+        uses: Schneegans/dynamic-badges-action@28b0fa8bdeb46170ac397105ece0c1fe58f68910 # v1.9.0
+        with:
+          auth: ${{ env.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: riqor-quality-gate.json
+          label: quality gate
+          message: ${{ github.event.workflow_run.conclusion }}
+          color: ${{ github.event.workflow_run.conclusion == 'success' && '2f6b4f' || 'b42318' }}
+          labelColor: "202620"
+          namedLogo: githubactions
+          logoColor: white
+          cacheSeconds: "3600"
+
+      - name: Publish package version badge
+        if: ${{ env.GIST_ID != '' && env.GIST_SECRET != '' }}
+        uses: Schneegans/dynamic-badges-action@28b0fa8bdeb46170ac397105ece0c1fe58f68910 # v1.9.0
+        with:
+          auth: ${{ env.GIST_SECRET }}
+          gistID: ${{ env.GIST_ID }}
+          filename: riqor-version.json
+          label: riqor
+          message: v${{ env.RIQOR_VERSION }}
+          color: "2f6b4f"
+          labelColor: "202620"
+          namedLogo: npm
+          logoColor: white
+          cacheSeconds: "3600"
