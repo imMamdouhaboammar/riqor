@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { loadBacklog, validateBacklog } from "../scripts/backlog-lib";
+import { validateBacklogPolicy } from "../scripts/backlog-policy";
 
 const ROOT = resolve(import.meta.dir, "..");
 
@@ -9,6 +10,7 @@ describe("backlog record contracts", () => {
   test("loads the seeded backlog without validation errors", async () => {
     const backlog = await loadBacklog(ROOT);
     expect(validateBacklog(backlog)).toEqual([]);
+    expect(validateBacklogPolicy(backlog)).toEqual([]);
     expect(backlog.initiatives).toHaveLength(5);
     expect(backlog.items.length).toBeGreaterThanOrEqual(16);
   });
@@ -35,5 +37,38 @@ describe("backlog record contracts", () => {
       ...backlog.items.map((item) => item.id),
     ];
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  test("rejects unknown fields in the runtime lint contract", async () => {
+    const backlog = await loadBacklog(ROOT);
+    const malformed = {
+      initiatives: backlog.initiatives,
+      items: [
+        { ...backlog.items[0]!, unexpectedField: true },
+        ...backlog.items.slice(1),
+      ],
+    };
+    expect(validateBacklogPolicy(malformed as any))
+      .toContain(expect.stringContaining("unknown item field unexpectedField"));
+  });
+
+  test("rejects initiative dependency cycles", async () => {
+    const backlog = await loadBacklog(ROOT);
+    const initiatives = backlog.initiatives.map((initiative) => {
+      if (initiative.id === "RIQ-001") return { ...initiative, dependencies: ["RIQ-002"] };
+      if (initiative.id === "RIQ-002") return { ...initiative, dependencies: ["RIQ-001"] };
+      return initiative;
+    });
+    expect(validateBacklogPolicy({ initiatives, items: backlog.items } as any))
+      .toContain(expect.stringContaining("initiative dependency cycle"));
+  });
+
+  test("requires completed dependencies before an item becomes ready", async () => {
+    const backlog = await loadBacklog(ROOT);
+    const items = backlog.items.map((item) =>
+      item.id === "RIQ-102" ? { ...item, status: "ready" } : item,
+    );
+    expect(validateBacklogPolicy({ initiatives: backlog.initiatives, items } as any))
+      .toContain("RIQ-102: ready requires completed dependency RIQ-101");
   });
 });
