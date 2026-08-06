@@ -17,6 +17,6 @@ describe("packages/riqor CLI", () => {
   });
 
   test("routes managed activator options through the packaged CLI", async () => {
-    await expect(main(["codex", "--activator-interval", "5m"])).rejects.toThrow("requires --activator");
+    await expect(main(["codex", "--activator-interval", "5m"])).rejects.toThrow("require --activator");
   });
 });
