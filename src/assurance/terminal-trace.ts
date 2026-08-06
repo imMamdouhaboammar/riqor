@@ -3,7 +3,7 @@ import {
   appendRunEvent,
   readActiveRun,
   readRun,
-} from "./run-store";
+} from "./recovering-run-store";
 import type { RiqorRun } from "./types";
 import type { TerminalPostexecTransition } from "../terminal-runtime";
 
