@@ -245,7 +245,17 @@ async function pruneActivatorState(dataDir: string, now = Date.now()) {
 
 export async function initializeActivator(dataDir: string, config: ActivatorConfig, now = Date.now()) {
   await pruneActivatorState(dataDir, now);
-  await withLock(dataDir, config, () => writeState(dataDir, config, initialState(config, now)));
+  await withLock(dataDir, config, async () => {
+    const current = await readState(dataDir, config);
+    if (current) {
+      await writeState(dataDir, config, {
+        ...current,
+        lastActivityAt: Math.max(current.lastActivityAt, now),
+      });
+      return;
+    }
+    await writeState(dataDir, config, initialState(config, now));
+  });
 }
 
 export async function touchActivator(dataDir: string, config: ActivatorConfig, now = Date.now()) {
