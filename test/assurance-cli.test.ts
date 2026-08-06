@@ -2,32 +2,27 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { spawnSync } from "node:child_process";
+import { runGit } from "./helpers/git";
 
-const root = resolve(import.meta.dir, "..");
-const cli = join(root, "src", "harness-cli.ts");
-const temporaryPaths: string[] = [];
+const ROOT = resolve(import.meta.dir, "..");
+const CLI = join(ROOT, "src", "harness-cli.ts");
+const TEMPORARY_PATHS: string[] = [];
 
 afterEach(async () => {
-  await Promise.all(temporaryPaths.splice(0).map((path) => rm(path, { recursive: true, force: true })));
+  await Promise.all(TEMPORARY_PATHS.splice(0).map((path) => rm(path, { recursive: true, force: true })));
 });
-
-function git(cwd: string, ...args: string[]) {
-  const result = spawnSync("git", args, { cwd, encoding: "utf8", shell: false });
-  if (result.status !== 0) throw new Error(result.stderr || `git ${args.join(" ")} failed`);
-}
 
 async function fixture() {
   const repository = await mkdtemp(join(tmpdir(), "riqor-assurance-cli-repo-"));
   const stateRoot = await mkdtemp(join(tmpdir(), "riqor-assurance-cli-state-"));
   const terminalRoot = await mkdtemp(join(tmpdir(), "riqor-assurance-cli-terminal-"));
-  temporaryPaths.push(repository, stateRoot, terminalRoot);
-  git(repository, "init", "-q");
-  git(repository, "config", "user.email", "test@example.com");
-  git(repository, "config", "user.name", "Test");
+  TEMPORARY_PATHS.push(repository, stateRoot, terminalRoot);
+  runGit(repository, "init", "-q");
+  runGit(repository, "config", "user.email", "test@example.com");
+  runGit(repository, "config", "user.name", "Test");
   await writeFile(join(repository, "README.md"), "fixture\n");
-  git(repository, "add", "README.md");
-  git(repository, "commit", "-qm", "initial");
+  runGit(repository, "add", "README.md");
+  runGit(repository, "commit", "-qm", "initial");
   return {
     repository,
     env: {
@@ -38,7 +33,7 @@ async function fixture() {
 }
 
 function run(cwd: string, args: string[], env: Record<string, string>) {
-  return Bun.spawnSync(["bun", "run", cli, ...args], {
+  return Bun.spawnSync(["bun", "run", CLI, ...args], {
     cwd,
     env: { ...process.env, ...env },
     stdout: "pipe",
