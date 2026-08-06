@@ -1,0 +1,57 @@
+name: AutoDemo Docs Capture
+
+on:
+  push:
+    branches: ["main"]
+    paths:
+      - "docs/preview/**"
+      - ".autodemo.yml"
+      - ".github/workflows/autodemo.yml"
+  pull_request:
+    branches: ["main"]
+    paths:
+      - "docs/preview/**"
+      - ".autodemo.yml"
+      - ".github/workflows/autodemo.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Start documentation preview
+        run: |
+          python3 -m http.server 4173 --directory docs/preview > /tmp/riqor-preview.log 2>&1 &
+          for attempt in {1..20}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/riqor-preview.log
+          exit 1
+
+      - name: Capture product walkthrough and marketing assets
+        id: autodemo
+        uses: praveen-palanisamy/autodemo@ee670066987cb247134c8c6521f38fa43021c248 # v0.2.0
+        with:
+          url: http://127.0.0.1:4173
+          scenario: readme-overview
+          config: .autodemo.yml
+          output-dir: artifacts/autodemo
+          upload-artifacts: "false"
+
+      - name: Upload captured assets
+        if: ${{ always() }}
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: riqor-autodemo-${{ github.run_id }}
+          path: artifacts/autodemo
+          if-no-files-found: warn
+          retention-days: 14
