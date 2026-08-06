@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import {
   buildActivatorEnvironment,
+  buildCodexEnvironment,
   parseActivatorDuration,
   parseCodexActivatorArgs,
 } from "../src/harness-cli";
@@ -57,5 +58,32 @@ describe("riqor codex activator CLI", () => {
       RIQOR_ACTIVATOR_WATCHDOG_MS: "10000",
     });
     expect(JSON.stringify(env)).not.toContain("prompt");
+  });
+
+  test("removes inherited activator values unless this command opts in", () => {
+    const inherited = {
+      PATH: "/bin",
+      RIQOR_ACTIVATOR_ENABLED: "1",
+      RIQOR_ACTIVATOR_SESSION: "old-session",
+      RIQOR_ACTIVATOR_INTERVAL_MS: "1",
+      RIQOR_ACTIVATOR_WATCHDOG_MS: "1",
+    };
+
+    expect(buildCodexEnvironment(inherited)).toEqual({
+      PATH: "/bin",
+      CODEX_SELF_IMPROVEMENT_ENABLED: "1",
+      CODEX_SELF_IMPROVEMENT_SURFACE: "codex-harness",
+    });
+
+    expect(buildCodexEnvironment(
+      inherited,
+      { enabled: true, intervalMs: 60_000, watchdogMs: 10_000 },
+      "2ef73b51-52d7-45c0-974f-784bcfb8ab79",
+    )).toMatchObject({
+      RIQOR_ACTIVATOR_ENABLED: "1",
+      RIQOR_ACTIVATOR_SESSION: "2ef73b51-52d7-45c0-974f-784bcfb8ab79",
+      RIQOR_ACTIVATOR_INTERVAL_MS: "60000",
+      RIQOR_ACTIVATOR_WATCHDOG_MS: "10000",
+    });
   });
 });
