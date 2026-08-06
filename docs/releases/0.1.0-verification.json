@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "version": "0.1.0",
+  "githubRelease": "verified",
+  "npm": "verified",
+  "homebrew": "verified",
+  "npxCleanHome": "passed",
+  "npmGlobal": "passed",
+  "homebrewInstall": "passed",
+  "fullInstall": "passed",
+  "artifacts": [
+    {
+      "file": "riqor-0.1.0.tgz",
+      "sha256": "7ca979b9133a097ef6bc1ddbe9a7960a67617983645e260236357f484cfab951",
+      "url": "https://registry.npmjs.org/riqor/-/riqor-0.1.0.tgz"
+    },
+    {
+      "file": "riqor-0.1.0-homebrew.tar.gz",
+      "sha256": "a809d001397db84e08dd5beb2d63a478840dcaa5cf7e6b2f1a8548831e99147c",
+      "url": "https://github.com/imMamdouhaboammar/riqor/releases/download/v0.1.0/riqor-0.1.0-homebrew.tar.gz"
+    }
+  ]
+}
