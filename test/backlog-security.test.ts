@@ -43,6 +43,16 @@ describe("backlog filesystem boundaries", () => {
     await expect(assertBacklogPathsSafe(root)).rejects.toThrow("unsafe symlink backlog path");
   });
 
+  test("rejects the reserved sourcePath author field", async () => {
+    const root = await fixture();
+    await writeFile(
+      join(root, "backlog", "items", "RIQ-101-reserved.yml"),
+      "id: RIQ-101\nsourcePath: /tmp/forged\n",
+    );
+    await expect(assertBacklogPathsSafe(root))
+      .rejects.toThrow("sourcePath is reserved for internal use");
+  });
+
   test("rejects oversized backlog records", async () => {
     const root = await fixture();
     await writeFile(
