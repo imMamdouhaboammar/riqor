@@ -7,11 +7,13 @@
 Local evidence gates and managed checkpoints for Codex sessions
 
 [![CI](https://github.com/imMamdouhaboammar/riqor/actions/workflows/ci.yml/badge.svg)](https://github.com/imMamdouhaboammar/riqor/actions/workflows/ci.yml)
+[![SecureAI-Scan](https://github.com/imMamdouhaboammar/riqor/actions/workflows/secureai.yml/badge.svg)](https://github.com/imMamdouhaboammar/riqor/actions/workflows/secureai.yml)
+[![Docs Demo](https://github.com/imMamdouhaboammar/riqor/actions/workflows/autodemo.yml/badge.svg)](https://github.com/imMamdouhaboammar/riqor/actions/workflows/autodemo.yml)
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)](#requirements)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[Quick start](#quick-start) · [How it works](#how-riqor-works) · [Commands](#command-overview) · [Documentation](docs/README.md) · [Security](SECURITY.md)
+[Quick start](#quick-start) · [How it works](#how-riqor-works) · [Commands](#command-overview) · [Automation](#repository-automation) · [Documentation](docs/README.md) · [Security](SECURITY.md)
 
 </div>
 
@@ -155,6 +157,16 @@ Shell integration may also create managed Kaku and zsh files with backups. Run `
 
 Read the [security model](docs/SECURITY_MODEL.md) for trust boundaries and state handling. Report vulnerabilities through [GitHub Private Vulnerability Reporting](https://github.com/imMamdouhaboammar/riqor/security/advisories/new).
 
+## Repository Automation
+
+| Workflow | Role |
+| --- | --- |
+| SecureAI-Scan | Scans AI, MCP, and Agent Skill surfaces, fails on high-severity findings, and uploads SARIF |
+| Dynamic Badges | Publishes CI and package version badge endpoints after Gist credentials are configured |
+| AutoDemo Docs Capture | Records the static product preview as video, walkthrough, and reusable PNG assets |
+
+The [automation guide](docs/AUTOMATION.md) documents permissions, pinned action versions, Dynamic Badges setup, scanner policy, and local demo capture. The visual source used by AutoDemo lives at [docs/preview/index.html](docs/preview/index.html).
+
 ## Documentation
 
 - [Documentation index](docs/README.md)
@@ -163,6 +175,7 @@ Read the [security model](docs/SECURITY_MODEL.md) for trust boundaries and state
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security model](docs/SECURITY_MODEL.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Automation](docs/AUTOMATION.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 
