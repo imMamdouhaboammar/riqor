@@ -36,7 +36,7 @@ describe("public documentation", () => {
       const content = await readFile(file, "utf8");
       for (const target of localMarkdownTargets(content)) {
         const resolved = resolve(dirname(file), decodeURIComponent(target));
-        await expect(access(resolved)).resolves.toBeUndefined();
+        await access(resolved);
       }
     }
   });
@@ -45,7 +45,7 @@ describe("public documentation", () => {
     const automation = await readFile(join(root, "docs", "AUTOMATION.md"), "utf8");
     for (const workflow of ["secureai.yml", "dynamic-badges.yml", "autodemo.yml"]) {
       expect(automation).toContain(`.github/workflows/${workflow}`);
-      await expect(access(join(root, ".github", "workflows", workflow))).resolves.toBeUndefined();
+      await access(join(root, ".github", "workflows", workflow));
     }
   });
 

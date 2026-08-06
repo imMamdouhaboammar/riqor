@@ -15,7 +15,11 @@ describe("public repository surface", () => {
     expect(readme).toContain("brew install imMamdouhaboammar/tap/riqor");
     expect(readme).toContain("Hosted ChatGPT conversations do not execute local Riqor code");
     expect(readme).toContain("docs/CLI_REFERENCE.md");
-    expect(readme).toContain("actions/workflows/secureai.yml/badge.svg");
+    expect(readme).not.toMatch(/^##\s+repository\s+automation\b/im);
+    expect(readme).not.toMatch(/\[[^\]]*automation[^\]]*\]\(#repository-automation\)/i);
+    expect(readme).not.toMatch(/actions\/workflows\/[^\s)]+\/badge\.svg/i);
+    expect(readme).not.toMatch(/github\.com\/[^\s)]+\/actions\/workflows\//i);
+    expect(readme).not.toMatch(/docs\/automation\.md/i);
     expect(readme).not.toMatch(/deterministic AI|guarantees correctness/i);
   });
 
