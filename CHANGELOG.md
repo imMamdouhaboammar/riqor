@@ -14,13 +14,20 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 - Architecture guide covering install flow, terminal evidence state, Codex hooks, and activator lifecycle
 - Security model covering trust boundaries, local state, subprocess handling, and non-goals
 - Troubleshooting guide for installation, diagnostics, verification state, activator behavior, and uninstall issues
+- Automation guide for SecureAI-Scan, Dynamic Badges, and AutoDemo
+- Static visual product preview and deterministic AutoDemo capture scenario
+- SecureAI-Scan workflow with high-severity gating, SARIF upload, and report artifacts
+- Configurable Gist-backed CI and package version badge workflow
+- AutoDemo workflow for video, interactive walkthrough, and marketing screenshot artifacts
+- Documentation and workflow pin verification tests
 
 ### Changed
 
-- Rebuilt the root README around product scope, quick setup, technical behavior, local paths, and security boundaries
+- Rebuilt the root README around product scope, quick setup, technical behavior, local paths, security boundaries, and repository automation
 - Expanded the npm package README with requirements, commands, activator limits, and privacy scope
 - Expanded contribution guidance with focused checks, security review points, commit conventions, and documentation rules
 - Clarified the private vulnerability reporting policy and supported security scope
+- Extended action pin verification to discover every YAML workflow automatically
 
 ## [0.1.0] - 2026-08-04
 
