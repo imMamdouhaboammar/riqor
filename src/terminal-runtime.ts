@@ -26,6 +26,19 @@ type StoredTerminalState = Readonly<{
 
 export type TerminalState = Omit<StoredTerminalState, "pending">;
 
+export type TerminalPostexecTransition = Readonly<{
+  kind: TerminalCommandKind;
+  route: TaskProfile;
+  commandDigest: string;
+  exitCode: number;
+  startedAt: number;
+  completedAt: number;
+}>;
+
+export type TerminalPostexecResult = TerminalState & Readonly<{
+  transition?: TerminalPostexecTransition;
+}>;
+
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
 const verification = /^(?:cd\s+\S+\s*&&\s*)?(?:bun\s+(?:test|run\s+\S*(?:test|check|build|lint|typecheck|validate)\S*)|npm\s+(?:test|run\s+\S*(?:test|check|build|lint|typecheck|validate)\S*)|pnpm\s+(?:test|run\s+\S*(?:test|check|build|lint|typecheck|validate)\S*)|yarn\s+(?:test|\S*(?:test|check|build|lint|typecheck|validate)\S*)|pytest|python\s+-m\s+pytest|cargo\s+test|go\s+test|dotnet\s+test|mvn\b.*\btest\b|gradle\S*\s+test|swift\s+test|xcodebuild\b.*\btest\b|git\s+diff\s+--check|codex\s+doctor|kaku\s+doctor)(?:\s|$)/i;
 const mutation = /(?:^|[;&|]\s*)(?:rm|mv|cp|touch|mkdir|install)\b|\b(?:sed\s+-i|perl\s+-pi|git\s+(?:checkout|restore|reset|clean|apply)|npm\s+install|pnpm\s+(?:add|install)|yarn\s+add)\b|(?:^|\s)(?:cat|printf|echo)\b[^\n]*(?:>>?|\|\s*tee\b)|\bapply_patch\b/i;
@@ -79,12 +92,16 @@ async function save(dataDir: string, session: string, state: StoredTerminalState
   await rename(temporary, target);
 }
 
+function publicState(state: StoredTerminalState): TerminalState {
+  const { pending: _pending, ...result } = state;
+  return result;
+}
+
 export async function recordTerminalPreexec(dataDir: string, session: string, command: string, now = Date.now()) {
   const current = await load(dataDir, session);
   const classified = classifyTerminalCommand(command);
   await save(dataDir, session, {
     ...current,
-    evidencePending: classified.kind === "mutation" ? true : current.evidencePending,
     commandDigest: classified.commandDigest,
     lastKind: classified.kind,
     lastExitCode: null,
@@ -95,10 +112,16 @@ export async function recordTerminalPreexec(dataDir: string, session: string, co
   return classified;
 }
 
-export async function recordTerminalPostexec(dataDir: string, session: string, exitCode: number, now = Date.now()) {
+export async function recordTerminalPostexec(
+  dataDir: string,
+  session: string,
+  exitCode: number,
+  now = Date.now(),
+): Promise<TerminalPostexecResult> {
   const current = await load(dataDir, session);
   const pending = current.pending;
-  if (!pending) return current;
+  if (!pending) return publicState(current);
+
   const evidencePending = pending.kind === "mutation" && exitCode === 0
     ? true
     : pending.kind === "verification" && exitCode === 0
@@ -115,10 +138,19 @@ export async function recordTerminalPostexec(dataDir: string, session: string, e
     updatedAt: now,
   };
   await save(dataDir, session, next);
-  return next;
+  return Object.freeze({
+    ...publicState(next),
+    transition: Object.freeze({
+      kind: pending.kind,
+      route: pending.route,
+      commandDigest: pending.commandDigest,
+      exitCode,
+      startedAt: pending.startedAt,
+      completedAt: now,
+    }),
+  });
 }
 
 export async function readTerminalState(dataDir: string, session: string): Promise<TerminalState> {
-  const { pending: _pending, ...state } = await load(dataDir, session);
-  return state;
+  return publicState(await load(dataDir, session));
 }
