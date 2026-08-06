@@ -65,10 +65,10 @@ riqor codex --activator \
   --activator-watchdog 3m
 ```
 
-All remaining arguments are passed directly to Codex:
+Codex arguments can follow the Riqor options:
 
 ```bash
-riqor codex --activator -- --model gpt-5-codex
+riqor codex --activator --help
 ```
 
 ## Requirements
@@ -78,7 +78,7 @@ riqor codex --activator -- --model gpt-5-codex
 - Codex CLI installed and authenticated for Codex features
 - Python 3 for managed shell integration
 - Bun 1.3.14 for repository development and verification
-- Kaku is optional
+- Kaku for a fully green current full-doctor report; direct `riqor codex` use does not require launching Kaku
 
 ## What a Managed Checkpoint Reviews
 
@@ -116,7 +116,7 @@ Riqor uses local lifecycle hooks and local state. Activator state is scoped to a
 | `riqor install` | Install the versioned runtime payload and local shims |
 | `riqor uninstall` | Remove managed files and restore shell state |
 | `riqor status` | Show the installed version and detected integrations |
-| `riqor doctor` | Check package health, platform support, Codex, and optional integrations |
+| `riqor doctor` | Check package health, platform support, Codex, and current Kaku integration |
 | `riqor version` | Print Riqor and plugin versions |
 | `riqor codex [args]` | Start Codex with the Riqor environment |
 | `riqor codex --activator` | Start a managed Codex session with periodic checkpoints |
