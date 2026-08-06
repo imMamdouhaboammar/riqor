@@ -7,9 +7,9 @@ import {
   completeRun,
   createRun,
   readActiveRun,
-  readRecoveredRunEvents,
   readRun,
-} from "./recovering-run-store";
+  readRunEvents,
+} from "./run-store";
 import type { ExecutionProfileId, RiqorRun, RiqorTraceEvent } from "./types";
 
 export type AssuranceCommandOptions = Readonly<{
@@ -20,8 +20,8 @@ export type AssuranceCommandOptions = Readonly<{
   randomId?: () => string;
 }>;
 
-const pathIds = new Set(harnessPaths.map((path) => path.id));
-const profiles = new Set<ExecutionProfileId>(["standard", "assured"]);
+const PATH_IDS = new Set(harnessPaths.map((path) => path.id));
+const PROFILES = new Set<ExecutionProfileId>(["standard", "assured"]);
 
 function has(args: readonly string[], flag: string) {
   return args.includes(flag);
@@ -37,13 +37,13 @@ function value(args: readonly string[], flag: string) {
 
 function validatePath(value: string | undefined): HarnessPathId {
   const selected = value ?? "evidence-loop";
-  if (!pathIds.has(selected as HarnessPathId)) throw new Error(`unknown harness path: ${selected}`);
+  if (!PATH_IDS.has(selected as HarnessPathId)) throw new Error(`unknown harness path: ${selected}`);
   return selected as HarnessPathId;
 }
 
 function validateProfile(value: string | undefined): ExecutionProfileId {
   const selected = value ?? "standard";
-  if (!profiles.has(selected as ExecutionProfileId)) throw new Error(`unknown execution profile: ${selected}`);
+  if (!PROFILES.has(selected as ExecutionProfileId)) throw new Error(`unknown execution profile: ${selected}`);
   return selected as ExecutionProfileId;
 }
 
@@ -67,11 +67,11 @@ function formatEvents(events: readonly RiqorTraceEvent[]) {
 
 function print(
   stream: Pick<NodeJS.WriteStream, "write">,
-  value: unknown,
+  output: unknown,
   json: boolean,
   human: () => string,
 ) {
-  stream.write(json ? `${JSON.stringify(value, null, 2)}\n` : `${human()}\n`);
+  stream.write(json ? `${JSON.stringify(output, null, 2)}\n` : `${human()}\n`);
 }
 
 export async function assuranceCommand(
@@ -137,7 +137,7 @@ export async function assuranceCommand(
   if (!runId || runId.startsWith("--")) throw new Error(`trace ${subcommand ?? "command"} requires a run id`);
 
   if (subcommand === "show") {
-    const events = await readRecoveredRunEvents({ stateRoot, identity, runId });
+    const events = await readRunEvents({ stateRoot, identity, runId });
     print(stdout, events, json, () => formatEvents(events));
     return true;
   }
@@ -145,7 +145,7 @@ export async function assuranceCommand(
   if (subcommand === "export") {
     const format = value(args, "--format") ?? "jsonl";
     if (format !== "jsonl") throw new Error("trace export supports only jsonl");
-    const events = await readRecoveredRunEvents({ stateRoot, identity, runId });
+    const events = await readRunEvents({ stateRoot, identity, runId });
     for (const event of events) stdout.write(`${JSON.stringify(event)}\n`);
     return true;
   }
