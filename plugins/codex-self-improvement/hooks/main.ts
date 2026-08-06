@@ -14,7 +14,7 @@ import {
 type HookInput = Record<string, unknown>;
 
 const sessionContext = [
-  "Codex Self Improvement is a measured control plane around the model",
+  "Riqor is a measured control plane around the model",
   "Define observable success, inspect the real flow, load only relevant skills, and make the smallest coherent change",
   "Fresh checks are required after observed mutations and all completion claims must name changed files, check outcomes, and unverified boundaries",
   "This plugin does not change model weights or prove AGI, determinism, or parity with another model",
@@ -154,11 +154,11 @@ export async function handleHook(input: HookInput, dataDir: string): Promise<Rec
     if (gate.firstBlock) {
       return {
         decision: "block",
-        reason: `Codex Self Improvement evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`,
+        reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`,
       };
     }
     return {
-      systemMessage: "Codex Self Improvement allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified",
+      systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified",
     };
   }
 
@@ -177,6 +177,6 @@ if (import.meta.main) {
     const output = await handleHook(input, dataDir);
     if (Object.keys(output).length > 0) process.stdout.write(JSON.stringify(output));
   } catch {
-    process.stdout.write(JSON.stringify({ systemMessage: "Codex Self Improvement skipped a local hook because bounded state was unavailable" }));
+    process.stdout.write(JSON.stringify({ systemMessage: "Riqor skipped a local hook because bounded state was unavailable" }));
   }
 }
