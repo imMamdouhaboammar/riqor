@@ -103,6 +103,7 @@ async function main() {
   if (write) await writeFile(configPath, `${JSON.stringify(curation, null, 2)}\n`, { mode: 0o600 });
   process.stdout.write(`${JSON.stringify({
     ok: true,
+    skills: actual.length,
     curatedSkills: actual.length,
     repositorySkills,
     digests,
