@@ -26,6 +26,12 @@ const minimumActivatorIntervalMs = 60_000;
 const maximumActivatorIntervalMs = 24 * 60 * 60_000;
 const minimumActivatorWatchdogMs = 10_000;
 const maximumActivatorWatchdogMs = 30 * 60_000;
+const activatorEnvironmentKeys = [
+  "RIQOR_ACTIVATOR_ENABLED",
+  "RIQOR_ACTIVATOR_SESSION",
+  "RIQOR_ACTIVATOR_INTERVAL_MS",
+  "RIQOR_ACTIVATOR_WATCHDOG_MS",
+] as const;
 
 type Json = Record<string, unknown>;
 type Check = { id: string; ok: boolean; detail: string };
@@ -122,6 +128,21 @@ export function buildActivatorEnvironment(options: CodexActivatorOptions, sessio
     RIQOR_ACTIVATOR_INTERVAL_MS: String(options.intervalMs),
     RIQOR_ACTIVATOR_WATCHDOG_MS: String(options.watchdogMs),
   };
+}
+
+export function buildCodexEnvironment(
+  baseEnvironment: NodeJS.ProcessEnv,
+  activator?: CodexActivatorOptions,
+  session?: string,
+): NodeJS.ProcessEnv {
+  const environment: NodeJS.ProcessEnv = {
+    ...baseEnvironment,
+    CODEX_SELF_IMPROVEMENT_ENABLED: "1",
+    CODEX_SELF_IMPROVEMENT_SURFACE: baseEnvironment.CODEX_SELF_IMPROVEMENT_SURFACE ?? "codex-harness",
+  };
+  for (const key of activatorEnvironmentKeys) delete environment[key];
+  if (activator) Object.assign(environment, buildActivatorEnvironment(activator, session));
+  return environment;
 }
 
 function print(value: unknown, json: boolean) {
@@ -292,15 +313,9 @@ async function terminalCommand(args: string[]) {
 
 async function passthroughCodex(args: string[]) {
   const parsed = parseCodexActivatorArgs(args);
-  const activatorEnvironment = parsed.activator ? buildActivatorEnvironment(parsed.activator) : {};
   const child = spawn("codex", parsed.codexArgs, {
     cwd: process.cwd(),
-    env: {
-      ...process.env,
-      CODEX_SELF_IMPROVEMENT_ENABLED: "1",
-      CODEX_SELF_IMPROVEMENT_SURFACE: process.env.CODEX_SELF_IMPROVEMENT_SURFACE ?? "codex-harness",
-      ...activatorEnvironment,
-    },
+    env: buildCodexEnvironment(process.env, parsed.activator),
     stdio: "inherit",
     shell: false,
   });
