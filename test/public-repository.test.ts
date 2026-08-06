@@ -2,11 +2,11 @@ import { describe, expect, test } from "bun:test";
 import { access, readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
-const root = resolve(import.meta.dir, "..");
+const ROOT = resolve(import.meta.dir, "..");
 
 describe("public repository surface", () => {
   test("README.md contains product structure and boundary claims", async () => {
-    const readme = await readFile(join(root, "README.md"), "utf8");
+    const readme = await readFile(join(ROOT, "README.md"), "utf8");
     expect(readme).toContain("# Riqor");
     expect(readme).toContain("Proof before done");
     expect(readme).toContain("Evidence gate");
@@ -15,7 +15,7 @@ describe("public repository surface", () => {
     expect(readme).toContain("brew install imMamdouhaboammar/tap/riqor");
     expect(readme).toContain("Hosted ChatGPT conversations do not execute local Riqor code");
     expect(readme).toContain("docs/CLI_REFERENCE.md");
-    expect(readme).not.toMatch(/^##\s+repository\s+automation\b/im);
+    expect(readme).not.toMatch(/^#{1,6}[ \t]+repository[ \t]+automation\b/im);
     expect(readme).not.toMatch(/\[[^\]]*automation[^\]]*\]\(#repository-automation\)/i);
     expect(readme).not.toMatch(/actions\/workflows\/[^\s)]+\/badge\.svg/i);
     expect(readme).not.toMatch(/github\.com\/[^\s)]+\/actions\/workflows\//i);
@@ -25,7 +25,7 @@ describe("public repository surface", () => {
 
   test("governance files exist without placeholders", async () => {
     for (const filename of ["LICENSE", "SECURITY.md", "CONTRIBUTING.md", "CHANGELOG.md"]) {
-      const content = await readFile(join(root, filename), "utf8");
+      const content = await readFile(join(ROOT, filename), "utf8");
       expect(content).not.toContain("TODO");
       expect(content).not.toContain("YOUR_NAME");
     }
@@ -43,14 +43,14 @@ describe("public repository surface", () => {
       "docs/preview/index.html",
       ".autodemo.yml",
     ]) {
-      await access(join(root, filename));
+      await access(join(ROOT, filename));
     }
   });
 
   test("issue and pull request templates exist", async () => {
-    await access(join(root, ".github", "ISSUE_TEMPLATE", "bug_report.yml"));
-    await access(join(root, ".github", "ISSUE_TEMPLATE", "integration_request.yml"));
-    await access(join(root, ".github", "ISSUE_TEMPLATE", "good_first_issue.yml"));
-    await access(join(root, ".github", "pull_request_template.md"));
+    await access(join(ROOT, ".github", "ISSUE_TEMPLATE", "bug_report.yml"));
+    await access(join(ROOT, ".github", "ISSUE_TEMPLATE", "integration_request.yml"));
+    await access(join(ROOT, ".github", "ISSUE_TEMPLATE", "good_first_issue.yml"));
+    await access(join(ROOT, ".github", "pull_request_template.md"));
   });
 });
