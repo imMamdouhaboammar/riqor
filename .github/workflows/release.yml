@@ -1,0 +1,62 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment: npm
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "22"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Setup Bun 1.3.14
+        uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
+        with:
+          bun-version: "1.3.14"
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Run CI test suite
+        run: |
+          bun test
+          bun run plugin:health
+          bun run skills:health
+          bun run actions:verify
+
+      - name: Build Riqor package tarball and plugin ZIP
+        run: |
+          bun run riqor:pack
+          bun run plugin:package
+
+      - name: Inspect and verify package tarball
+        run: bun run riqor:inspect -- packages/riqor/riqor-*.tgz
+
+      - name: Publish to npm with provenance
+        run: |
+          npm publish packages/riqor/riqor-*.tgz --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@01570a1f39cb168c169c802c3bceb9e93fb10974 # v2.1.0
+        with:
+          files: |
+            packages/riqor/riqor-*.tgz
+            dist/plugins/*.zip
+          draft: false
+          prerelease: false
