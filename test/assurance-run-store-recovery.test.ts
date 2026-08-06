@@ -5,9 +5,9 @@ import { join } from "node:path";
 import {
   appendRunEvent,
   createRun,
-  readRecoveredRunEvents,
   readRun,
-} from "../src/assurance/recovering-run-store";
+  readRunEvents,
+} from "../src/assurance/run-store";
 import type { RepositoryIdentity } from "../src/assurance/repository-identity";
 
 const temporaryPaths: string[] = [];
@@ -87,7 +87,7 @@ test("recovers a trace event committed before the run record update", async () =
     nextStatus: "active",
   });
   expect(next.sequence).toBe(3);
-  expect((await readRecoveredRunEvents({
+  expect((await readRunEvents({
     stateRoot,
     identity,
     runId: run.runId,
