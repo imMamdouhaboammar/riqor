@@ -1,10 +1,11 @@
-import { inspectRepositoryIdentity } from "./repository-identity";
 import {
-  appendRunEvent,
-  readActiveRun,
-  readRun,
-} from "./recovering-run-store";
-import type { RiqorRun } from "./types";
+  inspectRepositoryIdentity,
+  locateRepositoryIdentity,
+  type RepositoryIdentity,
+  type RepositoryLocation,
+} from "./repository-identity";
+import { appendRunEvents, readActiveRun, type RunEventInput } from "./run-store";
+import type { RiqorRun, RiqorTraceMetadataValue } from "./types";
 import type { TerminalPostexecTransition } from "../terminal-runtime";
 
 export type RecordActiveRunTerminalTransitionOptions = Readonly<{
@@ -12,25 +13,53 @@ export type RecordActiveRunTerminalTransitionOptions = Readonly<{
   cwd: string;
   transition: TerminalPostexecTransition;
   now?: Date;
+  locateRepository?: typeof locateRepositoryIdentity;
+  inspectRepository?: typeof inspectRepositoryIdentity;
 }>;
+
+function locationIdentity(location: RepositoryLocation): RepositoryIdentity {
+  return Object.freeze({
+    rootDigest: location.rootDigest,
+    rootPath: location.rootPath,
+    headSha: null,
+    dirty: false,
+  });
+}
 
 export async function recordActiveRunTerminalTransition(
   options: RecordActiveRunTerminalTransitionOptions,
 ): Promise<RiqorRun | null> {
-  const identity = await inspectRepositoryIdentity(options.cwd);
-  const active = await readActiveRun({ stateRoot: options.stateRoot, identity });
+  const locateRepository = options.locateRepository ?? locateRepositoryIdentity;
+  const inspectRepository = options.inspectRepository ?? inspectRepositoryIdentity;
+  const location = await locateRepository(options.cwd);
+  const lookupIdentity = locationIdentity(location);
+  const active = await readActiveRun({
+    stateRoot: options.stateRoot,
+    identity: lookupIdentity,
+  });
   if (!active) return null;
 
-  const location = {
-    stateRoot: options.stateRoot,
-    identity,
-    runId: active.runId,
-  } as const;
-  const durationMs = Math.max(0, options.transition.completedAt - options.transition.startedAt);
   const commandSucceeded = options.transition.exitCode === 0;
+  const needsRepositoryMetadata = commandSucceeded
+    && ["mutation", "verification"].includes(options.transition.kind);
+  let identity = lookupIdentity;
+  let repositoryMetadata: Readonly<Record<string, RiqorTraceMetadataValue>> = {
+    repositoryInspection: "not-required",
+  };
+  if (needsRepositoryMetadata) {
+    try {
+      identity = await inspectRepository(options.cwd, { location });
+      repositoryMetadata = {
+        repositoryHead: identity.headSha,
+        repositoryDirty: identity.dirty,
+      };
+    } catch {
+      repositoryMetadata = { repositoryInspection: "unavailable" };
+    }
+  }
 
-  await appendRunEvent({
-    ...location,
+  const durationMs = Math.max(0, options.transition.completedAt - options.transition.startedAt);
+  const events: RunEventInput[] = [{
     source: "terminal",
     type: "command_completed",
     status: commandSucceeded ? "success" : "failure",
@@ -43,53 +72,47 @@ export async function recordActiveRunTerminalTransition(
       durationMs,
     },
     now: options.now,
-  });
+  }];
 
   if (options.transition.kind === "mutation" && commandSucceeded) {
-    await appendRunEvent({
-      ...location,
+    events.push({
       source: "terminal",
       type: "workspace_mutated",
       status: "success",
       subject: options.transition.route,
       digest: options.transition.commandDigest,
-      metadata: {
-        repositoryHead: identity.headSha,
-        repositoryDirty: identity.dirty,
-      },
+      metadata: repositoryMetadata,
       now: options.now,
     });
-    await appendRunEvent({
-      ...location,
+    events.push({
       source: "terminal",
       type: "verification_required",
       status: "pending",
       subject: options.transition.route,
       digest: options.transition.commandDigest,
+      metadata: {},
       nextStatus: "verification-pending",
+      now: options.now,
+    });
+  } else if (options.transition.kind === "verification" && commandSucceeded) {
+    events.push({
+      source: "terminal",
+      type: "verification_completed",
+      status: "success",
+      subject: options.transition.route,
+      digest: options.transition.commandDigest,
+      metadata: repositoryMetadata,
+      whenStatus: "verification-pending",
+      nextStatus: "active",
       now: options.now,
     });
   }
 
-  if (options.transition.kind === "verification" && commandSucceeded) {
-    const current = await readRun(location);
-    if (current.status === "verification-pending") {
-      await appendRunEvent({
-        ...location,
-        source: "terminal",
-        type: "verification_completed",
-        status: "success",
-        subject: options.transition.route,
-        digest: options.transition.commandDigest,
-        metadata: {
-          repositoryHead: identity.headSha,
-          repositoryDirty: identity.dirty,
-        },
-        nextStatus: "active",
-        now: options.now,
-      });
-    }
-  }
-
-  return readRun(location);
+  const result = await appendRunEvents({
+    stateRoot: options.stateRoot,
+    identity,
+    runId: active.runId,
+    events,
+  });
+  return result.run;
 }
