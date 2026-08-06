@@ -15,9 +15,10 @@ describe("public repository surface", () => {
     expect(readme).toContain("brew install imMamdouhaboammar/tap/riqor");
     expect(readme).toContain("Hosted ChatGPT conversations do not execute local Riqor code");
     expect(readme).toContain("docs/CLI_REFERENCE.md");
-    for (const workflow of ["ci.yml", "secureai.yml", "autodemo.yml"]) {
-      expect(readme).toContain(`actions/workflows/${workflow}/badge.svg?branch=main`);
-    }
+    expect(readme).not.toContain("## Repository Automation");
+    expect(readme).not.toContain("actions/workflows/secureai.yml/badge.svg");
+    expect(readme).not.toContain("actions/workflows/autodemo.yml/badge.svg");
+    expect(readme).not.toContain("docs/AUTOMATION.md");
     expect(readme).not.toMatch(/deterministic AI|guarantees correctness/i);
   });
 
