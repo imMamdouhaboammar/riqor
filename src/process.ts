@@ -37,15 +37,19 @@ function markedProcesses(marker: string) {
 
 export async function runProcess(
   command: string[],
-  cwd: string,
-  environment: NodeJS.ProcessEnv,
+  cwdOrOptions?: string | { cwd?: string; env?: NodeJS.ProcessEnv; timeoutMs?: number },
+  environment: NodeJS.ProcessEnv = process.env,
   timeoutMs = 10 * 60 * 1000,
   forceKillGraceMs = 2_000,
 ) {
+  const cwd = typeof cwdOrOptions === "string" ? cwdOrOptions : (cwdOrOptions?.cwd ?? process.cwd());
+  const env = typeof cwdOrOptions === "object" && cwdOrOptions?.env ? cwdOrOptions.env : (environment ?? process.env);
+  const timeoutLimit = typeof cwdOrOptions === "object" && cwdOrOptions?.timeoutMs ? cwdOrOptions.timeoutMs : timeoutMs;
+
   const marker = randomUUID();
   const child = Bun.spawn(command, {
     cwd,
-    env: { ...environment, CODEX_HARNESS_PROCESS_MARKER: marker },
+    env: { ...process.env, ...env, CODEX_HARNESS_PROCESS_MARKER: marker },
     stdout: "pipe",
     stderr: "pipe",
     detached: process.platform !== "win32",

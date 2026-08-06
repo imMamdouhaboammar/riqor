@@ -169,11 +169,14 @@ export async function handleHook(input: HookInput, dataDir: string): Promise<Rec
   return {};
 }
 
-if (import.meta.main) {
+import { isMainModule, readStdinText } from "./io";
+
+if (isMainModule(import.meta.url)) {
   try {
     const dataDir = process.env.PLUGIN_DATA;
     if (!dataDir) throw new Error("PLUGIN_DATA is required");
-    const input = JSON.parse(await Bun.stdin.text()) as HookInput;
+    const rawText = typeof Bun !== "undefined" && Bun.stdin ? await Bun.stdin.text() : await readStdinText();
+    const input = JSON.parse(rawText) as HookInput;
     const output = await handleHook(input, dataDir);
     if (Object.keys(output).length > 0) process.stdout.write(JSON.stringify(output));
   } catch {

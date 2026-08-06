@@ -21,6 +21,10 @@
     "shell:install": "bash scripts/install-shell-integration.sh",
     "shell:uninstall": "bash scripts/uninstall-shell-integration.sh",
     "universal:install": "bash scripts/install-universal.sh",
-    "universal:uninstall": "bash scripts/uninstall-universal.sh"
+    "universal:uninstall": "bash scripts/uninstall-universal.sh",
+    "riqor:build": "bun run scripts/build-riqor-package.ts",
+    "riqor:pack": "bun run riqor:build && cd packages/riqor && npm pack --json",
+    "riqor:inspect": "bun run scripts/inspect-riqor-tarball.ts",
+    "riqor:test": "bun test test/riqor-*.test.ts packages/riqor/test"
   }
 }

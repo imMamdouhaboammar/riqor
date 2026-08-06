@@ -1,0 +1,83 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|resume|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "statusMessage": "Loading measured execution guidance",
+            "additionalContextLimit": 900
+          }
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "additionalContextLimit": 900
+          }
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
+      }
+    ],
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "additionalContextLimit": 600
+          }
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "Bash|shell|exec_command|run_shell_command|start_process|interact_with_process|apply_patch|write_file|edit_file|edit_block|multi_replace|create_file|delete_file",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5
+          }
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 5,
+            "statusMessage": "Checking completion evidence"
+          }
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "timeout": 3
+          }
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
+      }
+    ]
+  }
+}

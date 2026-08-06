@@ -1,0 +1,34 @@
+{
+  "name": "codex-self-improvement",
+  "version": "0.2.0+codex.20260804101214",
+  "description": "Automatic measured routing, curated paths, terminal continuity, and evidence gates across Codex sessions",
+  "author": {
+    "name": "Mamdouh Aboammar"
+  },
+  "license": "MIT",
+  "keywords": [
+    "codex",
+    "evaluation",
+    "verification",
+    "hooks",
+    "harness",
+    "engineering"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Riqor Agent Runtime",
+    "shortDescription": "Automatic routing and evidence continuity",
+    "longDescription": "Adds bounded task routing, curated harness paths, terminal continuity, and completion checks across Codex App, Codex CLI, and Kaku without replacing original binaries or changing model weights",
+    "developerName": "Mamdouh Aboammar",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "defaultPrompt": [
+      "Fix this end to end and prove each claim",
+      "Audit this implementation against real checks",
+      "Run a measured improvement loop on this workflow"
+    ]
+  }
+}

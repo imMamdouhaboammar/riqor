@@ -1,0 +1,72 @@
+{
+  "version": "0.1.0",
+  "sourceCommit": "91a4e10c656f5f7c8a730ea134a345759490688e",
+  "sourceDateEpoch": 1786010075,
+  "files": [
+    {
+      "path": ".agents/plugins/marketplace.json",
+      "sha256": "220c7a901ae6b349c975317b3bfa730b405fb23b8ccc6f231dfdd831f3ec4cc4",
+      "bytes": 437
+    },
+    {
+      "path": "config/shell/codex-self-improvement-env.zsh",
+      "sha256": "4f46c473b7ee731b9c673d54ab923df9973ee0111fdb8b711314063471d8726a",
+      "bytes": 403
+    },
+    {
+      "path": "config/shell/codex-self-improvement-kaku.zsh",
+      "sha256": "648445a960cb731fde4d3d83ce1f6c932b30328559ab28af75abcf7ccd1a291a",
+      "bytes": 2930
+    },
+    {
+      "path": "config/skill-curation.json",
+      "sha256": "0c77342f8f54d4b5b4865fd5c558d35d7c84114fcadca77846b7ea58041719d5",
+      "bytes": 6909
+    },
+    {
+      "path": "plugins/codex-self-improvement/.codex-plugin/plugin.json",
+      "sha256": "b3012fa79659b97ec277cade138da49fdefae5e623ad5367bbf3dde69b0c746d",
+      "bytes": 1103
+    },
+    {
+      "path": "plugins/codex-self-improvement/hooks/hooks.json",
+      "sha256": "efc7312841b0991d8b390cdc1df04c3588976c63e8e8d4d2f7f6bf2549300d97",
+      "bytes": 2173
+    },
+    {
+      "path": "plugins/codex-self-improvement/hooks/main.mjs",
+      "sha256": "c890e353f17f28f8e6872099c8e3a1eb288cc0e3a95f9dda6dc15391846b1d21",
+      "bytes": 31501
+    },
+    {
+      "path": "plugins/codex-self-improvement/package.json",
+      "sha256": "0cebe6a8f910fbfabe98b872e112ec89ad8adf34f7e94755e3aca78d46166bbb",
+      "bytes": 107
+    },
+    {
+      "path": "plugins/codex-self-improvement/skills/evidence-engineering/SKILL.md",
+      "sha256": "f9f9072069f60955d97533b6ef418925969c5d8cbcbb24d4369defa8966dec10",
+      "bytes": 1291
+    },
+    {
+      "path": "plugins/codex-self-improvement/skills/harness-paths/SKILL.md",
+      "sha256": "2f230d36963d1169176c7c76a22c01365910813fe11022355f900f99ac114153",
+      "bytes": 3065
+    },
+    {
+      "path": "plugins/codex-self-improvement/skills/self-improvement-loop/SKILL.md",
+      "sha256": "a0caa90dea3a470464f9e0a9084d3e52459cbbf66fb5942d8029704375376a18",
+      "bytes": 1426
+    },
+    {
+      "path": "plugins/codex-self-improvement/skills/universal-session-runtime/SKILL.md",
+      "sha256": "ed068755583835a16c37de232c1b5afaaf60307893a300151059b1ad5b8cee5c",
+      "bytes": 1671
+    },
+    {
+      "path": "skills-lock.json",
+      "sha256": "d238570ef0e5762387e5d08ddb3c9a0374209ef3db95713f4f04e58e6bd224c1",
+      "bytes": 2619
+    }
+  ]
+}

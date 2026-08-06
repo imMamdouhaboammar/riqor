@@ -1,0 +1,45 @@
+{
+  "name": "riqor",
+  "version": "0.1.0",
+  "description": "Evidence gates and session continuity for AI coding agents",
+  "type": "module",
+  "license": "MIT",
+  "bin": {
+    "riqor": "bin/riqor.mjs",
+    "codex-harness": "bin/riqor.mjs",
+    "cxh": "bin/riqor.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "runtime",
+    "README.md",
+    "LICENSE"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imMamdouhaboammar/riqor.git"
+  },
+  "bugs": {
+    "url": "https://github.com/imMamdouhaboammar/riqor/issues"
+  },
+  "homepage": "https://github.com/imMamdouhaboammar/riqor#readme",
+  "author": {
+    "name": "Mamdouh Aboammar"
+  },
+  "keywords": [
+    "ai",
+    "codex",
+    "verification",
+    "harness",
+    "developer-tools",
+    "agent"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "provenance": true
+  }
+}
