@@ -9,7 +9,7 @@ config_dir = Path(os.environ["CONFIG_DIR"])
 kaku_dir = Path(os.environ["KAKU_PLUGIN_DIR"])
 bin_dir = Path(os.environ["BIN_DIR"])
 backup_dir = Path(os.environ["BACKUP_DIR"])
-home = Path.home()
+home = Path(os.environ.get("HOME", str(Path.home())))
 
 start = "# >>> codex-self-improvement >>>"
 end = "# <<< codex-self-improvement <<<"
