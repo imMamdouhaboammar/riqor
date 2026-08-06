@@ -7,9 +7,9 @@ import {
   completeRun,
   createRun,
   readActiveRun,
+  readRecoveredRunEvents,
   readRun,
-  readRunEvents,
-} from "./run-store";
+} from "./recovering-run-store";
 import type { ExecutionProfileId, RiqorRun, RiqorTraceEvent } from "./types";
 
 export type AssuranceCommandOptions = Readonly<{
@@ -137,7 +137,7 @@ export async function assuranceCommand(
   if (!runId || runId.startsWith("--")) throw new Error(`trace ${subcommand ?? "command"} requires a run id`);
 
   if (subcommand === "show") {
-    const events = await readRunEvents({ stateRoot, identity, runId });
+    const events = await readRecoveredRunEvents({ stateRoot, identity, runId });
     print(stdout, events, json, () => formatEvents(events));
     return true;
   }
@@ -145,7 +145,7 @@ export async function assuranceCommand(
   if (subcommand === "export") {
     const format = value(args, "--format") ?? "jsonl";
     if (format !== "jsonl") throw new Error("trace export supports only jsonl");
-    const events = await readRunEvents({ stateRoot, identity, runId });
+    const events = await readRecoveredRunEvents({ stateRoot, identity, runId });
     for (const event of events) stdout.write(`${JSON.stringify(event)}\n`);
     return true;
   }
