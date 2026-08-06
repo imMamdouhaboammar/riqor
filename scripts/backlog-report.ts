@@ -1,12 +1,17 @@
-import { readFile, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { randomUUID } from "node:crypto";
+import { readFile, rename, rm, writeFile } from "node:fs/promises";
+import { dirname, join } from "node:path";
 import {
   loadBacklog,
   renderBacklogMarkdown,
   renderCurrentMarkdown,
   repositoryRootFromModule,
 } from "./backlog-lib";
-import { assertBacklogPolicy } from "./backlog-policy";
+import {
+  assertBacklogPathsSafe,
+  assertBacklogPolicy,
+  assertGeneratedViewPathsSafe,
+} from "./backlog-policy";
 
 type Mode = "print" | "write" | "check";
 
@@ -27,8 +32,19 @@ async function matches(path: string, expected: string): Promise<boolean> {
   }
 }
 
+async function writeAtomic(path: string, content: string): Promise<void> {
+  const temporary = join(dirname(path), `.${randomUUID()}.tmp`);
+  try {
+    await writeFile(temporary, content, { encoding: "utf8", flag: "wx", mode: 0o600 });
+    await rename(temporary, path);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
 export async function main(args = process.argv.slice(2)): Promise<void> {
   const root = repositoryRootFromModule(import.meta.url);
+  await assertBacklogPathsSafe(root);
   const backlog = await loadBacklog(root);
   assertBacklogPolicy(backlog);
 
@@ -43,9 +59,10 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
     return;
   }
 
+  await assertGeneratedViewPathsSafe(root);
   if (selected === "write") {
-    await writeFile(portfolioPath, portfolio, "utf8");
-    await writeFile(currentPath, current, "utf8");
+    await writeAtomic(portfolioPath, portfolio);
+    await writeAtomic(currentPath, current);
     process.stdout.write("backlog views updated\n");
     return;
   }
