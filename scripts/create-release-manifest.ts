@@ -65,3 +65,25 @@ export async function createReleaseManifest(input: ReleaseManifestInput): Promis
 
   return manifest;
 }
+
+if (import.meta.main) {
+  const version = process.env.RIQOR_VERSION ?? "0.1.0";
+  const commit = process.env.RIQOR_COMMIT ?? "head";
+  const outputDir = join(process.cwd(), "dist");
+  const artifactPaths = [
+    join(outputDir, `riqor-${version}.tgz`),
+    join(outputDir, `riqor-${version}-homebrew.tar.gz`),
+  ];
+  createReleaseManifest({
+    version,
+    tag: `v${version}`,
+    commit,
+    artifactPaths,
+    outputDir,
+  })
+    .then((manifest) => console.log(`Created dist/release-manifest.json with ${manifest.artifacts.length} artifacts`))
+    .catch((err) => {
+      console.error(err.message);
+      process.exit(1);
+    });
+}

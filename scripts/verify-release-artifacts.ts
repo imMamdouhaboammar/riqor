@@ -40,3 +40,19 @@ export async function verifyReleaseArtifacts(directory: string): Promise<Verific
     errors,
   };
 }
+
+if (import.meta.main) {
+  const dir = join(process.cwd(), "dist");
+  verifyReleaseArtifacts(dir)
+    .then((report) => {
+      if (!report.ok) {
+        console.error("Release verification failed:", report.errors);
+        process.exit(1);
+      }
+      console.log(`Verified ${report.checked.length} release artifacts for v${report.version}`);
+    })
+    .catch((err) => {
+      console.error(err.message);
+      process.exit(1);
+    });
+}
