@@ -29,6 +29,7 @@
     "actions:verify": "bun run scripts/verify-action-pins.ts",
     "release:manifest": "bun run scripts/create-release-manifest.ts",
     "release:verify": "bun run scripts/verify-release-artifacts.ts",
+    "release:preflight": "bun run scripts/release-preflight.ts --json",
     "brew:archive": "bun run scripts/build-homebrew-archive.ts",
     "brew:generate": "bun run scripts/generate-homebrew-formula.ts",
     "brew:style": "brew style Formula/riqor.rb && ruby -c Formula/riqor.rb",
