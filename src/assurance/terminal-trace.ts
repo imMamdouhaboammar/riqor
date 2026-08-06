@@ -15,6 +15,8 @@ export type RecordActiveRunTerminalTransitionOptions = Readonly<{
   now?: Date;
   locateRepository?: typeof locateRepositoryIdentity;
   inspectRepository?: typeof inspectRepositoryIdentity;
+  failureMode?: "isolate" | "throw";
+  onWarning?: (error: Error) => void;
 }>;
 
 function locationIdentity(location: RepositoryLocation): RepositoryIdentity {
@@ -26,7 +28,7 @@ function locationIdentity(location: RepositoryLocation): RepositoryIdentity {
   });
 }
 
-export async function recordActiveRunTerminalTransition(
+async function recordActiveRunTerminalTransitionStrict(
   options: RecordActiveRunTerminalTransitionOptions,
 ): Promise<RiqorRun | null> {
   const locateRepository = options.locateRepository ?? locateRepositoryIdentity;
@@ -115,4 +117,18 @@ export async function recordActiveRunTerminalTransition(
     events,
   });
   return result.run;
+}
+
+export async function recordActiveRunTerminalTransition(
+  options: RecordActiveRunTerminalTransitionOptions,
+): Promise<RiqorRun | null> {
+  try {
+    return await recordActiveRunTerminalTransitionStrict(options);
+  } catch (cause) {
+    if (options.failureMode === "throw") throw cause;
+    const error = cause instanceof Error ? cause : new Error("unexpected trace failure");
+    if (options.onWarning) options.onWarning(error);
+    else process.stderr.write(`Riqor warning: terminal trace was not recorded: ${error.message}\n`);
+    return null;
+  }
 }
