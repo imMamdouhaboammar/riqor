@@ -22,15 +22,35 @@ describe("terminal runtime", () => {
     const session = "tty-test";
     const secretCommand = "printf sk-private-secret > src/a.ts";
     await recordTerminalPreexec(root, session, secretCommand, 1000);
-    expect((await readTerminalState(root, session)).evidencePending).toBe(true);
-    await recordTerminalPostexec(root, session, 0, 1001);
+    expect((await readTerminalState(root, session)).evidencePending).toBe(false);
+    const result = await recordTerminalPostexec(root, session, 0, 1001);
+    expect(result.transition).toEqual(expect.objectContaining({
+      kind: "mutation",
+      exitCode: 0,
+      startedAt: 1000,
+      completedAt: 1001,
+    }));
     const state = await readTerminalState(root, session);
     expect(state.evidencePending).toBe(true);
     expect(state.lastKind).toBe("mutation");
     const stored = await readFile(join(root, `${state.sessionDigest}.json`), "utf8");
     expect(stored).not.toContain(secretCommand);
     expect(stored).not.toContain("sk-private-secret");
+    expect(stored).not.toContain("transition");
     expect(state.commandDigest).toMatch(/^[a-f0-9]{64}$/);
+  });
+
+  test("a failed mutation does not create fresh pending evidence", async () => {
+    const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
+    await recordTerminalPreexec(root, "s", "echo x > src/a.ts", 1000);
+    const result = await recordTerminalPostexec(root, "s", 1, 1001);
+    expect(result.evidencePending).toBe(false);
+    expect(result.transition).toEqual(expect.objectContaining({
+      kind: "mutation",
+      exitCode: 1,
+      startedAt: 1000,
+      completedAt: 1001,
+    }));
   });
 
   test("clears pending evidence only after a successful verification", async () => {
@@ -43,5 +63,14 @@ describe("terminal runtime", () => {
     await recordTerminalPreexec(root, "s", "bun test", 1004);
     await recordTerminalPostexec(root, "s", 0, 1005);
     expect((await readTerminalState(root, "s")).evidencePending).toBe(false);
+  });
+
+  test("does not emit a duplicate transition without pending work", async () => {
+    const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
+    await recordTerminalPreexec(root, "s", "pwd", 1000);
+    const first = await recordTerminalPostexec(root, "s", 0, 1001);
+    const repeated = await recordTerminalPostexec(root, "s", 0, 1002);
+    expect(first.transition).toBeDefined();
+    expect(repeated.transition).toBeUndefined();
   });
 });
