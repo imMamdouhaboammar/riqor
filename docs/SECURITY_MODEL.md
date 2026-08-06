@@ -15,9 +15,13 @@ Riqor is designed to avoid unnecessary retention of:
 - prompts
 - conversation transcripts
 - source contents
-- command text in stored terminal state
+- raw command text
+- command output
+- environment values
 - credentials and access tokens
+- cookies and private keys
 - external Codex session identifiers
+- raw canonical repository paths in run records
 
 Riqor still runs in the user's local environment. Any process with the same user permissions may be able to inspect process memory or local files while they are in use. Riqor does not claim isolation from a compromised user account or operating system.
 
@@ -27,9 +31,11 @@ Riqor still runs in the user's local environment. Any process with the same user
 flowchart LR
     U[Local user] --> CLI[Riqor CLI]
     CLI --> FS[(User-owned filesystem)]
+    CLI --> RR[Repository run store]
     CLI --> CX[Managed Codex child]
     CX --> HK[Codex lifecycle hooks]
     SH[Local shell] --> TH[Terminal hooks]
+    TH --> RR
     TH --> FS
     HK --> FS
     HC[Hosted ChatGPT conversation]
@@ -43,15 +49,74 @@ Riqor treats these as user-controlled local configuration:
 
 - command-line options supplied to `riqor`
 - XDG path environment values
+- `RIQOR_STATE_HOME`
 - `CODEX_SELF_IMPROVEMENT_DATA`
 - the installed package payload
 - the current local Codex and shell configuration
 
 ### Untrusted or bounded inputs
 
+Run goals, run identifiers, parent references, event metadata, inherited environment values, and stored state are validated before use.
+
+Run goals are explicit CLI input, limited to 2,000 characters, normalized, and rejected when empty or when they contain unsupported control characters.
+
 The activator treats inherited environment values as untrusted until they pass validation. Timing values and session tokens must match strict formats and bounds.
 
-Stored activator files are also validated before use. Malformed records, unexpected files, and symlink replacements are rejected or ignored according to the relevant operation.
+Stored run, trace, terminal, and activator files are validated before use. Malformed records, unknown schema versions, unexpected file types, and symlink replacements are rejected or ignored according to the relevant operation.
+
+## Repository Run Boundary
+
+A run is scoped to the SHA-256 digest of the canonical repository root. The persisted repository identity contains only:
+
+- root digest
+- Git HEAD when available
+- dirty boolean
+
+The canonical path is used in process memory to select the project state directory and is not written to `run.json` or `events.jsonl`.
+
+A repository has at most one active run pointer. Explicit run identifiers are resolved only below the current repository digest. A run from another repository cannot be opened through the current repository context.
+
+### Run storage
+
+The default root is:
+
+```text
+${RIQOR_STATE_HOME:-${XDG_STATE_HOME:-~/.local/state}/riqor}
+```
+
+Run files are stored below:
+
+```text
+projects/<repository-root-digest>/
+  active.json
+  runs/<run-id>/
+    run.json
+    events.jsonl
+    .lock
+```
+
+Protections include:
+
+- directories created with mode `0700`
+- files created with mode `0600`
+- temporary file plus atomic rename for mutable JSON
+- append-only JSONL event history
+- exclusive per-run sequence allocation
+- bounded lock wait
+- stale regular lock recovery
+- symlink and non-regular file rejection
+- unknown schema rejection
+- repository digest validation
+
+The initial trace stores event type, status, timestamps, SHA-256 command digest, command classification, route, exit status, duration, Git HEAD, and dirty state where relevant.
+
+It does not store raw command text, command output, prompts, source contents, environment values, credentials, cookies, or tokens.
+
+### Completion boundary
+
+`riqor run complete` fails when the run is `verification-pending`, is not active, or cannot be resolved under the current repository identity.
+
+A successful completion appends `run_completed`, writes the completion time, and removes the active pointer. It does not prove that every semantic requirement was satisfied. The user and repository still determine which verification commands are relevant.
 
 ## Managed Session Boundary
 
@@ -76,7 +141,7 @@ Closing the managed Codex child process ends the activator scope for that proces
 
 ## Subprocess Handling
 
-Riqor starts Codex with a direct argument array and `shell: false`. Activator-specific arguments are parsed and removed before the remaining arguments are forwarded.
+Riqor starts Codex and Git inspection commands with direct argument arrays and `shell: false`. Activator-specific arguments are parsed and removed before the remaining arguments are forwarded.
 
 Inherited activator environment variables are deleted unless the current command explicitly enables the activator. This prevents an unrelated child process from inheriting a previous managed session scope by accident.
 
@@ -107,6 +172,8 @@ Terminal state uses:
 - temporary writes followed by atomic rename
 
 Stored terminal state includes classification, digest, exit status, route, timestamps, and the evidence-pending flag. It does not store the original command text.
+
+A mutation changes pending evidence only after `postexec` reports success. A failed mutation does not create fresh pending evidence. A failed verification does not clear existing pending evidence.
 
 ### Activator state
 
@@ -144,13 +211,15 @@ Managed files include local executable shims, package data, an install manifest,
 riqor uninstall
 ```
 
+Uninstall removes managed installation files. Repository run records under the state root are user data and are not silently deleted as part of package rollback.
+
 The installer and uninstaller should be treated as local filesystem mutation tools. Review changes when running them in a customized shell environment.
 
 ## Privacy Boundary
 
 Riqor's local state design reduces retained content, but it is not an anonymity tool or a sandbox.
 
-Riqor does not send activator state to a Riqor service because no such service is part of the runtime. Codex itself may use network services according to its own configuration and provider behavior. That traffic is outside the Riqor runtime boundary.
+Riqor does not send run or activator state to a Riqor service because no such service is part of the runtime. Codex itself may use network services according to its own configuration and provider behavior. That traffic is outside the Riqor runtime boundary.
 
 ## Non-Goals
 
@@ -164,6 +233,9 @@ Riqor does not claim to:
 - isolate a compromised machine
 - enforce policy inside a hosted ChatGPT conversation
 - terminate an unresponsive Codex process through the activator watchdog
+- provide durable user memory
+- select or coordinate delegated agents
+- execute Dokion Playbooks
 
 Riqor provides local evidence and lifecycle controls. The quality of a completion claim still depends on selecting relevant checks and reviewing their results.
 
@@ -178,7 +250,7 @@ The repository CI includes:
 - packaged CLI tests
 - pinned GitHub Actions verification
 
-Feature-specific tests cover activator duration parsing, argument forwarding, inherited environment removal, state isolation, malformed state, symlink handling, locks, watchdog behavior, evidence-gate precedence, lifecycle cleanup, and packaged routing.
+Feature-specific tests cover run goal bounds, repository identity, active pointer handling, trace ordering, lock recovery, symlink handling, schema rejection, privacy markers, failed mutation behavior, completion gating, activator duration parsing, argument forwarding, inherited environment removal, state isolation, watchdog behavior, evidence-gate precedence, lifecycle cleanup, and packaged routing.
 
 ## Reporting a Vulnerability
 
