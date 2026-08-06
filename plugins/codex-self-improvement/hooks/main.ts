@@ -1,3 +1,11 @@
+import {
+  clearActivator,
+  initializeActivator,
+  observeActivatorStop,
+  readActivatorConfig,
+  touchActivator,
+  type ActivatorStopResult,
+} from "./activator";
 import { routingContext } from "./router";
 import {
   clearTurn,
@@ -12,6 +20,7 @@ import {
 } from "./state";
 
 type HookInput = Record<string, unknown>;
+type HookEnvironment = Record<string, string | undefined>;
 
 const sessionContext = [
   "Riqor is a measured control plane around the model",
@@ -19,6 +28,16 @@ const sessionContext = [
   "Fresh checks are required after observed mutations and all completion claims must name changed files, check outcomes, and unverified boundaries",
   "This plugin does not change model weights or prove AGI, determinism, or parity with another model",
 ].join("\n");
+
+const activatorCheckpointReason = [
+  "Riqor activator checkpoint: restore the current task and observable success criteria from this conversation",
+  "Inspect relevant repository evidence such as status, diff, tests, and recent tool results",
+  "Summarize only work actually completed",
+  "Identify scope drift, repeated work, stale assumptions, missing checks, and unsupported completion claims",
+  "Correct the plan and continue with the smallest relevant next action",
+  "Preserve the current approval policy and do not introduce destructive actions merely because this checkpoint ran",
+  "Keep the checkpoint concise and do not repeat the full conversation",
+].join(". ");
 
 const mutationTools = /^(?:apply_patch|write_file|edit_file|edit_block|multi_replace|create_file|delete_file)$/i;
 const shellTools = /^(?:bash|shell|exec_command|run_shell_command|start_process|interact_with_process)$/i;
@@ -102,21 +121,50 @@ function promptFrom(input: HookInput) {
 }
 
 function evidenceReason(kind: MutationKind) {
-  if (kind === "docs") return "Run a documentation check such as `git diff --check` or the project documentation linter"
-  return "Run the smallest relevant test, build, lint, typecheck, or validation command with a structured zero exit"
+  if (kind === "docs") return "Run a documentation check such as `git diff --check` or the project documentation linter";
+  return "Run the smallest relevant test, build, lint, typecheck, or validation command with a structured zero exit";
 }
 
-export async function handleHook(input: HookInput, dataDir: string): Promise<Record<string, unknown>> {
+async function boundedActivatorOperation<T>(operation: () => Promise<T>): Promise<T | undefined> {
+  try {
+    return await operation();
+  } catch {
+    return undefined;
+  }
+}
+
+function activatorStopOutput(result: ActivatorStopResult | undefined): Record<string, unknown> {
+  if (!result || result.kind === "none" || result.kind === "completed") return {};
+  if (result.kind === "timeout") {
+    return {
+      systemMessage: `Riqor activator watchdog expired for checkpoint ${result.cycle}; the session was allowed to stop and the next interval was scheduled`,
+    };
+  }
+  return {
+    decision: "block",
+    reason: `${activatorCheckpointReason}. Checkpoint cycle: ${result.cycle}`,
+  };
+}
+
+export async function handleHook(
+  input: HookInput,
+  dataDir: string,
+  environment: HookEnvironment = process.env,
+  now = Date.now(),
+): Promise<Record<string, unknown>> {
   const event = String(input.hook_event_name ?? "");
   const key = turnKey(input);
+  const activator = readActivatorConfig(environment);
 
   if (event === "SessionStart") {
     await pruneState(dataDir);
-    await markRuntimeSeen(dataDir);
+    await markRuntimeSeen(dataDir, now);
+    if (activator) await boundedActivatorOperation(() => initializeActivator(dataDir, activator, now));
     return { hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: sessionContext } };
   }
 
   if (event === "UserPromptSubmit") {
+    if (activator) await boundedActivatorOperation(() => touchActivator(dataDir, activator, now));
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
@@ -136,34 +184,44 @@ export async function handleHook(input: HookInput, dataDir: string): Promise<Rec
 
   if (event === "PostToolUse") {
     const mutationKind = observedMutation(input);
-    if (mutationKind) await recordMutation(dataDir, key, mutationKind);
+    if (mutationKind) await recordMutation(dataDir, key, mutationKind, now);
     else {
       const scope = verificationScope(input);
-      if (scope) await recordVerification(dataDir, key, Date.now(), scope);
+      if (scope) await recordVerification(dataDir, key, now, scope);
     }
+    if (activator) await boundedActivatorOperation(() => touchActivator(dataDir, activator, now));
     return {};
   }
 
   if (event === "Stop") {
     if (input.stop_hook_active === true) {
       await clearTurn(dataDir, key);
-      return {};
+      if (!activator) return {};
+      const result = await boundedActivatorOperation(() => observeActivatorStop(dataDir, activator, now, false));
+      return activatorStopOutput(result);
     }
+
     const gate = await consumeEvidenceGate(dataDir, key);
-    if (!gate.pending) return {};
-    if (gate.firstBlock) {
+    if (gate.pending) {
+      if (gate.firstBlock) {
+        return {
+          decision: "block",
+          reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`,
+        };
+      }
       return {
-        decision: "block",
-        reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`,
+        systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified",
       };
     }
-    return {
-      systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified",
-    };
+
+    if (!activator) return {};
+    const result = await boundedActivatorOperation(() => observeActivatorStop(dataDir, activator, now, true));
+    return activatorStopOutput(result);
   }
 
   if (event === "SessionEnd") {
     await clearTurn(dataDir, key);
+    if (activator) await boundedActivatorOperation(() => clearActivator(dataDir, activator));
   }
 
   return {};
