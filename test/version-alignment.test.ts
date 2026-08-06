@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { createReleaseManifest } from "../scripts/create-release-manifest";
 
@@ -19,15 +19,19 @@ describe("Riqor version alignment", () => {
   });
 
   test("generated release-manifest.json artifacts align with version 0.1.0", async () => {
-    const dummyTarball = join(root, "dist", "riqor-0.1.0.tgz");
-    const dummyHomebrew = join(root, "dist", "riqor-0.1.0-homebrew.tar.gz");
+    const distDir = join(root, "dist");
+    await mkdir(distDir, { recursive: true });
+    const dummyTarball = join(distDir, "riqor-0.1.0.tgz");
+    const dummyHomebrew = join(distDir, "riqor-0.1.0-homebrew.tar.gz");
+    try { await stat(dummyTarball); } catch { await writeFile(dummyTarball, "dummy"); }
+    try { await stat(dummyHomebrew); } catch { await writeFile(dummyHomebrew, "dummy"); }
 
     const manifest = await createReleaseManifest({
       version: "0.1.0",
       tag: "v0.1.0",
       commit: "0123456789abcdef0123456789abcdef01234567",
       artifactPaths: [dummyTarball, dummyHomebrew],
-      outputDir: join(root, "dist"),
+      outputDir: distDir,
     });
 
     expect(manifest.version).toBe("0.1.0");
