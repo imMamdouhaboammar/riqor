@@ -1,0 +1,52 @@
+schemaVersion: 1
+id: RIQ-104
+title: Add failure attribution and run budgets
+type: feature
+status: accepted
+priority: P1
+initiative: RIQ-001
+phase: failure-attribution
+ownerProject: riqor
+collaborators: []
+problem: Repeated command and acceptance failures can consume time without identifying whether the harness, deployment, or product invariant is wrong.
+outcome: Riqor classifies repeated failures, applies bounded retry budgets, and pauses with a concrete next action.
+scope:
+  included:
+  - failure counters
+  - attribution categories
+  - retry and wall-time budgets
+  - pause reasons
+  excluded:
+  - automatic model escalation
+  - silent scope expansion
+dependencies:
+- RIQ-102
+acceptance:
+- id: check-1
+  command: bun test test/failure-attribution.test.ts
+- id: check-2
+  command: bun test test/run-budgets.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+risk:
+  level: medium
+  areas:
+  - availability
+  - state-machine
+github:
+  issue: null
+  pr: null
+  milestone: 0.3.0
+releaseTarget: 0.3.0
+inspirations:
+- project: fable5-mode
+  concepts:
+  - fail-streak reminder
+  - attribution ladder
+- project: LightAgent
+  concepts:
+  - max iterations
+  - structured errors
+blocked: null
+completion: null

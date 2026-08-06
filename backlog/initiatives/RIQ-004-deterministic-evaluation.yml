@@ -1,0 +1,37 @@
+schemaVersion: 1
+id: RIQ-004
+title: Deterministic Evaluation
+status: planned
+priority: P1
+ownerProject: riqor
+problem: Riqor lacks a dedicated regression pack for assured execution events, adapter failures, recovery behavior, and privacy boundaries.
+outcome: Critical execution and privacy guarantees are tested through deterministic scenarios that fail on missing or forbidden events.
+scope:
+  included:
+  - assured execution scenarios
+  - privacy leakage regression pack
+  excluded:
+  - subjective model quality ranking
+  - hosted evaluation service
+  - production telemetry upload
+dependencies:
+- RIQ-001
+items:
+- RIQ-401
+- RIQ-402
+releaseTargets:
+- 0.5.0
+successMetrics:
+- Required and forbidden event assertions run in CI
+- Secret markers never appear in trace fixtures
+- Recovery and budget failures are reproducible
+inspirations:
+- project: LightAgent
+  concepts:
+  - deterministic evaluator
+  - required events
+  - forbidden tools and events
+- project: fable5-mode
+  concepts:
+  - real-product verification
+  - adversarial refute pass

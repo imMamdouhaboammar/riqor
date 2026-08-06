@@ -1,0 +1,46 @@
+schemaVersion: 1
+id: RIQ-302
+title: Add repository-bound resume
+type: feature
+status: proposed
+priority: P2
+initiative: RIQ-003
+phase: resume
+ownerProject: riqor
+collaborators: []
+problem: A checkpoint could be replayed against a different repository state unless identity and staleness are verified.
+outcome: Resume rejects repository mismatch, stale checkpoints, and incompatible schema versions before restoring the run.
+scope:
+  included:
+  - identity comparison
+  - checkpoint age limit
+  - schema compatibility
+  - resume trace events
+  excluded:
+  - cross-repository migration
+  - remote synchronization
+dependencies:
+- RIQ-301
+acceptance:
+- id: check-1
+  command: bun test test/run-resume.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - local-state
+  - repository-identity
+github:
+  issue: null
+  pr: null
+  milestone: 0.5.0
+releaseTarget: 0.5.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - resume and rerun
+blocked: null
+completion: null

@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-001
+title: Assured Execution
+status: active
+priority: P1
+ownerProject: riqor
+problem: Riqor can detect terminal evidence state, but it does not yet manage a complete delivery ledger with cards, bounded retries, adaptive context, and phase completion rules.
+outcome: Non-trivial Riqor work proceeds through explicit cards, current evidence, bounded recovery, and mechanically enforced completion boundaries.
+scope:
+  included:
+  - trace foundation integration
+  - assured ledger and execution cards
+  - state-adaptive context injection
+  - failure attribution and run budgets
+  - phase boundary completion guards
+  excluded:
+  - model provider routing
+  - long-term memory storage
+  - agent swarm execution
+  - Playbook execution
+dependencies: []
+items:
+- RIQ-101
+- RIQ-102
+- RIQ-103
+- RIQ-104
+- RIQ-105
+releaseTargets:
+- 0.2.0
+- 0.3.0
+successMetrics:
+- Every active card has executable acceptance
+- No assured run completes with open cards or stale evidence
+- Repeated failures produce a bounded attribution action
+inspirations:
+- project: LightAgent
+  concepts:
+  - structured run traces
+  - deterministic evaluation
+  - checkpoint planning
+- project: fable5-mode
+  concepts:
+  - plan gate
+  - small cards
+  - evidence-on-close
+  - fail-streak attribution
+- project: agent-harness
+  concepts:
+  - vertical slices
+  - one phase per review cycle

@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-402
+title: Add privacy and leakage regression pack
+type: security
+status: proposed
+priority: P1
+initiative: RIQ-004
+phase: privacy-regressions
+ownerProject: riqor
+collaborators: []
+problem: Trace, checkpoint, adapter, and report features need one shared set of secret and local-path leakage fixtures.
+outcome: All durable outputs are tested against command, prompt, credential, environment, source, and local-path markers.
+scope:
+  included:
+  - shared secret fixtures
+  - trace and checkpoint scans
+  - adapter output scans
+  - generated report scans
+  excluded:
+  - production secret collection
+  - external scanning service
+dependencies:
+- RIQ-401
+- RIQ-301
+- RIQ-201
+acceptance:
+- id: check-1
+  command: bun test test/privacy-regressions.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: critical
+  areas:
+  - privacy
+  - secrets
+  - local-state
+github:
+  issue: null
+  pr: null
+  milestone: 0.5.0
+releaseTarget: 0.5.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - prompt-safe trace summaries
+  - memory boundary controls
+blocked: null
+completion: null

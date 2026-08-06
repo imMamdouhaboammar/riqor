@@ -1,0 +1,37 @@
+schemaVersion: 1
+id: RIQ-005
+title: GitHub Plan Bridge
+status: planned
+priority: P2
+ownerProject: riqor
+problem: Versioned plans and GitHub execution mirrors can drift because there is no explicit bridge or drift report.
+outcome: Maintainers can create and inspect parent and phase issue mirrors while repository backlog records remain authoritative.
+scope:
+  included:
+  - explicit GitHub plan bridge
+  - backlog drift report
+  excluded:
+  - silent issue mutation
+  - automatic issue closure
+  - GitHub Projects ownership
+dependencies:
+- RIQ-001
+- RIQ-004
+items:
+- RIQ-501
+- RIQ-502
+releaseTargets:
+- 0.6.0
+successMetrics:
+- Every mirrored issue names its source record
+- Drift reports distinguish stale issue metadata from stale repository state
+- No GitHub write occurs without an explicit command
+inspirations:
+- project: agent-harness
+  concepts:
+  - parent plan issues
+  - phase issues
+  - one phase per pull request
+- project: fable5-mode
+  concepts:
+  - SPEC and PROGRESS as durable state

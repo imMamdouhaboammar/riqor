@@ -1,0 +1,41 @@
+schemaVersion: 1
+id: RIQ-002
+title: Ecosystem Integration
+status: planned
+priority: P1
+ownerProject: riqor
+problem: Riqor cannot discover the bounded capabilities of agent-kernel, delegate-team, and dokion through stable adapter contracts.
+outcome: Riqor can inspect supporting project availability and consume read-only capability, child-run, and evidence summaries without duplicating their responsibilities.
+scope:
+  included:
+  - capability registry
+  - read-only agent-kernel adapter
+  - read-only delegate-team adapter
+  - read-only dokion adapter
+  excluded:
+  - memory writes
+  - agent selection logic
+  - Playbook execution
+  - automatic approvals
+dependencies:
+- RIQ-001
+items:
+- RIQ-201
+- RIQ-202
+- RIQ-203
+- RIQ-204
+releaseTargets:
+- 0.4.0
+successMetrics:
+- Missing providers do not break Riqor
+- Each adapter exposes a versioned capability manifest
+- Imported evidence retains provider provenance
+inspirations:
+- project: LightAgent
+  concepts:
+  - capability boundaries
+  - trace provenance
+  - hook contracts
+- project: agent-harness
+  concepts:
+  - shared agent-facing contracts

@@ -1,0 +1,39 @@
+schemaVersion: 1
+id: RIQ-003
+title: Recovery and Review
+status: planned
+priority: P2
+ownerProject: riqor
+problem: Long-running work cannot yet resume from a repository-bound checkpoint, and approval decisions are not bound to an immutable operation digest.
+outcome: Interrupted runs resume safely, approval reuse is constrained, and review state remains auditable.
+scope:
+  included:
+  - checkpoint creation
+  - repository-bound resume
+  - approval digest binding
+  excluded:
+  - remote state service
+  - cross-tenant approval inbox
+  - automatic destructive action approval
+dependencies:
+- RIQ-001
+items:
+- RIQ-301
+- RIQ-302
+- RIQ-303
+releaseTargets:
+- 0.5.0
+successMetrics:
+- Resume rejects repository identity mismatch
+- Approval decisions cannot authorize changed operations
+- A crash loses at most the current card
+inspirations:
+- project: LightAgent
+  concepts:
+  - checkpointed workflows
+  - durable human approval
+  - approval request binding
+- project: fable5-mode
+  concepts:
+  - checkpoint autonomy
+  - external progress state

@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-202
+title: Add Agent Kernel read-only adapter
+type: integration
+status: proposed
+priority: P1
+initiative: RIQ-002
+phase: agent-kernel-adapter
+ownerProject: riqor
+collaborators:
+- agent-kernel
+problem: Riqor cannot inspect Agent Kernel readiness, rules digest, or available failure lessons through a stable boundary.
+outcome: Riqor reads a bounded Agent Kernel capability and health summary without writing durable memory.
+scope:
+  included:
+  - version detection
+  - doctor status
+  - rules digest
+  - failure lesson availability
+  excluded:
+  - memory mutation
+  - proposal approval
+  - user memory retrieval
+dependencies:
+- RIQ-201
+acceptance:
+- id: check-1
+  command: bun test test/ecosystem-agent-kernel.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - subprocess
+  - memory-boundary
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.4.0
+releaseTarget: 0.4.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - memory scope separation
+  - provenance
+blocked: null
+completion: null

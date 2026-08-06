@@ -1,0 +1,56 @@
+name: Backlog Phase
+description: Mirror one reviewable phase from an approved plan
+title: "[Phase]: "
+body:
+  - type: input
+    id: backlog_id
+    attributes:
+      label: Backlog item ID
+      placeholder: RIQ-102
+    validations:
+      required: true
+  - type: input
+    id: plan
+    attributes:
+      label: Approved plan
+      placeholder: docs/superpowers/plans/2026-08-07-example.md
+    validations:
+      required: true
+  - type: input
+    id: phase
+    attributes:
+      label: Phase name
+      placeholder: Phase 1 - card contracts
+    validations:
+      required: true
+  - type: textarea
+    id: contracts
+    attributes:
+      label: Public contracts changed
+      description: Name exact commands, schemas, files, or interfaces
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Phase acceptance
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence to attach
+    validations:
+      required: true
+  - type: checkboxes
+    id: boundary
+    attributes:
+      label: Phase boundary
+      options:
+        - label: This phase is independently reviewable
+          required: true
+        - label: Work stops for review after this phase
+          required: true
+        - label: No automatic commit, merge, or release is implied
+          required: true

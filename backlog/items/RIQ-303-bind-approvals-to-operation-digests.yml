@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: RIQ-303
+title: Bind approvals to operation digests
+type: security
+status: proposed
+priority: P1
+initiative: RIQ-003
+phase: approval-binding
+ownerProject: riqor
+collaborators: []
+problem: An approval decision can be unsafe if reused after the underlying operation or arguments change.
+outcome: Every approval reference is bound to provider, operation, argument digest, repository, and expiry.
+scope:
+  included:
+  - approval reference schema
+  - operation digest
+  - expiry
+  - mismatch rejection
+  excluded:
+  - central approval inbox
+  - automatic approval
+  - provider-owned decision logic
+dependencies:
+- RIQ-302
+acceptance:
+- id: check-1
+  command: bun test test/approval-binding.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: critical
+  areas:
+  - approval
+  - integrity
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.5.0
+releaseTarget: 0.5.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - durable human approval
+  - approval request binding
+blocked: null
+completion: null

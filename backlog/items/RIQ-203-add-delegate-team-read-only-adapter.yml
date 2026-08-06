@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: RIQ-203
+title: Add Delegate Team read-only adapter
+type: integration
+status: proposed
+priority: P1
+initiative: RIQ-002
+phase: delegate-team-adapter
+ownerProject: riqor
+collaborators:
+- delegate-team
+problem: Riqor cannot inspect Delegate Team availability or normalize child-run results and evidence summaries.
+outcome: Riqor consumes bounded child-run references while Delegate Team retains all routing and agent-selection decisions.
+scope:
+  included:
+  - version and capability detection
+  - child-run status
+  - executor and verifier metadata
+  - evidence summary import
+  excluded:
+  - agent selection
+  - task decomposition
+  - automatic delegation
+dependencies:
+- RIQ-201
+acceptance:
+- id: check-1
+  command: bun test test/ecosystem-delegate-team.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - subprocess
+  - delegation-boundary
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.4.0
+releaseTarget: 0.4.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - parent and child run lineage
+blocked: null
+completion: null

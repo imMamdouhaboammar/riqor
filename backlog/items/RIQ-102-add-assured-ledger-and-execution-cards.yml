@@ -1,0 +1,53 @@
+schemaVersion: 1
+id: RIQ-102
+title: Add Assured Ledger and execution cards
+type: feature
+status: accepted
+priority: P1
+initiative: RIQ-001
+phase: assured-ledger
+ownerProject: riqor
+collaborators: []
+problem: Runs do not yet contain independently verifiable cards with acceptance and evidence-on-close.
+outcome: An assured run manages ordered cards and refuses card closure without current evidence.
+scope:
+  included:
+  - versioned card records
+  - open active passed failed deferred states
+  - acceptance commands
+  - evidence-on-close
+  excluded:
+  - ecosystem adapters
+  - checkpoint resume
+  - GitHub issue creation
+dependencies:
+- RIQ-101
+acceptance:
+- id: check-1
+  command: bun test test/assured-ledger.test.ts
+- id: check-2
+  command: bun test test/assured-profile.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - local-state
+  - completion-gate
+github:
+  issue: null
+  pr: null
+  milestone: 0.3.0
+releaseTarget: 0.3.0
+inspirations:
+- project: fable5-mode
+  concepts:
+  - small cards
+  - evidence-on-close
+- project: agent-harness
+  concepts:
+  - vertical slices
+blocked: null
+completion: null

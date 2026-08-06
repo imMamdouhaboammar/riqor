@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/imMamdouhaboammar/riqor/schemas/backlog-initiative.schema.json",
+  "title": "Riqor Backlog Initiative",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "status",
+    "priority",
+    "ownerProject",
+    "problem",
+    "outcome",
+    "scope",
+    "dependencies",
+    "items",
+    "releaseTargets",
+    "successMetrics",
+    "inspirations"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^RIQ-00[1-9]$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "status": {
+      "enum": [
+        "planned",
+        "active",
+        "paused",
+        "complete"
+      ]
+    },
+    "priority": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "icebox"
+      ]
+    },
+    "ownerProject": {
+      "enum": [
+        "riqor"
+      ]
+    },
+    "problem": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included",
+        "excluded"
+      ],
+      "properties": {
+        "included": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^RIQ-00[1-9]$"
+      }
+    },
+    "items": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^RIQ-[1-9][0-9]{2}$"
+      }
+    },
+    "releaseTargets": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^0\\.[0-9]+\\.[0-9]+$"
+      }
+    },
+    "successMetrics": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 8
+      }
+    },
+    "inspirations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project",
+          "concepts"
+        ],
+        "properties": {
+          "project": {
+            "enum": [
+              "LightAgent",
+              "fable5-mode",
+              "agent-harness",
+              "internal"
+            ]
+          },
+          "concepts": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        }
+      }
+    }
+  }
+}

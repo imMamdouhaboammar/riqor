@@ -1,0 +1,101 @@
+name: Backlog Item
+description: Propose or mirror one independently reviewable delivery item
+title: "[Backlog]: "
+body:
+  - type: input
+    id: backlog_id
+    attributes:
+      label: Backlog ID
+      placeholder: RIQ-106
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source record
+      placeholder: backlog/items/RIQ-106-example.yml
+    validations:
+      required: true
+  - type: input
+    id: initiative
+    attributes:
+      label: Initiative
+      placeholder: RIQ-001
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: State the observable problem
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Observable outcome
+    validations:
+      required: true
+  - type: textarea
+    id: included
+    attributes:
+      label: Included scope
+    validations:
+      required: true
+  - type: textarea
+    id: excluded
+    attributes:
+      label: Excluded scope
+    validations:
+      required: true
+  - type: textarea
+    id: dependencies
+    attributes:
+      label: Dependencies
+      description: List backlog IDs or state none
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance commands
+      description: Provide exact executable commands
+      render: shell
+    validations:
+      required: true
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Required evidence
+      description: List focused, integration, package, review, security, or privacy evidence
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk
+      options:
+        - low
+        - medium
+        - high
+        - critical
+    validations:
+      required: true
+  - type: input
+    id: release
+    attributes:
+      label: Release target
+      placeholder: 0.3.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: ready
+    attributes:
+      label: Readiness
+      options:
+        - label: The work fits one pull request
+          required: true
+        - label: Ownership boundaries were checked
+          required: true
+        - label: The repository record will be updated with the result
+          required: true

@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-204
+title: Add Dokion read-only adapter
+type: integration
+status: proposed
+priority: P1
+initiative: RIQ-002
+phase: dokion-adapter
+ownerProject: riqor
+collaborators:
+- dokion
+problem: Riqor cannot inspect Dokion Playbook status or import verified evidence references through a stable boundary.
+outcome: Riqor reads validate, status, and verify results while Dokion retains Playbook execution, permissions, and approvals.
+scope:
+  included:
+  - version and capability detection
+  - Playbook run status
+  - verified evidence import
+  - provider provenance
+  excluded:
+  - Playbook execution
+  - repair actions
+  - approval decisions
+dependencies:
+- RIQ-201
+acceptance:
+- id: check-1
+  command: bun test test/ecosystem-dokion.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - subprocess
+  - playbook-boundary
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.4.0
+releaseTarget: 0.4.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - workflow step status
+  - trace provenance
+blocked: null
+completion: null

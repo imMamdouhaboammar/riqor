@@ -1,0 +1,63 @@
+name: Backlog Initiative
+description: Propose or mirror a multi-release Riqor outcome
+title: "[Initiative]: "
+body:
+  - type: input
+    id: backlog_id
+    attributes:
+      label: Initiative ID
+      description: Use the committed RIQ-00N identifier
+      placeholder: RIQ-006
+    validations:
+      required: true
+  - type: input
+    id: source
+    attributes:
+      label: Source record
+      placeholder: backlog/initiatives/RIQ-006-example.yml
+    validations:
+      required: true
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: State the observable problem
+    validations:
+      required: true
+  - type: textarea
+    id: outcome
+    attributes:
+      label: Outcome
+      description: State the observable multi-release outcome
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Scope and exclusions
+      description: List included and excluded work
+    validations:
+      required: true
+  - type: textarea
+    id: items
+    attributes:
+      label: Owned item IDs
+      placeholder: RIQ-601, RIQ-602
+    validations:
+      required: true
+  - type: input
+    id: releases
+    attributes:
+      label: Release targets
+      placeholder: 0.7.0
+    validations:
+      required: true
+  - type: checkboxes
+    id: contract
+    attributes:
+      label: Contract
+      options:
+        - label: The repository YAML record is authoritative
+          required: true
+        - label: This initiative does not duplicate an ecosystem owner
+          required: true

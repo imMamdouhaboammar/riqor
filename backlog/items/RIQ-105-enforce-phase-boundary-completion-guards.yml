@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-105
+title: Enforce phase boundary completion guards
+type: feature
+status: accepted
+priority: P1
+initiative: RIQ-001
+phase: phase-guards
+ownerProject: riqor
+collaborators: []
+problem: A run can be summarized without proving that all cards and phase acceptance checks are closed.
+outcome: Phase completion fails closed on open cards, stale evidence, unresolved review, or missing required approval.
+scope:
+  included:
+  - phase status
+  - completion checks
+  - stale evidence detection
+  - review and approval requirements
+  excluded:
+  - GitHub auto-merge
+  - Playbook completion logic
+dependencies:
+- RIQ-102
+- RIQ-104
+acceptance:
+- id: check-1
+  command: bun test test/phase-guards.test.ts
+- id: check-2
+  command: bun test test/assured-completion.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - completion-gate
+  - approval
+github:
+  issue: null
+  pr: null
+  milestone: 0.3.0
+releaseTarget: 0.3.0
+inspirations:
+- project: fable5-mode
+  concepts:
+  - close guard
+  - unfinished work blocking
+blocked: null
+completion: null

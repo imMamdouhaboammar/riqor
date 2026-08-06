@@ -1,0 +1,49 @@
+schemaVersion: 1
+id: RIQ-501
+title: Add explicit GitHub plan bridge
+type: feature
+status: proposed
+priority: P2
+initiative: RIQ-005
+phase: github-plan-bridge
+ownerProject: riqor
+collaborators: []
+problem: Maintainers manually duplicate initiative and phase information when creating GitHub execution mirrors.
+outcome: An explicit command creates or updates parent and phase issues from validated records while retaining source links.
+scope:
+  included:
+  - dry-run output
+  - explicit write flag
+  - parent and phase issue bodies
+  - source record references
+  excluded:
+  - silent writes
+  - automatic closure
+  - GitHub Project mutation
+dependencies:
+- RIQ-401
+acceptance:
+- id: check-1
+  command: bun test test/github-plan-bridge.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - network
+  - github-write
+  - approval
+github:
+  issue: null
+  pr: null
+  milestone: 0.6.0
+releaseTarget: 0.6.0
+inspirations:
+- project: agent-harness
+  concepts:
+  - parent plan issues
+  - phase issues
+blocked: null
+completion: null

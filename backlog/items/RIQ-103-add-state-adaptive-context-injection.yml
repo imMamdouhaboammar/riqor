@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-103
+title: Add state-adaptive context injection
+type: feature
+status: accepted
+priority: P1
+initiative: RIQ-001
+phase: adaptive-context
+ownerProject: riqor
+collaborators: []
+problem: The activator currently emits a general checkpoint instead of the minimum context required by the current run state.
+outcome: Planning, active-card, verification, retry, and approval states receive bounded state-specific context.
+scope:
+  included:
+  - state classifier
+  - bounded context capsules
+  - planning and active-card messages
+  - verification and retry messages
+  excluded:
+  - prompt transcript persistence
+  - model provider selection
+dependencies:
+- RIQ-102
+acceptance:
+- id: check-1
+  command: bun test test/assured-context.test.ts
+- id: check-2
+  command: bun test test/plugin-activator.test.ts test/plugin-hooks.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- privacy-review
+risk:
+  level: high
+  areas:
+  - prompt-boundary
+  - terminal-hooks
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.3.0
+releaseTarget: 0.3.0
+inspirations:
+- project: fable5-mode
+  concepts:
+  - state-sized profile injection
+  - external progress state
+blocked: null
+completion: null

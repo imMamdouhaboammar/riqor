@@ -1,0 +1,58 @@
+schemaVersion: 1
+id: RIQ-101
+title: Merge and release the Assured Trace Foundation
+type: release
+status: in-progress
+priority: P0
+initiative: RIQ-001
+phase: trace-foundation
+ownerProject: riqor
+collaborators: []
+problem: 'PR #8 contains the repository-scoped run and trace foundation but still requires hosted verification and merge.'
+outcome: The trace foundation is merged on main with current-head tests, review findings resolved, and release documentation aligned.
+scope:
+  included:
+  - 'complete hosted Bun and package gates for PR #8'
+  - resolve any new current-head review findings
+  - 'merge PR #8 without bypassing required evidence'
+  excluded:
+  - add Phase 2 ledger behavior
+  - publish a package before release approval
+dependencies: []
+acceptance:
+- id: check-1
+  command: bun test
+- id: check-2
+  command: bun run plugin:health
+- id: check-3
+  command: bun run skills:health
+- id: check-4
+  command: bun run riqor:pack
+- id: check-5
+  command: bun run riqor:test
+- id: check-6
+  command: bun run actions:verify
+evidenceRequired:
+- focused-test
+- integration-test
+- package-gate
+- review
+risk:
+  level: high
+  areas:
+  - local-state
+  - filesystem
+  - terminal-hooks
+  - release
+github:
+  issue: null
+  pr: 8
+  milestone: 0.2.0
+releaseTarget: 0.2.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - structured traces
+  - run lineage
+blocked: null
+completion: null

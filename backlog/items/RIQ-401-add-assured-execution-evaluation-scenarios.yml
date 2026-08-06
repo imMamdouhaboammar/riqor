@@ -1,0 +1,47 @@
+schemaVersion: 1
+id: RIQ-401
+title: Add assured execution evaluation scenarios
+type: test
+status: accepted
+priority: P1
+initiative: RIQ-004
+phase: assured-evaluations
+ownerProject: riqor
+collaborators: []
+problem: Assured execution behaviors are spread across unit tests and lack one deterministic scenario pack.
+outcome: A scenario runner verifies required events, forbidden events, recovery states, and bounded completion outcomes.
+scope:
+  included:
+  - scenario schema
+  - required and forbidden event assertions
+  - recovery cases
+  - budget exhaustion cases
+  excluded:
+  - subjective answer scoring
+  - hosted evaluator
+dependencies:
+- RIQ-105
+acceptance:
+- id: check-1
+  command: bun test test/assured-scenarios.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+risk:
+  level: medium
+  areas:
+  - test-infrastructure
+  - state-machine
+github:
+  issue: null
+  pr: null
+  milestone: 0.5.0
+releaseTarget: 0.5.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - deterministic evaluator
+  - required events
+  - forbidden events
+blocked: null
+completion: null

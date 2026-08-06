@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-301
+title: Add checkpoint creation
+type: feature
+status: proposed
+priority: P2
+initiative: RIQ-003
+phase: checkpoints
+ownerProject: riqor
+collaborators: []
+problem: An interrupted run cannot persist a compact resumable state at a card boundary.
+outcome: Riqor creates an atomic checkpoint containing current card, evidence references, budgets, and repository identity.
+scope:
+  included:
+  - checkpoint schema
+  - atomic write
+  - card-boundary capture
+  - sanitized state
+  excluded:
+  - remote checkpoint service
+  - raw transcript storage
+dependencies:
+- RIQ-105
+acceptance:
+- id: check-1
+  command: bun test test/checkpoints.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - local-state
+  - filesystem
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.5.0
+releaseTarget: 0.5.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - checkpointed runs
+- project: fable5-mode
+  concepts:
+  - checkpoint autonomy
+blocked: null
+completion: null

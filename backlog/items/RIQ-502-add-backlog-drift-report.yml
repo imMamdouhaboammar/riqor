@@ -1,0 +1,50 @@
+schemaVersion: 1
+id: RIQ-502
+title: Add backlog drift report
+type: feature
+status: proposed
+priority: P2
+initiative: RIQ-005
+phase: backlog-drift
+ownerProject: riqor
+collaborators: []
+problem: GitHub issue mirrors can diverge from repository records without a clear report.
+outcome: A read-only report lists missing, stale, closed-early, and unlinked issue mirrors without changing either source.
+scope:
+  included:
+  - read-only issue inspection
+  - source digest comparison
+  - drift categories
+  - machine-readable report
+  excluded:
+  - automatic remediation
+  - issue closure
+dependencies:
+- RIQ-501
+acceptance:
+- id: check-1
+  command: bun test test/backlog-drift.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: medium
+  areas:
+  - network
+  - github-read
+  - integrity
+github:
+  issue: null
+  pr: null
+  milestone: 0.6.0
+releaseTarget: 0.6.0
+inspirations:
+- project: agent-harness
+  concepts:
+  - GitHub plan execution
+- project: fable5-mode
+  concepts:
+  - durable external progress state
+blocked: null
+completion: null

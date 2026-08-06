@@ -1,0 +1,399 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/imMamdouhaboammar/riqor/schemas/backlog-item.schema.json",
+  "title": "Riqor Backlog Item",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "id",
+    "title",
+    "type",
+    "status",
+    "priority",
+    "initiative",
+    "phase",
+    "ownerProject",
+    "collaborators",
+    "problem",
+    "outcome",
+    "scope",
+    "dependencies",
+    "acceptance",
+    "evidenceRequired",
+    "risk",
+    "github",
+    "releaseTarget",
+    "inspirations",
+    "blocked",
+    "completion"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^RIQ-[1-9][0-9]{2}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 140
+    },
+    "type": {
+      "enum": [
+        "feature",
+        "integration",
+        "security",
+        "test",
+        "release",
+        "maintenance",
+        "research",
+        "documentation"
+      ]
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "accepted",
+        "ready",
+        "in-progress",
+        "blocked",
+        "review",
+        "done",
+        "deferred",
+        "rejected"
+      ]
+    },
+    "priority": {
+      "enum": [
+        "P0",
+        "P1",
+        "P2",
+        "P3",
+        "icebox"
+      ]
+    },
+    "initiative": {
+      "type": "string",
+      "pattern": "^RIQ-00[1-9]$"
+    },
+    "phase": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+    },
+    "ownerProject": {
+      "enum": [
+        "riqor"
+      ]
+    },
+    "collaborators": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "agent-kernel",
+          "delegate-team",
+          "dokion",
+          "codex-security",
+          "creative"
+        ]
+      }
+    },
+    "problem": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "outcome": {
+      "type": "string",
+      "minLength": 20,
+      "maxLength": 2000
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "included",
+        "excluded"
+      ],
+      "properties": {
+        "included": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        },
+        "excluded": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "pattern": "^RIQ-[1-9][0-9]{2}$"
+      }
+    },
+    "acceptance": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "command"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-z0-9][a-z0-9-]{1,63}$"
+          },
+          "command": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 500
+          }
+        }
+      }
+    },
+    "evidenceRequired": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "focused-test",
+          "integration-test",
+          "package-gate",
+          "review",
+          "security-review",
+          "privacy-review",
+          "artifact",
+          "manual-evidence"
+        ]
+      }
+    },
+    "risk": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "level",
+        "areas"
+      ],
+      "properties": {
+        "level": {
+          "enum": [
+            "low",
+            "medium",
+            "high",
+            "critical"
+          ]
+        },
+        "areas": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    },
+    "github": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "issue",
+        "pr",
+        "milestone"
+      ],
+      "properties": {
+        "issue": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "pr": {
+          "type": [
+            "integer",
+            "null"
+          ],
+          "minimum": 1
+        },
+        "milestone": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "pattern": "^0\\.[0-9]+\\.[0-9]+$"
+        }
+      }
+    },
+    "releaseTarget": {
+      "type": "string",
+      "pattern": "^0\\.[0-9]+\\.[0-9]+$"
+    },
+    "inspirations": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "project",
+          "concepts"
+        ],
+        "properties": {
+          "project": {
+            "enum": [
+              "LightAgent",
+              "fable5-mode",
+              "agent-harness",
+              "internal"
+            ]
+          },
+          "concepts": {
+            "type": "array",
+            "minItems": 1,
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 3
+            }
+          }
+        }
+      }
+    },
+    "blocked": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "reason",
+        "owner",
+        "nextAction"
+      ],
+      "properties": {
+        "reason": {
+          "type": "string",
+          "minLength": 8
+        },
+        "owner": {
+          "type": "string",
+          "minLength": 2
+        },
+        "nextAction": {
+          "type": "string",
+          "minLength": 8
+        }
+      }
+    },
+    "completion": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "additionalProperties": false,
+      "required": [
+        "mergedPr",
+        "commit",
+        "evidence"
+      ],
+      "properties": {
+        "mergedPr": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "commit": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{40}$"
+        },
+        "evidence": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 3
+          }
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "blocked"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "blocked": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "enum": [
+              "in-progress",
+              "review"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "github": {
+            "properties": {
+              "pr": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "status": {
+            "const": "done"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "completion": {
+            "type": "object"
+          }
+        }
+      }
+    }
+  ]
+}

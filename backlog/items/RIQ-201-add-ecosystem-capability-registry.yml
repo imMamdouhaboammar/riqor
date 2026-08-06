@@ -1,0 +1,53 @@
+schemaVersion: 1
+id: RIQ-201
+title: Add ecosystem capability registry
+type: feature
+status: accepted
+priority: P1
+initiative: RIQ-002
+phase: capability-registry
+ownerProject: riqor
+collaborators:
+- agent-kernel
+- delegate-team
+- dokion
+problem: Riqor has no versioned contract for discovering supporting projects and the capabilities they expose.
+outcome: A local registry reports provider availability, version, health, and bounded capability IDs.
+scope:
+  included:
+  - adapter interface
+  - capability manifest schema
+  - provider timeouts
+  - missing-provider behavior
+  excluded:
+  - provider-specific writes
+  - automatic installation
+dependencies:
+- RIQ-105
+acceptance:
+- id: check-1
+  command: bun test test/ecosystem-registry.test.ts
+- id: check-2
+  command: bun test test/ecosystem-doctor.test.ts
+evidenceRequired:
+- focused-test
+- integration-test
+- security-review
+risk:
+  level: high
+  areas:
+  - subprocess
+  - local-state
+  - privacy
+github:
+  issue: null
+  pr: null
+  milestone: 0.4.0
+releaseTarget: 0.4.0
+inspirations:
+- project: LightAgent
+  concepts:
+  - runtime hooks
+  - capability boundaries
+blocked: null
+completion: null
