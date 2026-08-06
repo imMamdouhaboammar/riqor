@@ -6,7 +6,7 @@ class Riqor < Formula
   homepage "https://github.com/imMamdouhaboammar/riqor"
   url "https://github.com/imMamdouhaboammar/riqor/releases/download/v0.1.0/riqor-0.1.0-homebrew.tar.gz"
   version "0.1.0"
-  sha256 "c17829049fc7a7d993b94790fce04d8292daac0e12664741f752a321a47161d0"
+  sha256 "a809d001397db84e08dd5beb2d63a478840dcaa5cf7e6b2f1a8548831e99147c"
   license "MIT"
 
   depends_on "node@22"
