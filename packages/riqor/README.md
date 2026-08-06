@@ -4,13 +4,13 @@
 
 **Proof before done**
 
-Evidence gates and managed Codex checkpoints for local coding sessions
+Evidence gates, repository run traces, and managed Codex checkpoints for local coding sessions
 
 </div>
 
 `riqor` is the official npm distribution of [Riqor](https://github.com/imMamdouhaboammar/riqor).
 
-It installs a versioned local runtime, command shims, shell integration, and the bundled Codex plugin. The CLI can track verification state and start Codex sessions with an optional periodic task checkpoint.
+It installs a versioned local runtime, command shims, shell integration, and the bundled Codex plugin. The CLI can track verification state, maintain a repository-scoped run trace, and start Codex sessions with an optional periodic task checkpoint.
 
 ## Requirements
 
@@ -32,6 +32,40 @@ riqor version --json
 riqor status --json
 riqor doctor --json
 ```
+
+## Record a Repository Run
+
+Start one active run for the current repository:
+
+```bash
+riqor run start \
+  --goal "Repair the parser and verify the regression" \
+  --path evidence-loop \
+  --profile assured
+```
+
+Inspect the run and its ordered trace:
+
+```bash
+riqor run status --json
+riqor trace show <run-id> --json
+```
+
+A successful mutation recorded by the shell integration moves the run to `verification-pending`. A successful recognized verification returns it to `active`.
+
+Complete only after verification is clear:
+
+```bash
+riqor run complete --json
+```
+
+Export trace events as JSON Lines:
+
+```bash
+riqor trace export <run-id> --format jsonl
+```
+
+Run state stores bounded metadata and digests. It does not store raw command text, command output, prompts, source contents, environment values, credentials, cookies, or tokens.
 
 ## Start Codex
 
@@ -68,6 +102,11 @@ The activator applies only to the Codex child process started by that command. I
 | `riqor status` | Report versions and integration surfaces |
 | `riqor doctor` | Check package and local environment health |
 | `riqor version` | Report package and plugin versions |
+| `riqor run start` | Start a repository-scoped run |
+| `riqor run status` | Inspect the active or selected run |
+| `riqor run complete` | Complete a verified active run |
+| `riqor trace show` | Show ordered trace events |
+| `riqor trace export` | Export trace events as JSONL |
 | `riqor codex` | Start Codex with the Riqor environment |
 | `riqor codex --activator` | Start Codex with periodic task checkpoints |
 | `riqor terminal status` | Show local verification state |
@@ -88,11 +127,15 @@ The installer uses XDG paths when configured. Default locations include:
 ~/.local/bin/riqor
 ```
 
-Run `riqor uninstall` for managed rollback.
+Set `RIQOR_STATE_HOME` to override the run state root. Terminal verification metadata continues to use `CODEX_SELF_IMPROVEMENT_DATA` when that variable is set.
+
+Run `riqor uninstall` for managed package rollback. Existing repository run records are not silently removed.
 
 ## Privacy and Scope
 
-Riqor runs locally and does not install a network listener. Activator state does not retain prompts, transcripts, commands, source contents, or credentials. The activator does not discover or attach to external Codex sessions.
+Riqor runs locally and does not install a network listener. Run and activator state do not retain prompts, transcripts, raw commands, command output, source contents, environment values, or credentials. The activator does not discover or attach to external Codex sessions.
+
+Riqor does not provide a model runtime, durable user memory, delegated-agent routing, or Playbook execution.
 
 ## Documentation
 
