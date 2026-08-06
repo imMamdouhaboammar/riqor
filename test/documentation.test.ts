@@ -49,6 +49,36 @@ describe("public documentation", () => {
     }
   });
 
+  test("assured trace foundation is documented without exposing implementation automation in the root README", async () => {
+    const cli = await readFile(join(root, "docs", "CLI_REFERENCE.md"), "utf8");
+    for (const command of [
+      "riqor run start",
+      "riqor run status",
+      "riqor run complete",
+      "riqor trace show",
+      "riqor trace export",
+    ]) {
+      expect(cli).toContain(command);
+    }
+
+    const architecture = await readFile(join(root, "docs", "ARCHITECTURE.md"), "utf8");
+    expect(architecture).toContain("src/assurance/run-store.ts");
+    expect(architecture).toContain("events.jsonl");
+    expect(architecture).toContain("verification-pending");
+
+    const security = await readFile(join(root, "docs", "SECURITY_MODEL.md"), "utf8");
+    expect(security).toContain("RIQOR_STATE_HOME");
+    expect(security).toMatch(/raw command text/i);
+    expect(security).toMatch(/command output/i);
+
+    const packageReadme = await readFile(join(root, "packages", "riqor", "README.md"), "utf8");
+    expect(packageReadme).toContain("riqor run start");
+
+    const rootReadme = await readFile(join(root, "README.md"), "utf8");
+    expect(rootReadme).not.toMatch(/^##\s+repository\s+automation\b/im);
+    expect(rootReadme).not.toMatch(/actions\/workflows\/[^\s)]+\/badge\.svg/i);
+  });
+
   test("visual preview has accessible product landmarks", async () => {
     const preview = await readFile(join(root, "docs", "preview", "index.html"), "utf8");
     expect(preview).toContain("<title>Riqor | Proof before done</title>");
