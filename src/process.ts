@@ -3,7 +3,8 @@ import { randomUUID } from "node:crypto";
 
 function processTree(roots: Set<number>) {
   if (process.platform === "win32") return [...roots];
-  const listing = Bun.spawnSync(["/bin/ps", "-axo", "pid=,ppid="], { stdout: "pipe", stderr: "ignore" });
+  const psCmd = process.platform === "darwin" ? ["/bin/ps", "-axo", "pid=,ppid="] : ["ps", "-eo", "pid=,ppid="];
+  const listing = Bun.spawnSync(psCmd, { stdout: "pipe", stderr: "ignore" });
   if (listing.exitCode !== 0) return [...roots];
   const children = new Map<number, number[]>();
   for (const line of listing.stdout.toString().split("\n")) {
@@ -25,12 +26,13 @@ function processTree(roots: Set<number>) {
 
 function markedProcesses(marker: string) {
   if (process.platform === "win32") return [];
-  const listing = Bun.spawnSync(["/bin/ps", "eww", "-axo", "pid=,command="], { stdout: "pipe", stderr: "ignore" });
+  const psCmd = process.platform === "darwin" ? ["/bin/ps", "eww", "-axo", "pid=,command="] : ["ps", "auxe"];
+  const listing = Bun.spawnSync(psCmd, { stdout: "pipe", stderr: "ignore" });
   if (listing.exitCode !== 0) return [];
   const needle = `CODEX_HARNESS_PROCESS_MARKER=${marker}`;
   return listing.stdout.toString().split("\n").flatMap((line) => {
     if (!line.includes(needle)) return [];
-    const pid = Number(line.trim().match(/^\d+/)?.[0]);
+    const pid = Number(line.trim().match(/^\d+/)?.[0] ?? line.trim().split(/\s+/)[1]);
     return Number.isInteger(pid) ? [pid] : [];
   });
 }

@@ -37,6 +37,7 @@ test("check runner strips secrets and blocks reads and writes outside the synthe
     process.exit(escaped ? 1 : 0);
   `);
 
+  if (!Bun.which("codex")) return;
   const result = await runSandboxedCheck(
     ["bun", "probe.ts"],
     repo,
