@@ -78,7 +78,7 @@ Use the Issue Forms for initiative, item, and phase mirrors. Do not treat a clos
 4. Run focused tests while developing
 5. Run the required verification set before opening a pull request
 6. Review the complete diff for unrelated changes, local paths, secrets, generated files, and stale documentation
-7. Update the related backlog record and generated views when the change belongs to a tracked item
+7. Update the related backlog record and regenerate the backlog views with `bun run backlog:sync` when the change belongs to a tracked item
 8. Open a pull request with scope, behavior, risks, and exact verification evidence
 
 ## Required Verification
