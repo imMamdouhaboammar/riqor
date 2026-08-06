@@ -2,7 +2,12 @@ import { afterEach, expect, test } from "bun:test";
 import { appendFile, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { appendRunEvent, createRun, readRun, readRunEvents } from "../src/assurance/run-store";
+import {
+  appendRunEvent,
+  createRun,
+  readRecoveredRunEvents,
+  readRun,
+} from "../src/assurance/recovering-run-store";
 import type { RepositoryIdentity } from "../src/assurance/repository-identity";
 
 const temporaryPaths: string[] = [];
@@ -82,8 +87,11 @@ test("recovers a trace event committed before the run record update", async () =
     nextStatus: "active",
   });
   expect(next.sequence).toBe(3);
-  expect((await readRunEvents({ stateRoot, identity, runId: run.runId })).map((event) => event.sequence))
-    .toEqual([1, 2, 3]);
+  expect((await readRecoveredRunEvents({
+    stateRoot,
+    identity,
+    runId: run.runId,
+  })).map((event) => event.sequence)).toEqual([1, 2, 3]);
 });
 
 test("fails closed when the mutable run record is ahead of the event log", async () => {
