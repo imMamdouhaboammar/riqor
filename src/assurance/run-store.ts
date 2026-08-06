@@ -22,24 +22,24 @@ import type {
   RiqorTraceMetadataValue,
 } from "./types";
 
-const runIdPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
-const digestPattern = /^[a-f0-9]{64}$/;
-const headPattern = /^[a-f0-9]{40}$/;
-const metadataKeyPattern = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
-const defaultLockTimeoutMs = 1_000;
-const defaultStaleLockMs = 30_000;
-const lockRetryMs = 20;
-const pathIds = new Set(harnessPaths.map(({ id }) => id));
-const profiles = new Set<ExecutionProfileId>(["standard", "assured"]);
-const runStatuses = new Set<RiqorRunStatus>([
+const RUN_ID_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/;
+const DIGEST_PATTERN = /^[a-f0-9]{64}$/;
+const HEAD_PATTERN = /^[a-f0-9]{40}$/;
+const METADATA_KEY_PATTERN = /^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$/;
+const DEFAULT_LOCK_TIMEOUT_MS = 1_000;
+const DEFAULT_STALE_LOCK_MS = 30_000;
+const LOCK_RETRY_MS = 20;
+const PATH_IDS = new Set(harnessPaths.map(({ id }) => id));
+const PROFILES = new Set<ExecutionProfileId>(["standard", "assured"]);
+const RUN_STATUSES = new Set<RiqorRunStatus>([
   "active",
   "verification-pending",
   "completed",
   "failed",
   "abandoned",
 ]);
-const eventSources = new Set<RiqorTraceEvent["source"]>(["riqor", "terminal"]);
-const eventTypes = new Set<RiqorTraceEventType>([
+const EVENT_SOURCES = new Set<RiqorTraceEvent["source"]>(["riqor", "terminal"]);
+const EVENT_TYPES = new Set<RiqorTraceEventType>([
   "run_started",
   "command_completed",
   "workspace_mutated",
@@ -47,7 +47,7 @@ const eventTypes = new Set<RiqorTraceEventType>([
   "verification_completed",
   "run_completed",
 ]);
-const eventStatuses = new Set<RiqorTraceEventStatus>(["pending", "success", "failure"]);
+const EVENT_STATUSES = new Set<RiqorTraceEventStatus>(["pending", "success", "failure"]);
 
 export type RunLocation = Readonly<{
   stateRoot: string;
@@ -66,7 +66,7 @@ export type CreateRunOptions = Readonly<{
   randomId?: () => string;
 }>;
 
-export type AppendRunEventOptions = RunLocation & Readonly<{
+export type RunEventInput = Readonly<{
   source: RiqorTraceEvent["source"];
   type: RiqorTraceEventType;
   status: RiqorTraceEventStatus;
@@ -75,8 +75,18 @@ export type AppendRunEventOptions = RunLocation & Readonly<{
   evidenceRefs?: readonly string[];
   metadata?: Readonly<Record<string, RiqorTraceMetadataValue>>;
   nextStatus?: RiqorRunStatus;
+  whenStatus?: RiqorRunStatus;
   now?: Date;
   randomId?: () => string;
+}>;
+
+export type AppendRunEventsOptions = RunLocation & Readonly<{
+  events: readonly RunEventInput[];
+  lockTimeoutMs?: number;
+  staleLockMs?: number;
+}>;
+
+export type AppendRunEventOptions = RunLocation & RunEventInput & Readonly<{
   lockTimeoutMs?: number;
   staleLockMs?: number;
 }>;
@@ -122,11 +132,11 @@ function activePath(stateRoot: string, rootDigest: string) {
 }
 
 function validateRootDigest(value: string) {
-  if (!digestPattern.test(value)) throw new Error("invalid repository digest");
+  if (!DIGEST_PATTERN.test(value)) throw new Error("invalid repository digest");
 }
 
 function validateRunId(value: string) {
-  if (!runIdPattern.test(value)) throw new Error("invalid run id");
+  if (!RUN_ID_PATTERN.test(value)) throw new Error("invalid run id");
 }
 
 function validateTimestamp(value: unknown, label: string) {
@@ -135,7 +145,8 @@ function validateTimestamp(value: unknown, label: string) {
   }
 }
 
-function boundedText(value: string, label: string, maximum: number) {
+function boundedText(value: unknown, label: string, maximum: number) {
+  if (typeof value !== "string") throw new Error(`invalid ${label}`);
   if (Array.from(value).length > maximum) throw new Error(`${label} is too long`);
   if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(value)) {
     throw new Error(`${label} contains unsupported control characters`);
@@ -144,41 +155,55 @@ function boundedText(value: string, label: string, maximum: number) {
 }
 
 function validateEventFields(event: Partial<RiqorTraceEvent>) {
-  if (!eventSources.has(event.source as RiqorTraceEvent["source"])) {
+  if (!EVENT_SOURCES.has(event.source as RiqorTraceEvent["source"])) {
     throw new Error("invalid trace event source");
   }
-  if (!eventTypes.has(event.type as RiqorTraceEventType)) {
+  if (!EVENT_TYPES.has(event.type as RiqorTraceEventType)) {
     throw new Error("invalid trace event type");
   }
-  if (!eventStatuses.has(event.status as RiqorTraceEventStatus)) {
+  if (!EVENT_STATUSES.has(event.status as RiqorTraceEventStatus)) {
     throw new Error("invalid trace event status");
   }
-  if (typeof event.eventId !== "string" || !runIdPattern.test(event.eventId)) {
+  if (typeof event.eventId !== "string" || !RUN_ID_PATTERN.test(event.eventId)) {
     throw new Error("invalid trace event id");
   }
   validateTimestamp(event.timestamp, "trace event timestamp");
-  if (event.subject !== undefined) boundedText(event.subject, "event subject", 256);
-  if (event.digest !== undefined && !digestPattern.test(event.digest)) {
-    throw new Error("invalid event digest");
+  if (event.subject !== undefined) boundedText(event.subject, "trace event subject", 256);
+  if (event.digest !== undefined) {
+    if (typeof event.digest !== "string" || !DIGEST_PATTERN.test(event.digest)) {
+      throw new Error("invalid event digest");
+    }
   }
-  if (event.evidenceRefs && event.evidenceRefs.length > 32) {
+  if (event.evidenceRefs !== undefined && !Array.isArray(event.evidenceRefs)) {
+    throw new Error("invalid evidence references");
+  }
+  if ((event.evidenceRefs?.length ?? 0) > 32) {
     throw new Error("too many evidence references");
   }
   for (const reference of event.evidenceRefs ?? []) {
     boundedText(reference, "evidence reference", 128);
   }
+  if (event.metadata !== undefined && (
+    !event.metadata
+    || typeof event.metadata !== "object"
+    || Array.isArray(event.metadata)
+  )) {
+    throw new Error("invalid event metadata");
+  }
   const metadataEntries = Object.entries(event.metadata ?? {});
   if (metadataEntries.length > 32) throw new Error("too many event metadata entries");
   for (const [key, value] of metadataEntries) {
-    if (!metadataKeyPattern.test(key)) throw new Error("invalid event metadata key");
+    if (!METADATA_KEY_PATTERN.test(key)) throw new Error("invalid event metadata key");
     if (typeof value === "string") boundedText(value, "event metadata value", 512);
-    if (typeof value === "number" && !Number.isFinite(value)) {
+    else if (typeof value === "number" && !Number.isFinite(value)) {
       throw new Error("invalid event metadata number");
+    } else if (value !== null && !["number", "boolean"].includes(typeof value)) {
+      throw new Error("invalid event metadata value");
     }
   }
 }
 
-function validateEventInput(options: AppendRunEventOptions) {
+function validateEventInput(options: RunEventInput) {
   validateEventFields({
     eventId: "event-placeholder",
     source: options.source,
@@ -190,14 +215,17 @@ function validateEventInput(options: AppendRunEventOptions) {
     evidenceRefs: options.evidenceRefs,
     metadata: options.metadata,
   });
-  if (options.nextStatus !== undefined && !runStatuses.has(options.nextStatus)) {
+  if (options.nextStatus !== undefined && !RUN_STATUSES.has(options.nextStatus)) {
     throw new Error("invalid run status transition");
+  }
+  if (options.whenStatus !== undefined && !RUN_STATUSES.has(options.whenStatus)) {
+    throw new Error("invalid run status condition");
   }
 }
 
 function publicRepository(identity: RepositoryIdentity): RiqorRun["repository"] {
   validateRootDigest(identity.rootDigest);
-  if (identity.headSha !== null && !headPattern.test(identity.headSha)) {
+  if (identity.headSha !== null && !HEAD_PATTERN.test(identity.headSha)) {
     throw new Error("invalid repository head");
   }
   return Object.freeze({
@@ -280,8 +308,8 @@ async function withFileLock<T>(
   action: () => Promise<T>,
   options: LockOptions = {},
 ) {
-  const timeoutMs = options.timeoutMs ?? defaultLockTimeoutMs;
-  const staleMs = options.staleMs ?? defaultStaleLockMs;
+  const timeoutMs = options.timeoutMs ?? DEFAULT_LOCK_TIMEOUT_MS;
+  const staleMs = options.staleMs ?? DEFAULT_STALE_LOCK_MS;
   const startedAt = Date.now();
   await mkdir(dirname(lockPath), { recursive: true, mode: 0o700 });
 
@@ -300,7 +328,7 @@ async function withFileLock<T>(
         continue;
       }
       if (Date.now() - startedAt >= timeoutMs) throw new Error("run state is busy");
-      await sleep(lockRetryMs);
+      await sleep(LOCK_RETRY_MS);
       continue;
     }
 
@@ -336,22 +364,22 @@ function validateRun(
   if (run.runId !== expectedRunId || run.repository?.rootDigest !== identity.rootDigest) {
     throw new Error("run repository identity mismatch");
   }
-  if (!runIdPattern.test(run.runId) || !runIdPattern.test(run.runGroupId ?? "")) {
+  if (!RUN_ID_PATTERN.test(run.runId) || !RUN_ID_PATTERN.test(run.runGroupId ?? "")) {
     throw new Error("invalid run record");
   }
-  if (run.parentRunId !== undefined && !runIdPattern.test(run.parentRunId)) {
+  if (run.parentRunId !== undefined && !RUN_ID_PATTERN.test(run.parentRunId)) {
     throw new Error("invalid run record");
   }
   if (typeof run.goal !== "string" || normalizeRunGoal(run.goal) !== run.goal) {
     throw new Error("invalid run record");
   }
-  if (!pathIds.has(run.pathId as HarnessPathId)) throw new Error("invalid run record");
-  if (!profiles.has(run.profileId as ExecutionProfileId)) throw new Error("invalid run record");
-  if (!runStatuses.has(run.status as RiqorRunStatus)) throw new Error("invalid run record");
+  if (!PATH_IDS.has(run.pathId as HarnessPathId)) throw new Error("invalid run record");
+  if (!PROFILES.has(run.profileId as ExecutionProfileId)) throw new Error("invalid run record");
+  if (!RUN_STATUSES.has(run.status as RiqorRunStatus)) throw new Error("invalid run record");
   if (!run.repository || typeof run.repository.dirty !== "boolean") {
     throw new Error("invalid run record");
   }
-  if (run.repository.headSha !== null && !headPattern.test(run.repository.headSha ?? "")) {
+  if (run.repository.headSha !== null && !HEAD_PATTERN.test(run.repository.headSha ?? "")) {
     throw new Error("invalid run record");
   }
   validateTimestamp(run.createdAt, "run timestamp");
@@ -367,7 +395,7 @@ function validateActivePointer(value: unknown): ActivePointer {
   if (!value || typeof value !== "object") throw new Error("invalid active run pointer");
   const pointer = value as Partial<ActivePointer>;
   if (pointer.schemaVersion !== 1) throw new Error("unsupported active run schema");
-  if (typeof pointer.runId !== "string" || !runIdPattern.test(pointer.runId)) {
+  if (typeof pointer.runId !== "string" || !RUN_ID_PATTERN.test(pointer.runId)) {
     throw new Error("invalid active run pointer");
   }
   return Object.freeze(pointer as ActivePointer);
@@ -385,6 +413,64 @@ function validateTraceEvent(value: unknown, run: RiqorRun): RiqorTraceEvent {
   }
   validateEventFields(event);
   return Object.freeze(event as RiqorTraceEvent);
+}
+
+async function readValidatedEvents(options: RunLocation, run: RiqorRun) {
+  const path = join(
+    runDirectory(options.stateRoot, options.identity.rootDigest, options.runId),
+    "events.jsonl",
+  );
+  if (!await assertSafeRegularFile(path, true)) return [];
+  const lines = (await readFile(path, "utf8")).split("\n").filter(Boolean);
+  const events = lines.map((line) => validateTraceEvent(parseJson(line, "trace event"), run));
+  for (let index = 0; index < events.length; index += 1) {
+    if (events[index]!.sequence !== index + 1) throw new Error("trace event sequence gap");
+  }
+  return events;
+}
+
+function deriveRunState(run: RiqorRun, events: readonly RiqorTraceEvent[]) {
+  let status = run.status;
+  let completedAt = run.completedAt;
+  for (const event of events) {
+    const successfulMutation = event.type === "command_completed"
+      && event.status === "success"
+      && event.metadata?.kind === "mutation";
+    if (successfulMutation || event.type === "workspace_mutated" || event.type === "verification_required") {
+      status = "verification-pending";
+      completedAt = undefined;
+    } else if (event.type === "verification_completed") {
+      status = "active";
+      completedAt = undefined;
+    } else if (event.type === "run_completed") {
+      status = "completed";
+      completedAt = event.timestamp;
+    }
+  }
+  return { status, completedAt } as const;
+}
+
+async function reconcileRunState(options: RunLocation, run: RiqorRun) {
+  const events = await readValidatedEvents(options, run);
+  const expectedNextSequence = events.length + 1;
+  if (run.nextSequence > expectedNextSequence) throw new Error("run state is ahead of trace");
+  if (run.nextSequence === expectedNextSequence) return run;
+
+  const lastEvent = events.at(-1);
+  if (!lastEvent) throw new Error("run trace is missing");
+  const derived = deriveRunState(run, events);
+  const updated: RiqorRun = Object.freeze({
+    ...run,
+    status: derived.status,
+    nextSequence: expectedNextSequence,
+    updatedAt: lastEvent.timestamp,
+    ...(derived.completedAt === undefined ? { completedAt: undefined } : { completedAt: derived.completedAt }),
+  });
+  await writeJsonAtomic(
+    join(runDirectory(options.stateRoot, options.identity.rootDigest, options.runId), "run.json"),
+    updated,
+  );
+  return updated;
 }
 
 async function readRunFile(options: RunLocation) {
@@ -406,45 +492,67 @@ async function readRunFile(options: RunLocation) {
   }
 }
 
-async function appendEventLocked(
-  options: AppendRunEventOptions,
-  run: RiqorRun,
-): Promise<{ event: RiqorTraceEvent; run: RiqorRun }> {
-  validateEventInput(options);
-  const timestamp = (options.now ?? new Date()).toISOString();
-  const sequence = run.nextSequence;
+function buildEvent(input: RunEventInput, run: RiqorRun): RiqorTraceEvent {
+  validateEventInput(input);
+  const timestamp = (input.now ?? new Date()).toISOString();
   const event: RiqorTraceEvent = Object.freeze({
     schemaVersion: 1,
-    eventId: (options.randomId ?? randomUUID)(),
-    sequence,
+    eventId: (input.randomId ?? randomUUID)(),
+    sequence: run.nextSequence,
     runId: run.runId,
     runGroupId: run.runGroupId,
-    source: options.source,
-    type: options.type,
-    status: options.status,
+    source: input.source,
+    type: input.type,
+    status: input.status,
     timestamp,
-    ...(options.subject === undefined ? {} : { subject: options.subject }),
-    ...(options.digest === undefined ? {} : { digest: options.digest }),
-    ...(options.evidenceRefs === undefined ? {} : { evidenceRefs: [...options.evidenceRefs] }),
-    ...(options.metadata === undefined ? {} : { metadata: { ...options.metadata } }),
+    ...(input.subject === undefined ? {} : { subject: input.subject }),
+    ...(input.digest === undefined ? {} : { digest: input.digest }),
+    ...(input.evidenceRefs === undefined ? {} : { evidenceRefs: [...input.evidenceRefs] }),
+    ...(input.metadata === undefined ? {} : { metadata: { ...input.metadata } }),
   });
   validateEventFields(event);
+  return event;
+}
 
+async function appendEventsLocked(
+  options: AppendRunEventsOptions,
+  run: RiqorRun,
+): Promise<{ events: RiqorTraceEvent[]; run: RiqorRun }> {
+  if (options.events.length === 0) throw new Error("at least one run event is required");
+  if (options.events.length > 16) throw new Error("too many run events in one batch");
+
+  const events: RiqorTraceEvent[] = [];
+  let updated = run;
+  for (const input of options.events) {
+    validateEventInput(input);
+    if (input.whenStatus !== undefined && updated.status !== input.whenStatus) continue;
+    const event = buildEvent(input, updated);
+    events.push(event);
+    updated = Object.freeze({
+      ...updated,
+      status: input.nextStatus ?? updated.status,
+      nextSequence: event.sequence + 1,
+      updatedAt: event.timestamp,
+    });
+  }
+
+  if (events.length === 0) return { events, run: updated };
   const directory = runDirectory(options.stateRoot, options.identity.rootDigest, options.runId);
-  await appendLine(join(directory, "events.jsonl"), `${JSON.stringify(event)}\n`);
-
-  const updated: RiqorRun = Object.freeze({
-    ...run,
-    status: options.nextStatus ?? run.status,
-    nextSequence: sequence + 1,
-    updatedAt: timestamp,
-  });
+  await appendLine(
+    join(directory, "events.jsonl"),
+    events.map((event) => `${JSON.stringify(event)}\n`).join(""),
+  );
   await writeJsonAtomic(join(directory, "run.json"), updated);
-  return { event, run: updated };
+  return { events, run: updated };
 }
 
 export async function readRun(options: RunLocation) {
-  return readRunFile(options);
+  validateRunId(options.runId);
+  const directory = runDirectory(options.stateRoot, options.identity.rootDigest, options.runId);
+  return withFileLock(join(directory, ".lock"), async () => {
+    const run = await readRunFile(options);
+    return reconcileRunState(options, run);
+  });
 }
 
 export async function readActiveRun(
@@ -454,7 +562,7 @@ export async function readActiveRun(
   const path = activePath(options.stateRoot, options.identity.rootDigest);
   if (!await assertSafeRegularFile(path, true)) return null;
   const pointer = validateActivePointer(parseJson(await readTextFile(path), "active run pointer"));
-  const run = await readRunFile({ ...options, runId: pointer.runId });
+  const run = await readRun({ ...options, runId: pointer.runId });
   if (["completed", "failed", "abandoned"].includes(run.status)) {
     await rm(path, { force: true });
     return null;
@@ -540,27 +648,52 @@ export async function createRun(options: CreateRunOptions): Promise<RiqorRun> {
   });
 }
 
-export async function appendRunEvent(options: AppendRunEventOptions) {
+export async function appendRunEvents(options: AppendRunEventsOptions) {
   validateRunId(options.runId);
   const directory = runDirectory(options.stateRoot, options.identity.rootDigest, options.runId);
   return withFileLock(
     join(directory, ".lock"),
     async () => {
-      const run = await readRunFile(options);
-      return (await appendEventLocked(options, run)).event;
+      const run = await reconcileRunState(options, await readRunFile(options));
+      if (["completed", "failed", "abandoned"].includes(run.status)) {
+        throw new Error(`run is not writable: ${run.status}`);
+      }
+      return appendEventsLocked(options, run);
     },
     { timeoutMs: options.lockTimeoutMs, staleMs: options.staleLockMs },
   );
 }
 
+export async function appendRunEvent(options: AppendRunEventOptions) {
+  const {
+    stateRoot,
+    identity,
+    runId,
+    lockTimeoutMs,
+    staleLockMs,
+    ...event
+  } = options;
+  const result = await appendRunEvents({
+    stateRoot,
+    identity,
+    runId,
+    events: [event],
+    lockTimeoutMs,
+    staleLockMs,
+  });
+  const appended = result.events[0];
+  if (!appended) throw new Error("run event condition was not met");
+  return appended;
+}
+
 export async function transitionRun(options: TransitionRunOptions) {
   validateRunId(options.runId);
-  if (!runStatuses.has(options.status)) throw new Error("invalid run status transition");
+  if (!RUN_STATUSES.has(options.status)) throw new Error("invalid run status transition");
   const directory = runDirectory(options.stateRoot, options.identity.rootDigest, options.runId);
   return withFileLock(
     join(directory, ".lock"),
     async () => {
-      const run = await readRunFile(options);
+      const run = await reconcileRunState(options, await readRunFile(options));
       const updated: RiqorRun = Object.freeze({
         ...run,
         status: options.status,
@@ -574,18 +707,8 @@ export async function transitionRun(options: TransitionRunOptions) {
 }
 
 export async function readRunEvents(options: RunLocation) {
-  const run = await readRunFile(options);
-  const path = join(
-    runDirectory(options.stateRoot, options.identity.rootDigest, options.runId),
-    "events.jsonl",
-  );
-  if (!await assertSafeRegularFile(path, true)) return [];
-  const lines = (await readFile(path, "utf8")).split("\n").filter(Boolean);
-  const events = lines.map((line) => validateTraceEvent(parseJson(line, "trace event"), run));
-  for (let index = 0; index < events.length; index += 1) {
-    if (events[index]!.sequence !== index + 1) throw new Error("trace event sequence gap");
-  }
-  return events;
+  const run = await readRun(options);
+  return readValidatedEvents(options, run);
 }
 
 async function clearActivePointer(options: RunLocation) {
@@ -604,19 +727,24 @@ export async function completeRun(options: CompleteRunOptions) {
   const completed = await withFileLock(
     join(directory, ".lock"),
     async () => {
-      const run = await readRunFile(options);
+      const run = await reconcileRunState(options, await readRunFile(options));
       if (run.status === "verification-pending") {
         throw new Error("verification is still pending");
       }
       if (run.status !== "active") throw new Error(`run is not active: ${run.status}`);
       const now = options.now ?? new Date();
-      const result = await appendEventLocked({
-        ...options,
-        source: "riqor",
-        type: "run_completed",
-        status: "success",
-        nextStatus: "completed",
-        now,
+      const result = await appendEventsLocked({
+        stateRoot: options.stateRoot,
+        identity: options.identity,
+        runId: options.runId,
+        events: [{
+          source: "riqor",
+          type: "run_completed",
+          status: "success",
+          nextStatus: "completed",
+          now,
+          randomId: options.randomId,
+        }],
       }, run);
       const finalRun: RiqorRun = Object.freeze({
         ...result.run,
