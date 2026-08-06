@@ -35,7 +35,7 @@ describe("riqor codex activator CLI", () => {
   });
 
   test("rejects timing flags unless activator is enabled", () => {
-    expect(() => parseCodexActivatorArgs(["--activator-interval", "5m"])).toThrow("requires --activator");
+    expect(() => parseCodexActivatorArgs(["--activator-interval", "5m"])).toThrow("require --activator");
   });
 
   test("rejects missing, malformed, and out-of-range durations", () => {
