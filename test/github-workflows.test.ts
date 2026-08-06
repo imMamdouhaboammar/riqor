@@ -15,6 +15,11 @@ describe("GitHub Workflow security", () => {
     }
   });
 
+  test("CI supports an explicit manual verification run", async () => {
+    const ciYaml = await readFile(join(root, ".github/workflows/ci.yml"), "utf8");
+    expect(ciYaml).toMatch(/^\s{2}workflow_dispatch:\s*$/m);
+  });
+
   test("release workflow specifies strict publish permissions and environment", async () => {
     const releaseYaml = await readFile(join(root, ".github/workflows/release.yml"), "utf8");
     expect(releaseYaml).toContain("permissions:\n  contents: write\n  id-token: write");
