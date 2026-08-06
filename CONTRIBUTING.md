@@ -10,8 +10,10 @@ Read the relevant public guide:
 - [CLI Reference](docs/CLI_REFERENCE.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security Model](docs/SECURITY_MODEL.md)
+- [Development Backlog](BACKLOG.md)
+- [Backlog Operating Guide](docs/backlog/README.md)
 
-Search existing issues and pull requests before opening a new change.
+Search existing issues, pull requests, and backlog records before opening a new change.
 
 For a suspected vulnerability, do not open a public issue. Use [GitHub Private Vulnerability Reporting](https://github.com/imMamdouhaboammar/riqor/security/advisories/new).
 
@@ -47,8 +49,26 @@ bun test
 | Shell and package scripts | `scripts/` |
 | Main integration tests | `test/` |
 | Packaged CLI tests | `packages/riqor/test/` |
+| Development backlog | `backlog/`, `BACKLOG.md`, `docs/backlog/` |
 | Public documentation | `README.md`, `docs/`, package README files |
 | CI and release workflows | `.github/workflows/` |
+
+## Backlog Workflow
+
+The YAML records under `backlog/initiatives/` and `backlog/items/` are the development source of truth. `BACKLOG.md` and `docs/backlog/CURRENT.md` are generated views. GitHub Issues and pull requests are execution mirrors.
+
+Before starting a backlog item:
+
+1. Confirm the item is `ready` or already `in-progress`
+2. Confirm its dependencies and WIP limits
+3. Confirm that Riqor owns the behavior rather than `agent-kernel`, `delegate-team`, `dokion`, Codex Security, or Creative
+4. Create or update the GitHub execution mirror
+5. Set `github.pr` when implementation starts
+6. Run `bun run backlog:check`
+
+A backlog item cannot move to `done` without current-head acceptance, applicable repository gates, resolved reviews, synchronized documentation, completion evidence, and regenerated views.
+
+Use the Issue Forms for initiative, item, and phase mirrors. Do not treat a closed GitHub issue as authoritative when the repository record is still open.
 
 ## Change Workflow
 
@@ -58,7 +78,8 @@ bun test
 4. Run focused tests while developing
 5. Run the required verification set before opening a pull request
 6. Review the complete diff for unrelated changes, local paths, secrets, generated files, and stale documentation
-7. Open a pull request with scope, behavior, risks, and exact verification evidence
+7. Update the related backlog record and generated views when the change belongs to a tracked item
+8. Open a pull request with scope, behavior, risks, and exact verification evidence
 
 ## Required Verification
 
@@ -81,6 +102,7 @@ bun run actions:verify
 | Activator CLI | `bun test test/codex-activator-cli.test.ts packages/riqor/test/cli.test.ts` |
 | Activator state or hooks | `bun test test/plugin-activator.test.ts test/plugin-hooks.test.ts` |
 | Terminal runtime | `bun test test/terminal-runtime.test.ts test/harness-cli.test.ts` |
+| Backlog records or governance | `bun run backlog:check` and `bun test test/backlog-schema.test.ts test/backlog-integrity.test.ts` |
 | Packaged CLI | `bun run riqor:test` |
 | Package build | `bun run riqor:pack` and `bun run riqor:inspect -- packages/riqor/riqor-*.tgz` |
 | Homebrew | `bun run brew:style`, `bun run brew:audit`, and `bun run brew:test` when Homebrew is available |
@@ -109,6 +131,8 @@ Check at least:
 - secret and local path exposure
 
 Riqor should not retain prompt text, transcript text, source contents, commands, or credentials in activator state.
+
+Backlog records may contain repository acceptance commands, but must not contain command output, prompts, transcripts, credentials, tokens, environment values, source contents, or private local paths.
 
 ## Code Conventions
 
@@ -148,6 +172,7 @@ A useful pull request description includes:
 - security or compatibility considerations
 - files or components affected
 - exact tests and commands run
+- related backlog item and source record
 - known limitations
 - screenshots only when the change has visible output
 
@@ -179,6 +204,8 @@ Before a release, verify:
 - GitHub Actions remain pinned according to repository policy
 - npm provenance remains enabled
 - release notes describe observable changes and boundaries
+- committed backlog items for the release are done with evidence
+- generated backlog views are current
 
 ## Getting Help
 
