@@ -1,3 +1,5 @@
+import { lstat, readdir } from "node:fs/promises";
+import { join } from "node:path";
 import {
   type Backlog,
   type BacklogInitiative,
@@ -47,6 +49,8 @@ const ITEM_KEYS = new Set([
   "completion",
   "sourcePath",
 ]);
+const MAX_RECORD_FILES = 1000;
+const MAX_RECORD_BYTES = 128 * 1024;
 const NESTED_KEYS = Object.freeze({
   scope: new Set(["included", "excluded"]),
   inspiration: new Set(["project", "concepts"]),
@@ -59,6 +63,50 @@ const NESTED_KEYS = Object.freeze({
 
 type RecordValue = Record<string, unknown>;
 type DependencyNode = Readonly<{ id: string; dependencies: readonly string[] }>;
+
+async function safeEntry(path: string, expected: "directory" | "file"): Promise<void> {
+  const entry = await lstat(path);
+  if (entry.isSymbolicLink()) throw new Error(`unsafe symlink backlog path: ${path}`);
+  if (expected === "directory" && !entry.isDirectory()) {
+    throw new Error(`backlog path is not a directory: ${path}`);
+  }
+  if (expected === "file" && !entry.isFile()) {
+    throw new Error(`backlog path is not a regular file: ${path}`);
+  }
+  if (expected === "file" && entry.size > MAX_RECORD_BYTES) {
+    throw new Error(`backlog file exceeds ${MAX_RECORD_BYTES} bytes: ${path}`);
+  }
+}
+
+export async function assertBacklogPathsSafe(root: string): Promise<void> {
+  const backlogRoot = join(root, "backlog");
+  await safeEntry(backlogRoot, "directory");
+  for (const section of ["initiatives", "items"]) {
+    const directory = join(backlogRoot, section);
+    await safeEntry(directory, "directory");
+    const names = (await readdir(directory)).filter((name) => name.endsWith(".yml"));
+    if (names.length > MAX_RECORD_FILES) {
+      throw new Error(`backlog ${section} exceeds ${MAX_RECORD_FILES} files`);
+    }
+    for (const name of names) await safeEntry(join(directory, name), "file");
+  }
+}
+
+export async function assertGeneratedViewPathsSafe(root: string): Promise<void> {
+  const docs = join(root, "docs");
+  const backlogDocs = join(docs, "backlog");
+  await safeEntry(docs, "directory");
+  await safeEntry(backlogDocs, "directory");
+  for (const path of [join(root, "BACKLOG.md"), join(backlogDocs, "CURRENT.md")]) {
+    try {
+      const entry = await lstat(path);
+      if (entry.isSymbolicLink()) throw new Error(`unsafe symlink generated view: ${path}`);
+      if (!entry.isFile()) throw new Error(`generated view is not a regular file: ${path}`);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
+  }
+}
 
 function isRecord(value: unknown): value is RecordValue {
   return Boolean(value) && typeof value === "object" && !Array.isArray(value);
