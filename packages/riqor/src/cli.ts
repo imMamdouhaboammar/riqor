@@ -9,7 +9,7 @@ function print(value: unknown, json: boolean) {
 }
 
 export async function main(args = process.argv.slice(2)): Promise<void> {
-  const [command, ...rest] = args;
+  const [command] = args;
   const json = args.includes("--json");
   const packageOnly = args.includes("--package-only");
 
@@ -44,6 +44,10 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
     return;
   }
 
-  // Fall back to root harness CLI for development / compatibility subcommands
-  return harnessMain(args);
+  try {
+    await harnessMain(args);
+  } catch (error) {
+    process.stderr.write(`riqor: ${error instanceof Error ? error.message : "unexpected failure"}\n`);
+    process.exitCode = 64;
+  }
 }

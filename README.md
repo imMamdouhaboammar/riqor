@@ -46,6 +46,28 @@ riqor status
 riqor doctor
 ```
 
+## Codex Session Activator
+
+Start Codex through Riqor and enable a periodic task checkpoint:
+
+```bash
+riqor codex --activator
+```
+
+The recommended defaults run a checkpoint after each 15 minutes of managed work and give that checkpoint a 3-minute watchdog window:
+
+```bash
+riqor codex --activator \
+  --activator-interval 15m \
+  --activator-watchdog 3m
+```
+
+Durations accept `ms`, `s`, `m`, or `h`. The interval must be between 1 minute and 24 hours. The watchdog must be between 10 seconds and 30 minutes.
+
+The activator works only for the Codex process started by that `riqor codex` command. It waits for the next safe Codex `Stop` lifecycle event rather than interrupting an active turn. The checkpoint asks Codex to restore the task goal, inspect current evidence, summarize completed work, detect drift or missing verification, and continue with the smallest relevant correction.
+
+The watchdog prevents a checkpoint from creating a repeated Stop loop. It does not kill the main Codex process. Closing the managed Codex process ends the activator; Riqor does not install a background daemon or attach to unrelated sessions.
+
 ## How Riqor Works
 
 Riqor runs a local, privacy-respecting control plane for AI coding assistants.
@@ -61,12 +83,14 @@ before accepting completion claims.
 - **Hosted Cloud Boundaries**: Hosted ChatGPT conversations do not execute local Riqor code inside their remote cloud runtime.
 - **Terminal Inheritance**: ChatGPT-controlled local terminals inherit Riqor
   only through the local shell and Codex environment.
-- **Privacy & Secrets**: Commands and source contents are not retained
-  in Riqor state.
+- **Privacy & Secrets**: Commands, prompts, transcripts, and source contents are not retained in activator state.
+- **Managed Scope**: The activator accepts only a random token created for the current `riqor codex` child process and never discovers external Codex sessions.
 - **Explicit Approval Gating**: High-risk or durable learning actions require
   explicit human approval.
 
 ## Disabling & Rollback
+
+Do not pass `--activator` when starting Codex to leave periodic checkpoints disabled.
 
 Uninstall Riqor and revert all managed shell integration shims cleanly:
 
