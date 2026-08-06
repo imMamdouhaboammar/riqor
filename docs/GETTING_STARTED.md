@@ -91,7 +91,9 @@ A full doctor report checks:
 - installed executable shim
 - Codex CLI availability
 - Codex core checks
-- optional Kaku availability
+- Kaku CLI availability
+
+The current full doctor treats a missing Kaku command as a failed check. Direct `riqor codex` use does not require launching Kaku. Use `--package-only` when you need to validate the package without local Codex and Kaku integrations.
 
 Some non-core Codex findings appear under `externalIssues`. Review them separately from the core pass or fail result.
 
@@ -175,7 +177,7 @@ Closing the managed Codex child process ends the activator for that session. Riq
 riqor uninstall
 ```
 
-The uninstaller removes Riqor-managed shims, payload links, installation state, and managed shell integration while using the installer backups where applicable.
+The package uninstaller removes the `riqor`, `codex-harness`, and `cxh` shims, invokes the managed shell uninstaller when present, removes the active symlink and versioned Riqor data directory, and deletes the install manifest.
 
 After uninstalling, confirm the result:
 
@@ -183,5 +185,7 @@ After uninstalling, confirm the result:
 command -v riqor || true
 ls -la ~/.config/riqor ~/.local/share/riqor ~/.local/state/riqor 2>/dev/null || true
 ```
+
+The installer state directory may remain when it contains no managed file targeted by the package uninstaller. Inspect it before deleting anything manually.
 
 See [Troubleshooting](TROUBLESHOOTING.md) when installation, diagnostics, or shell integration does not behave as expected.
