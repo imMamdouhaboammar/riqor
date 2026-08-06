@@ -5,20 +5,22 @@ import { constants } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
 import { harnessPaths } from "../plugins/codex-self-improvement/hooks/paths";
+import { assuranceCommand } from "./assurance/cli";
+import { resolveRiqorStateRoot } from "./assurance/repository-identity";
+import { recordActiveRunTerminalTransition } from "./assurance/terminal-trace";
 import {
   readTerminalState,
   recordTerminalPostexec,
   recordTerminalPreexec,
   type TerminalState,
 } from "./terminal-runtime";
-
 import { resolveRuntimeLayout } from "./runtime-paths";
 
 const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
 const pluginRoot = layout.pluginRoot;
 const pluginId = "codex-self-improvement@codex-self-improvement-dev";
-const usage = "usage: codex-harness <version|status|doctor|paths list|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--activator-interval 15m] [--activator-watchdog 3m]";
+const usage = "usage: codex-harness <version|status|doctor|paths list|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--activator-interval 15m] [--activator-watchdog 3m]";
 
 const defaultActivatorIntervalMs = 15 * 60_000;
 const defaultActivatorWatchdogMs = 3 * 60_000;
@@ -298,6 +300,13 @@ async function terminalCommand(args: string[]) {
     const exitCode = raw === undefined ? NaN : Number(raw);
     if (!Number.isInteger(exitCode)) throw new Error("terminal postexec requires an integer --exit-code");
     const state = await recordTerminalPostexec(dataDir(), key, exitCode);
+    if (state.transition) {
+      await recordActiveRunTerminalTransition({
+        stateRoot: resolveRiqorStateRoot(),
+        cwd: process.cwd(),
+        transition: state.transition,
+      });
+    }
     const message = terminalMessage(state);
     if (message) print(message, false);
     return;
@@ -319,9 +328,9 @@ async function passthroughCodex(args: string[]) {
     stdio: "inherit",
     shell: false,
   });
-  process.exitCode = await new Promise<number>((resolve, reject) => {
+  process.exitCode = await new Promise<number>((resolvePromise, reject) => {
     child.once("error", reject);
-    child.once("exit", (code) => resolve(code ?? 1));
+    child.once("exit", (code) => resolvePromise(code ?? 1));
   });
 }
 
@@ -337,6 +346,8 @@ async function lifecycle(script: string) {
 }
 
 export async function main(args = process.argv.slice(2)) {
+  if (await assuranceCommand(args)) return;
+
   const [command, subcommand, ...rest] = args;
   const json = has(args, "--json");
   if (command === "version") return print(await versionRecord(), json);
