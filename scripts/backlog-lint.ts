@@ -1,8 +1,9 @@
 import { loadBacklog, repositoryRootFromModule } from "./backlog-lib";
-import { validateBacklogPolicy } from "./backlog-policy";
+import { assertBacklogPathsSafe, validateBacklogPolicy } from "./backlog-policy";
 
 export async function main(): Promise<void> {
   const root = repositoryRootFromModule(import.meta.url);
+  await assertBacklogPathsSafe(root);
   const backlog = await loadBacklog(root);
   const errors = validateBacklogPolicy(backlog);
   if (errors.length > 0) {
