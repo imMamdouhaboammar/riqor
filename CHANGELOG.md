@@ -8,6 +8,12 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ### Added
 
+- Repository-scoped run records with explicit goals, workflow paths, and `standard` or `assured` execution profiles
+- Ordered JSONL trace events for run start, terminal command results, workspace mutations, verification requirements, verification completion, and run completion
+- `riqor run start`, `riqor run status`, and `riqor run complete` commands
+- `riqor trace show` and `riqor trace export --format jsonl` commands
+- Repository identity binding using a canonical-root digest, Git HEAD, and dirty state without persisting the raw root path
+- Per-run locks, stale lock recovery, schema validation, symlink rejection, and atomic mutable state writes
 - Documentation hub under `docs/README.md`
 - Getting started guide with installation, diagnostics, managed Codex sessions, and rollback
 - Complete CLI reference for package, Codex, terminal, plugin, shell, and workflow path commands
@@ -23,8 +29,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ### Changed
 
-- Rebuilt the root README around product scope, quick setup, technical behavior, local paths, security boundaries, and repository automation
-- Expanded the npm package README with requirements, commands, activator limits, and privacy scope
+- Terminal pre-execution now records only a pending command digest; fresh evidence becomes pending only after a successful mutation exit
+- Successful terminal mutations and recognized verification commands update the current repository run when one exists
+- Rebuilt the root README around product scope, quick setup, technical behavior, local paths, and security boundaries
+- Expanded the npm package README with requirements, run and trace commands, activator limits, and privacy scope
 - Expanded contribution guidance with focused checks, security review points, commit conventions, and documentation rules
 - Clarified the private vulnerability reporting policy and supported security scope
 - Extended action pin verification to discover every YAML workflow automatically
