@@ -1,13 +1,10 @@
-import {
-  loadBacklog,
-  repositoryRootFromModule,
-  validateBacklog,
-} from "./backlog-lib";
+import { loadBacklog, repositoryRootFromModule } from "./backlog-lib";
+import { validateBacklogPolicy } from "./backlog-policy";
 
 export async function main(): Promise<void> {
   const root = repositoryRootFromModule(import.meta.url);
   const backlog = await loadBacklog(root);
-  const errors = validateBacklog(backlog);
+  const errors = validateBacklogPolicy(backlog);
   if (errors.length > 0) {
     process.stderr.write(`${errors.map((error) => `- ${error}`).join("\n")}\n`);
     process.exitCode = 1;
