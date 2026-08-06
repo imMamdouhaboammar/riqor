@@ -117,11 +117,12 @@ describe("backlog governance policy", () => {
 
   test("renders several runtime items that share one pull request", async () => {
     const backlog = await loadBacklog(ROOT);
-    const items = backlog.items.map((item) =>
-      ["RIQ-102", "RIQ-201", "RIQ-301"].includes(item.id)
+    const items = backlog.items.map((item) => {
+      if (item.id === "RIQ-101") return { ...item, status: "accepted" };
+      return ["RIQ-102", "RIQ-201", "RIQ-301"].includes(item.id)
         ? { ...item, status: "in-progress", github: { ...item.github, pr: 90 } }
-        : item,
-    );
+        : item;
+    });
     const sharedPullRequest = { initiatives: backlog.initiatives, items } as any;
     expect(validateBacklogPolicy(sharedPullRequest).some(
       (error) => error.startsWith("WIP limit exceeded: runtime"),
