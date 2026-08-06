@@ -13,6 +13,8 @@ Several status and diagnostic commands accept `--json`.
 ```bash
 riqor status --json
 riqor doctor --json
+riqor run status --json
+riqor trace show <run-id> --json
 riqor terminal status --json
 ```
 
@@ -73,6 +75,103 @@ Removes the Riqor-managed installation.
 ```bash
 riqor uninstall
 ```
+
+## Run Commands
+
+A run is a repository-scoped record that binds a goal, workflow path, execution profile, evidence state, and ordered trace to the current repository identity.
+
+### `riqor run start`
+
+Starts the only active run for the current repository.
+
+```bash
+riqor run start \
+  --goal "Add resumable trace records" \
+  --path evidence-loop \
+  --profile assured
+```
+
+Options:
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `--goal <text>` | required | Explicit run goal, limited to 2,000 characters |
+| `--path <id>` | `evidence-loop` | Existing reviewed workflow path |
+| `--profile <id>` | `standard` | `standard` or `assured` |
+| `--parent-run <id>` | none | Link this run to a prior run in the same repository |
+| `--json` | off | Print the persisted run record |
+
+Starting a second active run in the same repository is rejected. Riqor does not derive the goal from a prompt or conversation transcript.
+
+### `riqor run status`
+
+Shows the active run for the current repository.
+
+```bash
+riqor run status
+riqor run status --json
+```
+
+Inspect a completed or otherwise inactive run explicitly:
+
+```bash
+riqor run status --run <run-id> --json
+```
+
+Run status values in this release are:
+
+```text
+active
+verification-pending
+completed
+failed
+abandoned
+```
+
+### `riqor run complete`
+
+Completes the active run only when verification is clear.
+
+```bash
+riqor run complete
+riqor run complete --json
+```
+
+The command fails when the run is `verification-pending`, belongs to another repository identity, or is no longer active. A successful completion records `run_completed` and clears the active pointer.
+
+## Trace Commands
+
+Trace files contain bounded metadata and SHA-256 digests. They do not contain raw command text, command output, prompts, source contents, or environment values.
+
+### `riqor trace show`
+
+Shows ordered events for a run.
+
+```bash
+riqor trace show <run-id>
+riqor trace show <run-id> --json
+```
+
+Initial event types are:
+
+```text
+run_started
+command_completed
+workspace_mutated
+verification_required
+verification_completed
+run_completed
+```
+
+### `riqor trace export`
+
+Writes the stored event stream as JSON Lines.
+
+```bash
+riqor trace export <run-id> --format jsonl
+```
+
+`jsonl` is the only supported export format in this release. Each line is one event in sequence order.
 
 ## Codex Commands
 
@@ -137,7 +236,7 @@ These commands are normally called by installed shell hooks. They are public for
 
 ### `riqor terminal preexec`
 
-Records a command before execution.
+Records a command digest before execution.
 
 ```bash
 riqor terminal preexec \
@@ -145,7 +244,7 @@ riqor terminal preexec \
   --command '<command>'
 ```
 
-`--session` is optional. Riqor otherwise uses the current TTY or parent process identifier.
+`--session` is optional. Riqor otherwise uses the current TTY or parent process identifier. The raw command is classified in memory and is not persisted.
 
 ### `riqor terminal postexec`
 
@@ -157,7 +256,9 @@ riqor terminal postexec \
   --exit-code 0
 ```
 
-`--exit-code` must be an integer.
+`--exit-code` must be an integer. When the current repository has an active run, a processed transition also appends bounded trace events to that run.
+
+A successful mutation moves the run to `verification-pending`. A failed mutation does not create fresh pending evidence. A successful recognized verification clears pending evidence.
 
 ### `riqor terminal status`
 
@@ -261,6 +362,14 @@ Install and diagnose:
 ```bash
 npx riqor install
 riqor doctor --json
+```
+
+Start and inspect a run:
+
+```bash
+riqor run start --goal "Repair the parser" --profile assured
+riqor run status --json
+riqor trace show <run-id> --json
 ```
 
 Start a managed session with defaults:
