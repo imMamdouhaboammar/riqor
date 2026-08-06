@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test";
 import { resolve } from "node:path";
-import { loadBacklog } from "../scripts/backlog-lib";
+import {
+  loadBacklog,
+  renderBacklogMarkdown,
+  renderCurrentMarkdown,
+} from "../scripts/backlog-lib";
 import { validateBacklogPolicy } from "../scripts/backlog-policy";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -109,6 +113,21 @@ describe("backlog governance policy", () => {
     expect(validateBacklogPolicy(sharedPullRequest as any).some(
       (error) => error.startsWith("WIP limit exceeded: runtime"),
     )).toBe(false);
+  });
+
+  test("renders several runtime items that share one pull request", async () => {
+    const backlog = await loadBacklog(ROOT);
+    const items = backlog.items.map((item) =>
+      ["RIQ-102", "RIQ-201", "RIQ-301"].includes(item.id)
+        ? { ...item, status: "in-progress", github: { ...item.github, pr: 90 } }
+        : item,
+    );
+    const sharedPullRequest = { initiatives: backlog.initiatives, items } as any;
+    expect(validateBacklogPolicy(sharedPullRequest).some(
+      (error) => error.startsWith("WIP limit exceeded: runtime"),
+    )).toBe(false);
+    expect(() => renderBacklogMarkdown(sharedPullRequest)).not.toThrow();
+    expect(() => renderCurrentMarkdown(sharedPullRequest)).not.toThrow();
   });
 
   test("enforces release and governance pull request limits", async () => {
