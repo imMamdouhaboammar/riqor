@@ -34,9 +34,6 @@ export async function doctor(options: DoctorOptions = {}): Promise<DoctorReport>
   const hasProvenance = await exists(provenancePath);
   checks.push({ id: "payload-provenance", ok: hasProvenance, detail: hasProvenance ? "verified" : "missing" });
 
-  const hasBinShim = await exists(paths.riqorBinShim);
-  checks.push({ id: "executable-shim", ok: hasBinShim, detail: hasBinShim ? "installed" : "missing" });
-
   const supportedPlatform = process.platform === "darwin" || process.platform === "linux";
   checks.push({ id: "supported-platform", ok: supportedPlatform, detail: process.platform });
 
@@ -47,6 +44,9 @@ export async function doctor(options: DoctorOptions = {}): Promise<DoctorReport>
       externalIssues,
     };
   }
+
+  const hasBinShim = await exists(paths.riqorBinShim);
+  checks.push({ id: "executable-shim", ok: hasBinShim, detail: hasBinShim ? "installed" : "missing" });
 
   // Full doctor checks
   const codex = await runCommand(["codex", "--version"]);

@@ -28,6 +28,11 @@
     "riqor:test": "bun test test/riqor-*.test.ts ./packages/riqor/test/*.test.ts",
     "actions:verify": "bun run scripts/verify-action-pins.ts",
     "release:manifest": "bun run scripts/create-release-manifest.ts",
-    "release:verify": "bun run scripts/verify-release-artifacts.ts"
+    "release:verify": "bun run scripts/verify-release-artifacts.ts",
+    "brew:archive": "bun run scripts/build-homebrew-archive.ts",
+    "brew:generate": "bun run scripts/generate-homebrew-formula.ts",
+    "brew:style": "brew style Formula/riqor.rb && ruby -c Formula/riqor.rb",
+    "brew:audit": "brew audit --strict Formula/riqor.rb",
+    "brew:test": "bash scripts/test-homebrew-formula.sh"
   }
 }

@@ -1,4 +1,5 @@
-import { resolve } from "node:path";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
 export type RuntimeLayoutOptions = {
   moduleDirectory?: string;
@@ -17,7 +18,8 @@ export type RuntimeLayout = {
 
 export function resolveRuntimeLayout(options: RuntimeLayoutOptions = {}): RuntimeLayout {
   const env = options.env ?? process.env;
-  const repositoryRoot = resolve(options.moduleDirectory ?? import.meta.dir, "..");
+  const currentDir = options.moduleDirectory ?? (typeof import.meta.dir === "string" ? import.meta.dir : dirname(fileURLToPath(import.meta.url)));
+  const repositoryRoot = resolve(currentDir, "..");
   const runtimeRoot = resolve(env.RIQOR_RUNTIME_ROOT ?? repositoryRoot);
   const packageRoot = resolve(env.RIQOR_PACKAGE_ROOT ?? repositoryRoot);
   const distribution = env.RIQOR_RUNTIME_ROOT ? "package" : "repository";
