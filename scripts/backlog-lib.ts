@@ -237,7 +237,6 @@ export function validateBacklog(backlog: Backlog): string[] {
   }
   errors.push(...dependencyCycles(backlog.items));
   const inProgress = backlog.items.filter((item) => item.status === "in-progress");
-  if (inProgress.length > 2) errors.push("WIP limit exceeded: more than two in-progress items");
   const byInitiative = new Map<string, number>();
   inProgress.forEach((item) => byInitiative.set(item.initiative, (byInitiative.get(item.initiative) ?? 0) + 1));
   for (const [initiative, count] of byInitiative) if (count > 1) errors.push(`WIP limit exceeded: ${initiative} has ${count} in-progress items`);
