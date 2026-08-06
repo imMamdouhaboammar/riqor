@@ -11,6 +11,8 @@ Use this page to move from installation to implementation details without search
 | Understand components and data flow | [Architecture](ARCHITECTURE.md) |
 | Review trust boundaries and local state | [Security Model](SECURITY_MODEL.md) |
 | Diagnose an installation or session problem | [Troubleshooting](TROUBLESHOOTING.md) |
+| Review current development priorities | [Backlog](../BACKLOG.md) |
+| Operate the development backlog | [Backlog guide](backlog/README.md) |
 | Configure security scans, badges, and demo captures | [Automation](AUTOMATION.md) |
 | Review the visual product preview | [Preview source](preview/index.html) |
 | Contribute code or documentation | [Contributing](../CONTRIBUTING.md) |
@@ -52,6 +54,10 @@ The activator watchdog limits a checkpoint cycle. If the review phase exceeds th
 
 Riqor includes curated workflow paths with objectives, evidence requirements, guardrails, relevant skills, and approval requirements. List them with `riqor paths list`.
 
+### Development backlog
+
+Versioned YAML records under `backlog/` define initiatives, independently reviewable items, dependencies, acceptance commands, evidence requirements, ownership boundaries, and release targets. `BACKLOG.md` and `docs/backlog/CURRENT.md` are generated views. GitHub Issues and pull requests are execution mirrors rather than the source of truth.
+
 ### Repository automation
 
 SecureAI-Scan checks AI, MCP, and Agent Skill surfaces. Dynamic Badges publishes Gist-backed endpoints after credentials are configured. AutoDemo records the static product preview as versioned workflow artifacts.
@@ -62,4 +68,4 @@ Riqor is local software. It can affect Codex App, Codex CLI, Kaku, and terminal 
 
 ## Repository Documents
 
-The `docs/superpowers/` directory contains implementation specifications and plans used during feature development. Those files record design decisions and implementation history. The guides linked above are the public operating documentation.
+The `docs/superpowers/` directory contains implementation specifications and plans used during feature development. Those files record design decisions and implementation history. The `backlog/` directory contains the authoritative development queue. The guides linked above are the public operating documentation.
