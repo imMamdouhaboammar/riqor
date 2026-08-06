@@ -1,12 +1,13 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdir, mkdtemp, rm, symlink, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import {
   assertBacklogPathsSafe,
   assertGeneratedViewPathsSafe,
 } from "../scripts/backlog-policy";
 
+const ROOT = resolve(import.meta.dir, "..");
 const TEMPORARY_PATHS: string[] = [];
 
 afterEach(async () => {
@@ -70,5 +71,18 @@ describe("backlog filesystem boundaries", () => {
     await symlink(outside, join(root, "BACKLOG.md"));
     await expect(assertGeneratedViewPathsSafe(root))
       .rejects.toThrow("unsafe symlink generated view");
+  });
+
+  test("backlog TypeScript sources contain no invalid decoded characters", async () => {
+    const invalidDecodedCharacter = /[\u007f-\u009f\ufffd]/;
+    for (const filename of [
+      "backlog-lib.ts",
+      "backlog-policy.ts",
+      "backlog-lint.ts",
+      "backlog-report.ts",
+    ]) {
+      const source = await readFile(join(ROOT, "scripts", filename), "utf8");
+      expect(source).not.toMatch(invalidDecodedCharacter);
+    }
   });
 });
