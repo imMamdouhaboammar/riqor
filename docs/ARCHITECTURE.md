@@ -1,10 +1,11 @@
 # Architecture
 
-Riqor is a local runtime around AI coding sessions. It combines a packaged CLI, shell hooks, Codex lifecycle hooks, reviewed workflow paths, and local state.
+Riqor is a local runtime around AI coding sessions. It combines a packaged CLI, shell hooks, Codex lifecycle hooks, reviewed workflow paths, repository-scoped run records, and local state.
 
 ## Design Goals
 
 - Keep completion claims tied to observable repository evidence
+- Record bounded run history without retaining prompts or raw commands
 - Add checkpoints without interrupting active Codex turns
 - Scope activator behavior to sessions started through Riqor
 - Avoid background daemons and network listeners
@@ -19,6 +20,7 @@ flowchart TB
     PKG[Versioned package payload]
     SH[Shell integration]
     TR[Terminal runtime]
+    RR[Run record and trace]
     CP[Codex plugin]
     AC[Session activator]
     WP[Reviewed workflow paths]
@@ -26,8 +28,11 @@ flowchart TB
 
     CLI --> PKG
     CLI --> SH
+    CLI --> RR
     SH --> TR
+    TR --> RR
     TR --> LS
+    RR --> LS
     CLI --> CP
     CP --> LS
     CP --> AC
@@ -47,7 +52,7 @@ The npm package under `packages/riqor/` exposes three command names:
 
 `riqor` is the primary name. The other names are compatibility aliases.
 
-The package CLI owns package installation, package diagnostics, status, version reporting, and uninstall behavior. Commands not handled at that layer are passed to the bundled harness CLI.
+The package CLI owns package installation, package diagnostics, status, version reporting, uninstall behavior, repository runs, and trace inspection. Commands not handled at the package layer are passed to the bundled harness CLI.
 
 ### Versioned Payload Installer
 
@@ -64,9 +69,76 @@ Shell hooks call the terminal runtime before and after commands. The runtime cla
 - `agent`
 - `other`
 
-A successful mutation keeps `evidencePending` set to `true`. A successful recognized verification command clears it. Failed commands do not clear existing pending evidence.
+A successful mutation sets `evidencePending` to `true`. A successful recognized verification command clears it. Failed commands preserve existing evidence state, and a failed mutation does not create fresh pending evidence.
 
 Command text is reduced to a SHA-256 digest in terminal state. The stored state includes classification, exit status, route, timing, and the pending evidence flag.
+
+### Run Record and Trace
+
+The assurance code under `src/assurance/` adds one active run pointer per repository identity.
+
+A run contains:
+
+- explicit user-supplied goal
+- existing workflow path identifier
+- `standard` or `assured` execution profile
+- current status
+- repository root digest
+- current Git HEAD when available
+- dirty boolean
+- next event sequence
+- creation, update, and completion timestamps
+
+The store in `src/assurance/run-store.ts` writes:
+
+```text
+${RIQOR_STATE_HOME:-${XDG_STATE_HOME:-~/.local/state}/riqor}/
+  projects/<repository-root-digest>/
+    active.json
+    runs/<run-id>/
+      run.json
+      events.jsonl
+      .lock
+```
+
+`run.json` is replaced atomically. `events.jsonl` is append-only and ordered by a monotonically increasing sequence allocated while holding the per-run lock.
+
+Initial event types are:
+
+```text
+run_started
+command_completed
+workspace_mutated
+verification_required
+verification_completed
+run_completed
+```
+
+The initial run lifecycle is:
+
+```mermaid
+stateDiagram-v2
+    [*] --> active: riqor run start
+    active --> verification-pending: successful mutation
+    verification-pending --> verification-pending: failed or unrelated command
+    verification-pending --> active: successful recognized verification
+    active --> completed: riqor run complete
+    completed --> [*]
+```
+
+`riqor run complete` rejects a run in `verification-pending`. A successful completion appends `run_completed`, stores `completedAt`, and removes the repository's active pointer.
+
+### Repository Identity
+
+`src/assurance/repository-identity.ts` resolves the canonical Git root when available and falls back to the canonical current directory outside Git.
+
+Only these repository fields are persisted:
+
+- SHA-256 digest of the canonical root
+- Git HEAD or `null`
+- dirty boolean
+
+The raw canonical path exists only in process memory so the state directory can be selected. It is not written to the run record or event stream.
 
 ### Codex Plugin
 
@@ -115,6 +187,8 @@ List the public path metadata with:
 riqor paths list --json
 ```
 
+An execution profile is independent from the selected path. For example, `secure-change` can run with the `assured` profile without creating a duplicate path.
+
 ## Installation Flow
 
 ```mermaid
@@ -141,22 +215,31 @@ sequenceDiagram
 sequenceDiagram
     participant SH as Shell hook
     participant TR as Terminal runtime
+    participant RR as Active run
     participant ST as Local state
     participant U as User or agent
 
     SH->>TR: preexec(command)
-    TR->>TR: Classify command
+    TR->>TR: Classify and hash command
     TR->>ST: Save pending command digest
     U->>SH: Command finishes
     SH->>TR: postexec(exit code)
+    TR->>RR: Append command_completed
     alt Successful mutation
         TR->>ST: Set evidencePending=true
+        TR->>RR: Append workspace_mutated and verification_required
+        RR->>RR: status=verification-pending
     else Successful verification
         TR->>ST: Set evidencePending=false
+        TR->>RR: Append verification_completed when pending
+        RR->>RR: status=active
     else Other result
         TR->>ST: Preserve existing evidence state
+        RR->>RR: Preserve current status
     end
 ```
+
+When the current repository has no active run, terminal verification tracking continues to work as before and no run event is appended.
 
 ## Activator Stop Flow
 
@@ -177,8 +260,10 @@ Riqor respects XDG environment variables when present.
 | Versioned package data | `${XDG_DATA_HOME:-~/.local/share}/riqor/` |
 | Active payload symlink | `${XDG_DATA_HOME:-~/.local/share}/riqor/current` |
 | Configuration | `${XDG_CONFIG_HOME:-~/.config}/riqor/` |
-| Installer state | `${XDG_STATE_HOME:-~/.local/state}/riqor/` |
+| Run records and installer state | `${XDG_STATE_HOME:-~/.local/state}/riqor/` |
 | Executable shims | `~/.local/bin/` |
+
+Run storage can be overridden with `RIQOR_STATE_HOME`.
 
 Terminal verification state defaults to:
 
@@ -192,30 +277,37 @@ Activator state is stored below the plugin data directory under `activator/`.
 
 ## State Handling
 
-Terminal state uses:
+Run and terminal state use:
 
-- SHA-256 session and command digests
-- JSON records
-- mode `0700` for the state directory
+- SHA-256 repository, session, and command digests
+- JSON records and ordered JSONL events
+- mode `0700` for state directories
 - mode `0600` for state files
-- temporary files followed by atomic rename
+- temporary files followed by atomic rename for mutable JSON
+- exclusive run locks
+- stale lock recovery
+- malformed schema rejection
+- symlink rejection
 
-Activator state adds:
+Activator state additionally uses:
 
 - random UUID session tokens
 - hashed filenames
 - bounded state size and state count
-- restrictive permissions
 - per-session locks
-- stale lock handling
-- malformed state rejection
-- symlink rejection
 - stale record pruning
 
 See [Security Model](SECURITY_MODEL.md) for trust boundaries and failure behavior.
 
 ## Failure Behavior
 
+- Invalid run goals, paths, profiles, and run identifiers fail before state mutation
+- A second active run is rejected
+- Corrupt or unknown state schemas fail closed
+- Repository identity mismatches are rejected
+- A live run lock times out with an explicit busy error
+- A stale regular lock is recovered after the configured bound
+- A run with pending verification cannot complete
 - Invalid activator options fail before Codex starts
 - Invalid inherited activator values are ignored
 - The watchdog fails open after a bounded checkpoint cycle
@@ -236,6 +328,10 @@ Riqor does not run inside a hosted ChatGPT conversation. A ChatGPT-controlled lo
 | Package diagnostics | `packages/riqor/src/commands/doctor.ts` |
 | User paths | `packages/riqor/src/paths.ts` |
 | Harness CLI and Codex wrapper | `src/harness-cli.ts` |
+| Assurance command routing | `src/assurance/cli.ts` |
+| Repository identity | `src/assurance/repository-identity.ts` |
+| Run and trace store | `src/assurance/run-store.ts` |
+| Terminal to run mapping | `src/assurance/terminal-trace.ts` |
 | Terminal state | `src/terminal-runtime.ts` |
 | Codex hooks | `plugins/codex-self-improvement/hooks/` |
 | Activator state | `plugins/codex-self-improvement/hooks/activator.ts` |
