@@ -1,25 +1,20 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { spawnSync } from "node:child_process";
 import {
   inspectRepositoryIdentity,
   normalizeRunGoal,
   resolveRiqorStateRoot,
+  type GitRunner,
 } from "../src/assurance/repository-identity";
+import { runGit } from "./helpers/git";
 
 const temporaryPaths: string[] = [];
 
 afterEach(async () => {
   await Promise.all(temporaryPaths.splice(0).map((path) => rm(path, { recursive: true, force: true })));
 });
-
-function git(cwd: string, ...args: string[]) {
-  const result = spawnSync("git", args, { cwd, encoding: "utf8", shell: false });
-  if (result.status !== 0) throw new Error(result.stderr || `git ${args.join(" ")} failed`);
-  return result.stdout.trim();
-}
 
 describe("assurance repository identity", () => {
   test("normalizes and bounds explicit goals", () => {
@@ -41,12 +36,12 @@ describe("assurance repository identity", () => {
   test("records a digest and git metadata without serializing the root path", async () => {
     const root = await mkdtemp(join(tmpdir(), "riqor-identity-"));
     temporaryPaths.push(root);
-    git(root, "init", "-q");
-    git(root, "config", "user.email", "test@example.com");
-    git(root, "config", "user.name", "Test");
+    runGit(root, "init", "-q");
+    runGit(root, "config", "user.email", "test@example.com");
+    runGit(root, "config", "user.name", "Test");
     await writeFile(join(root, "README.md"), "fixture\n");
-    git(root, "add", "README.md");
-    git(root, "commit", "-qm", "initial");
+    runGit(root, "add", "README.md");
+    runGit(root, "commit", "-qm", "initial");
     await mkdir(join(root, "nested"));
 
     const identity = await inspectRepositoryIdentity(join(root, "nested"));
@@ -61,6 +56,39 @@ describe("assurance repository identity", () => {
       dirty: identity.dirty,
     };
     expect(JSON.stringify(persistedShape)).not.toContain(root);
+  });
+
+  test("preserves leading and trailing spaces in a repository path", async () => {
+    const parent = await mkdtemp(join(tmpdir(), "riqor-identity-space-"));
+    temporaryPaths.push(parent);
+    const root = join(parent, " repository with trailing space ");
+    await mkdir(root);
+    runGit(root, "init", "-q");
+    runGit(root, "config", "user.email", "test@example.com");
+    runGit(root, "config", "user.name", "Test");
+    await writeFile(join(root, "README.md"), "fixture\n");
+    runGit(root, "add", "README.md");
+    runGit(root, "commit", "-qm", "initial");
+
+    expect((await inspectRepositoryIdentity(root)).rootPath).toBe(root);
+  });
+
+  test("fails closed when git status cannot be read", async () => {
+    const root = await mkdtemp(join(tmpdir(), "riqor-identity-status-"));
+    temporaryPaths.push(root);
+    const runner: GitRunner = (_cwd, args) => {
+      const command = args.join(" ");
+      if (command === "rev-parse --show-toplevel") {
+        return { ok: true, stdout: `${root}\n`, stderr: "", timedOut: false };
+      }
+      if (command === "rev-parse --verify HEAD") {
+        return { ok: true, stdout: `${"a".repeat(40)}\n`, stderr: "", timedOut: false };
+      }
+      return { ok: false, stdout: "", stderr: "status unavailable\n", timedOut: false };
+    };
+
+    await expect(inspectRepositoryIdentity(root, { runGit: runner }))
+      .rejects.toThrow("git status inspection failed: status unavailable");
   });
 
   test("falls back to a canonical non-git directory", async () => {
