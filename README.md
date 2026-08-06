@@ -47,8 +47,8 @@ riqor install
 ### 2. Check the environment
 
 ```bash
-riqor status
-riqor doctor
+riqor status --json
+riqor doctor --json
 ```
 
 ### 3. Start a managed Codex session
