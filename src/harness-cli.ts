@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+import { spawn } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { homedir } from "node:os";
@@ -16,15 +18,110 @@ const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
 const pluginRoot = layout.pluginRoot;
 const pluginId = "codex-self-improvement@codex-self-improvement-dev";
-const usage = "usage: codex-harness <version|status|doctor|paths list|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]";
+const usage = "usage: codex-harness <version|status|doctor|paths list|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--activator-interval 15m] [--activator-watchdog 3m]";
+
+const defaultActivatorIntervalMs = 15 * 60_000;
+const defaultActivatorWatchdogMs = 3 * 60_000;
+const minimumActivatorIntervalMs = 60_000;
+const maximumActivatorIntervalMs = 24 * 60 * 60_000;
+const minimumActivatorWatchdogMs = 10_000;
+const maximumActivatorWatchdogMs = 30 * 60_000;
 
 type Json = Record<string, unknown>;
 type Check = { id: string; ok: boolean; detail: string };
+export type CodexActivatorOptions = Readonly<{
+  enabled: true;
+  intervalMs: number;
+  watchdogMs: number;
+}>;
+export type ParsedCodexActivatorArgs = Readonly<{
+  codexArgs: string[];
+  activator?: CodexActivatorOptions;
+}>;
 
 const has = (args: string[], flag: string) => args.includes(flag);
 function value(args: string[], flag: string) {
   const index = args.indexOf(flag);
   return index >= 0 ? args[index + 1] : undefined;
+}
+
+function formatDuration(milliseconds: number) {
+  if (milliseconds % 3_600_000 === 0) return `${milliseconds / 3_600_000}h`;
+  if (milliseconds % 60_000 === 0) return `${milliseconds / 60_000}m`;
+  if (milliseconds % 1_000 === 0) return `${milliseconds / 1_000}s`;
+  return `${milliseconds}ms`;
+}
+
+export function parseActivatorDuration(value: string, minimum: number, maximum: number, label: string) {
+  const match = value.match(/^(\d+)(ms|s|m|h)$/);
+  if (!match) throw new Error(`invalid ${label}: ${value}`);
+  const amount = Number(match[1]);
+  const multiplier = match[2] === "h" ? 3_600_000 : match[2] === "m" ? 60_000 : match[2] === "s" ? 1_000 : 1;
+  const milliseconds = amount * multiplier;
+  if (!Number.isSafeInteger(amount) || !Number.isSafeInteger(milliseconds)) throw new Error(`invalid ${label}: ${value}`);
+  if (milliseconds < minimum || milliseconds > maximum) {
+    throw new Error(`${label} must be between ${formatDuration(minimum)} and ${formatDuration(maximum)}`);
+  }
+  return milliseconds;
+}
+
+function flagValue(argument: string, name: string) {
+  const prefix = `${name}=`;
+  return argument.startsWith(prefix) ? argument.slice(prefix.length) : undefined;
+}
+
+export function parseCodexActivatorArgs(args: string[]): ParsedCodexActivatorArgs {
+  const codexArgs: string[] = [];
+  let enabled = false;
+  let timingConfigured = false;
+  let intervalMs = defaultActivatorIntervalMs;
+  let watchdogMs = defaultActivatorWatchdogMs;
+
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index]!;
+    if (argument === "--") {
+      codexArgs.push(...args.slice(index));
+      break;
+    }
+    if (argument === "--activator") {
+      enabled = true;
+      continue;
+    }
+
+    const intervalInline = flagValue(argument, "--activator-interval");
+    if (argument === "--activator-interval" || intervalInline !== undefined) {
+      timingConfigured = true;
+      const duration = intervalInline ?? args[++index];
+      if (!duration) throw new Error("--activator-interval requires a duration");
+      intervalMs = parseActivatorDuration(duration, minimumActivatorIntervalMs, maximumActivatorIntervalMs, "activator interval");
+      continue;
+    }
+
+    const watchdogInline = flagValue(argument, "--activator-watchdog");
+    if (argument === "--activator-watchdog" || watchdogInline !== undefined) {
+      timingConfigured = true;
+      const duration = watchdogInline ?? args[++index];
+      if (!duration) throw new Error("--activator-watchdog requires a duration");
+      watchdogMs = parseActivatorDuration(duration, minimumActivatorWatchdogMs, maximumActivatorWatchdogMs, "activator watchdog");
+      continue;
+    }
+
+    codexArgs.push(argument);
+  }
+
+  if (!enabled && timingConfigured) throw new Error("activator timing flags require --activator");
+  return enabled
+    ? { codexArgs, activator: { enabled: true, intervalMs, watchdogMs } }
+    : { codexArgs };
+}
+
+export function buildActivatorEnvironment(options: CodexActivatorOptions, session = randomUUID()) {
+  return {
+    RIQOR_ACTIVATOR_ENABLED: "1",
+    RIQOR_ACTIVATOR_SESSION: session,
+    RIQOR_ACTIVATOR_INTERVAL_MS: String(options.intervalMs),
+    RIQOR_ACTIVATOR_WATCHDOG_MS: String(options.watchdogMs),
+  };
 }
 
 function print(value: unknown, json: boolean) {
@@ -194,14 +291,23 @@ async function terminalCommand(args: string[]) {
 }
 
 async function passthroughCodex(args: string[]) {
-  const child = Bun.spawn(["codex", ...args], {
+  const parsed = parseCodexActivatorArgs(args);
+  const activatorEnvironment = parsed.activator ? buildActivatorEnvironment(parsed.activator) : {};
+  const child = spawn("codex", parsed.codexArgs, {
     cwd: process.cwd(),
-    env: { ...process.env, CODEX_SELF_IMPROVEMENT_ENABLED: "1", CODEX_SELF_IMPROVEMENT_SURFACE: process.env.CODEX_SELF_IMPROVEMENT_SURFACE ?? "codex-harness" },
-    stdin: "inherit",
-    stdout: "inherit",
-    stderr: "inherit",
+    env: {
+      ...process.env,
+      CODEX_SELF_IMPROVEMENT_ENABLED: "1",
+      CODEX_SELF_IMPROVEMENT_SURFACE: process.env.CODEX_SELF_IMPROVEMENT_SURFACE ?? "codex-harness",
+      ...activatorEnvironment,
+    },
+    stdio: "inherit",
+    shell: false,
   });
-  process.exitCode = await child.exited;
+  process.exitCode = await new Promise<number>((resolve, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code) => resolve(code ?? 1));
+  });
 }
 
 async function lifecycle(script: string) {
