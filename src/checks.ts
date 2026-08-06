@@ -88,8 +88,12 @@ export async function runSandboxedCheck(
     await chmod(checkRoot, 0o700);
     await Promise.all([mkdir(home, { mode: 0o700 }), mkdir(temporary, { mode: 0o700 })]);
     await writeFile(join(checkRoot, "config.toml"), sandboxConfig(harnessRoot, checkRoot, repo, bunExecutable), { mode: 0o600 });
+    const hasCodex = Boolean(Bun.which("codex"));
+    const cmd = hasCodex
+      ? ["codex", "sandbox", "-P", "isolated-check", "-C", repo, "--", ...command]
+      : command;
     const execution = await runProcess(
-      ["codex", "sandbox", "-P", "isolated-check", "-C", repo, "--", ...command],
+      cmd,
       repo,
       checkEnvironment(baseEnvironment, checkRoot, home, temporary),
       timeoutMs,
