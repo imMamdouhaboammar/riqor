@@ -48,8 +48,11 @@ describe("backlog record contracts", () => {
         ...backlog.items.slice(1),
       ],
     };
-    expect(validateBacklogPolicy(malformed as any))
-      .toContain(expect.stringContaining("unknown item field unexpectedField"));
+    expect(
+      validateBacklogPolicy(malformed as any).some((error) =>
+        error.includes("unknown item field unexpectedField"),
+      ),
+    ).toBe(true);
   });
 
   test("rejects initiative dependency cycles", async () => {
@@ -59,8 +62,11 @@ describe("backlog record contracts", () => {
       if (initiative.id === "RIQ-002") return { ...initiative, dependencies: ["RIQ-001"] };
       return initiative;
     });
-    expect(validateBacklogPolicy({ initiatives, items: backlog.items } as any))
-      .toContain(expect.stringContaining("initiative dependency cycle"));
+    expect(
+      validateBacklogPolicy({ initiatives, items: backlog.items } as any).some((error) =>
+        error.includes("initiative dependency cycle"),
+      ),
+    ).toBe(true);
   });
 
   test("requires completed dependencies before an item becomes ready", async () => {

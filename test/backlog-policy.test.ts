@@ -84,8 +84,11 @@ describe("backlog governance policy", () => {
       acceptance: { invalid: true },
     });
     expect(() => validateBacklogPolicy(malformed as any)).not.toThrow();
-    expect(validateBacklogPolicy(malformed as any))
-      .toContain(expect.stringContaining("malformed backlog collection"));
+    expect(
+      validateBacklogPolicy(malformed as any).some((error) =>
+        error.includes("malformed backlog collection"),
+      ),
+    ).toBe(true);
   });
 
   test("counts distinct active pull requests by work class", async () => {
