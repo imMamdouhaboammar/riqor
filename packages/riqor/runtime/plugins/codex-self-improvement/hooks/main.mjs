@@ -1,3 +1,287 @@
+// plugins/codex-self-improvement/hooks/activator.ts
+import { createHash, randomUUID } from "node:crypto";
+import { chmod, lstat, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
+import { join } from "node:path";
+var uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+var keyPattern = /^[a-f0-9]{64}$/;
+var minIntervalMs = 60000;
+var maxIntervalMs = 24 * 60 * 60 * 1000;
+var minWatchdogMs = 1e4;
+var maxWatchdogMs = 30 * 60 * 1000;
+var maxStateBytes = 1024;
+var maxStateFiles = 128;
+var staleStateMs = 24 * 60 * 60 * 1000;
+var staleLockMs = 60000;
+var lockAttempts = 40;
+var lockRetryMs = 5;
+function boundedInteger(value, minimum, maximum) {
+  if (!value || !/^\d+$/.test(value))
+    return;
+  const number = Number(value);
+  if (!Number.isSafeInteger(number) || number < minimum || number > maximum)
+    return;
+  return number;
+}
+function readActivatorConfig(environment) {
+  if (environment.RIQOR_ACTIVATOR_ENABLED !== "1")
+    return;
+  const session = environment.RIQOR_ACTIVATOR_SESSION;
+  const intervalMs = boundedInteger(environment.RIQOR_ACTIVATOR_INTERVAL_MS, minIntervalMs, maxIntervalMs);
+  const watchdogMs = boundedInteger(environment.RIQOR_ACTIVATOR_WATCHDOG_MS, minWatchdogMs, maxWatchdogMs);
+  if (!session || !uuidPattern.test(session) || intervalMs === undefined || watchdogMs === undefined)
+    return;
+  return { session, intervalMs, watchdogMs };
+}
+function activatorKey(config) {
+  return createHash("sha256").update(config.session).digest("hex");
+}
+function activatorDirectory(dataDir) {
+  return join(dataDir, "activator");
+}
+function statePath(dataDir, key) {
+  if (!keyPattern.test(key))
+    throw new Error("invalid activator key");
+  return join(activatorDirectory(dataDir), `${key}.json`);
+}
+function lockPath(dataDir, key) {
+  if (!keyPattern.test(key))
+    throw new Error("invalid activator key");
+  return join(activatorDirectory(dataDir), `.${key}.lock`);
+}
+async function secureRealDirectory(path, label) {
+  await mkdir(path, { recursive: true, mode: 448 });
+  const info = await lstat(path);
+  if (!info.isDirectory() || info.isSymbolicLink())
+    throw new Error(`${label} must be a real directory`);
+  await chmod(path, 448);
+}
+async function secureDirectory(dataDir) {
+  await secureRealDirectory(dataDir, "PLUGIN_DATA");
+  const directory = activatorDirectory(dataDir);
+  await secureRealDirectory(directory, "activator state path");
+  return directory;
+}
+function validTime(value) {
+  return typeof value === "number" && Number.isSafeInteger(value) && value >= 0;
+}
+function parseState(contents, config) {
+  try {
+    const value = JSON.parse(contents);
+    if (value.version !== 1)
+      return;
+    if (value.intervalMs !== config.intervalMs || value.watchdogMs !== config.watchdogMs)
+      return;
+    if (!validTime(value.startedAt) || !validTime(value.lastActivityAt) || !validTime(value.lastActivatedAt))
+      return;
+    if (!validTime(value.nextDueAt) || typeof value.cycle !== "number" || !Number.isSafeInteger(value.cycle) || value.cycle < 0)
+      return;
+    if (value.phase !== "waiting" && value.phase !== "reviewing")
+      return;
+    if (value.phase === "reviewing") {
+      if (!validTime(value.reviewStartedAt) || !validTime(value.reviewDeadlineAt))
+        return;
+    }
+    return value;
+  } catch {
+    return;
+  }
+}
+async function readState(dataDir, config) {
+  const path = statePath(dataDir, activatorKey(config));
+  try {
+    const info = await lstat(path);
+    if (!info.isFile() || info.isSymbolicLink() || info.size > maxStateBytes) {
+      await rm(path, { force: true });
+      return;
+    }
+    const value = parseState(await readFile(path, "utf8"), config);
+    if (!value)
+      await rm(path, { force: true });
+    return value;
+  } catch (error) {
+    if (error.code === "ENOENT")
+      return;
+    throw error;
+  }
+}
+async function writeState(dataDir, config, state) {
+  const directory = await secureDirectory(dataDir);
+  const key = activatorKey(config);
+  const target = statePath(dataDir, key);
+  const temporary = join(directory, `.${key}.${randomUUID()}.tmp`);
+  try {
+    await writeFile(temporary, `${JSON.stringify(state)}
+`, { encoding: "utf8", flag: "wx", mode: 384 });
+    await rename(temporary, target);
+    await chmod(target, 384);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+var delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+async function acquireLock(dataDir, key) {
+  await secureDirectory(dataDir);
+  const path = lockPath(dataDir, key);
+  for (let attempt = 0;attempt < lockAttempts; attempt += 1) {
+    try {
+      await mkdir(path, { mode: 448 });
+    } catch (error) {
+      if (error.code !== "EEXIST")
+        throw error;
+      try {
+        const info = await lstat(path);
+        if (!info.isDirectory() || info.isSymbolicLink() || Date.now() - info.mtimeMs > staleLockMs) {
+          await rm(path, { recursive: true, force: true });
+          continue;
+        }
+      } catch (readError) {
+        if (readError.code === "ENOENT")
+          continue;
+        throw readError;
+      }
+      await delay(lockRetryMs);
+      continue;
+    }
+    try {
+      await writeFile(join(path, "owner.json"), `${JSON.stringify({ version: 1, pid: process.pid, createdAt: Date.now() })}
+`, {
+        encoding: "utf8",
+        flag: "wx",
+        mode: 384
+      });
+      return path;
+    } catch (error) {
+      await rm(path, { recursive: true, force: true });
+      throw error;
+    }
+  }
+  throw new Error("timed out acquiring activator state lock");
+}
+async function withLock(dataDir, config, operation) {
+  const key = activatorKey(config);
+  const path = await acquireLock(dataDir, key);
+  try {
+    return await operation();
+  } finally {
+    await rm(path, { recursive: true, force: true });
+  }
+}
+function initialState(config, now) {
+  return {
+    version: 1,
+    intervalMs: config.intervalMs,
+    watchdogMs: config.watchdogMs,
+    startedAt: now,
+    lastActivityAt: now,
+    lastActivatedAt: now,
+    nextDueAt: now + config.intervalMs,
+    cycle: 0,
+    phase: "waiting"
+  };
+}
+async function pathExists(path) {
+  try {
+    await lstat(path);
+    return true;
+  } catch (error) {
+    if (error.code === "ENOENT")
+      return false;
+    throw error;
+  }
+}
+async function pruneActivatorState(dataDir, now = Date.now()) {
+  const directory = await secureDirectory(dataDir);
+  const candidates = [];
+  for (const name of await readdir(directory)) {
+    if (!name.endsWith(".json"))
+      continue;
+    const key = name.slice(0, -5);
+    if (!keyPattern.test(key))
+      continue;
+    const path = join(directory, name);
+    try {
+      const info = await lstat(path);
+      if (!info.isFile() || info.isSymbolicLink()) {
+        await rm(path, { force: true });
+        continue;
+      }
+      candidates.push({ key, path, modifiedAt: info.mtimeMs });
+    } catch (error) {
+      if (error.code !== "ENOENT")
+        throw error;
+    }
+  }
+  candidates.sort((left, right) => left.modifiedAt - right.modifiedAt);
+  const excess = Math.max(0, candidates.length - maxStateFiles);
+  for (let index = 0;index < candidates.length; index += 1) {
+    const candidate = candidates[index];
+    const stale = now - candidate.modifiedAt > staleStateMs;
+    if (!stale && index >= excess)
+      continue;
+    if (await pathExists(lockPath(dataDir, candidate.key)))
+      continue;
+    await rm(candidate.path, { force: true });
+  }
+}
+async function initializeActivator(dataDir, config, now = Date.now()) {
+  await pruneActivatorState(dataDir, now);
+  await withLock(dataDir, config, async () => {
+    const current = await readState(dataDir, config);
+    if (current) {
+      await writeState(dataDir, config, {
+        ...current,
+        lastActivityAt: Math.max(current.lastActivityAt, now)
+      });
+      return;
+    }
+    await writeState(dataDir, config, initialState(config, now));
+  });
+}
+async function touchActivator(dataDir, config, now = Date.now()) {
+  await withLock(dataDir, config, async () => {
+    const current = await readState(dataDir, config);
+    const state = current ?? initialState(config, now);
+    await writeState(dataDir, config, { ...state, lastActivityAt: now });
+  });
+}
+async function observeActivatorStop(dataDir, config, now = Date.now(), allowStart = true) {
+  return withLock(dataDir, config, async () => {
+    const current = await readState(dataDir, config);
+    if (!current) {
+      await writeState(dataDir, config, initialState(config, now));
+      return { kind: "none" };
+    }
+    if (current.phase === "reviewing") {
+      const timedOut = now > (current.reviewDeadlineAt ?? 0);
+      await writeState(dataDir, config, {
+        ...current,
+        phase: "waiting",
+        lastActivityAt: now,
+        lastActivatedAt: now,
+        nextDueAt: now + config.intervalMs,
+        reviewStartedAt: undefined,
+        reviewDeadlineAt: undefined
+      });
+      return { kind: timedOut ? "timeout" : "completed", cycle: current.cycle };
+    }
+    if (!allowStart || now < current.nextDueAt)
+      return { kind: "none" };
+    const cycle = current.cycle + 1;
+    await writeState(dataDir, config, {
+      ...current,
+      phase: "reviewing",
+      cycle,
+      lastActivityAt: now,
+      reviewStartedAt: now,
+      reviewDeadlineAt: now + config.watchdogMs
+    });
+    return { kind: "block", cycle };
+  });
+}
+async function clearActivator(dataDir, config) {
+  await withLock(dataDir, config, () => rm(statePath(dataDir, activatorKey(config)), { force: true }));
+}
+
 // plugins/codex-self-improvement/hooks/paths.ts
 function path(definition) {
   return Object.freeze({
@@ -161,34 +445,34 @@ function routingContext(prompt) {
 }
 
 // plugins/codex-self-improvement/hooks/state.ts
-import { createHash, randomUUID } from "node:crypto";
-import { chmod, lstat, mkdir, readdir, readFile, rename, rm, rmdir, writeFile } from "node:fs/promises";
-import { join } from "node:path";
+import { createHash as createHash2, randomUUID as randomUUID2 } from "node:crypto";
+import { chmod as chmod2, lstat as lstat2, mkdir as mkdir2, readdir as readdir2, readFile as readFile2, rename as rename2, rm as rm2, rmdir, writeFile as writeFile2 } from "node:fs/promises";
+import { join as join2 } from "node:path";
 var mutationKinds = new Set(["code", "docs", "config", "unknown"]);
-var keyPattern = /^[a-f0-9]{64}$/;
-var lockRetryMs = 5;
-var lockAttempts = 40;
+var keyPattern2 = /^[a-f0-9]{64}$/;
+var lockRetryMs2 = 5;
+var lockAttempts2 = 40;
 function turnKey(input) {
-  return createHash("sha256").update(`${String(input.session_id ?? "unknown")}\x00${String(input.turn_id ?? "unknown")}`).digest("hex");
+  return createHash2("sha256").update(`${String(input.session_id ?? "unknown")}\x00${String(input.turn_id ?? "unknown")}`).digest("hex");
 }
-function statePath(dataDir, key) {
-  if (!keyPattern.test(key))
+function statePath2(dataDir, key) {
+  if (!keyPattern2.test(key))
     throw new Error("invalid state key");
-  return join(dataDir, `${key}.json`);
+  return join2(dataDir, `${key}.json`);
 }
 async function secureDataDir(dataDir) {
-  await mkdir(dataDir, { recursive: true, mode: 448 });
-  const info = await lstat(dataDir);
+  await mkdir2(dataDir, { recursive: true, mode: 448 });
+  const info = await lstat2(dataDir);
   if (!info.isDirectory() || info.isSymbolicLink())
     throw new Error("PLUGIN_DATA must be a real directory");
-  await chmod(dataDir, 448);
+  await chmod2(dataDir, 448);
 }
-function lockPath(dataDir, key) {
-  if (!keyPattern.test(key))
+function lockPath2(dataDir, key) {
+  if (!keyPattern2.test(key))
     throw new Error("invalid state key");
-  return join(dataDir, `.${key}.lock`);
+  return join2(dataDir, `.${key}.lock`);
 }
-var delay = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
+var delay2 = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 var lockLeaseMs = 60000;
 var lockHardExpiryMs = 24 * 60 * 60 * 1000;
 function parseLockOwner(contents) {
@@ -200,7 +484,7 @@ function parseLockOwner(contents) {
       return;
     if (!Number.isInteger(owner.pid) || Number(owner.pid) <= 0)
       return;
-    if (!validTime(owner.createdAt))
+    if (!validTime2(owner.createdAt))
       return;
     return owner;
   } catch {
@@ -209,10 +493,10 @@ function parseLockOwner(contents) {
 }
 async function readLockOwner(path2) {
   try {
-    const info = await lstat(path2);
+    const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512)
       return;
-    return parseLockOwner(await readFile(path2, "utf8"));
+    return parseLockOwner(await readFile2(path2, "utf8"));
   } catch (error) {
     if (error.code === "ENOENT")
       return;
@@ -230,7 +514,7 @@ function processIsAlive(pid) {
 async function recoverAbandonedLock(path2) {
   let directoryInfo;
   try {
-    directoryInfo = await lstat(path2);
+    directoryInfo = await lstat2(path2);
   } catch (error) {
     if (error.code === "ENOENT")
       return true;
@@ -238,7 +522,7 @@ async function recoverAbandonedLock(path2) {
   }
   if (!directoryInfo.isDirectory() || directoryInfo.isSymbolicLink())
     return false;
-  const ownerPath = join(path2, "owner.json");
+  const ownerPath = join2(path2, "owner.json");
   const observedOwner = await readLockOwner(ownerPath);
   const observedAt = observedOwner?.createdAt ?? directoryInfo.mtimeMs;
   const observedAge = Date.now() - observedAt;
@@ -246,19 +530,19 @@ async function recoverAbandonedLock(path2) {
     return false;
   if (observedOwner && observedAge <= lockHardExpiryMs && processIsAlive(observedOwner.pid))
     return false;
-  const recoveryPath = join(path2, ".recovery.json");
-  const recoveryToken = randomUUID();
+  const recoveryPath = join2(path2, ".recovery.json");
+  const recoveryToken = randomUUID2();
   const staleMarker = await readLockOwner(recoveryPath);
   if (staleMarker) {
     const markerAge = Date.now() - staleMarker.createdAt;
     if (markerAge > lockLeaseMs && (markerAge > lockHardExpiryMs || !processIsAlive(staleMarker.pid))) {
       const confirmedMarker = await readLockOwner(recoveryPath);
       if (confirmedMarker?.token === staleMarker.token)
-        await rm(recoveryPath, { force: true });
+        await rm2(recoveryPath, { force: true });
     }
   }
   try {
-    await writeFile(recoveryPath, `${JSON.stringify({ version: 1, token: recoveryToken, pid: process.pid, createdAt: Date.now() })}
+    await writeFile2(recoveryPath, `${JSON.stringify({ version: 1, token: recoveryToken, pid: process.pid, createdAt: Date.now() })}
 `, {
       encoding: "utf8",
       flag: "wx",
@@ -282,11 +566,11 @@ async function recoverAbandonedLock(path2) {
       if (currentAge <= lockHardExpiryMs && processIsAlive(currentOwner.pid))
         return false;
     }
-    await rm(ownerPath, { force: true });
+    await rm2(ownerPath, { force: true });
   } finally {
     const recovery = await readLockOwner(recoveryPath);
     if (recovery?.token === recoveryToken)
-      await rm(recoveryPath, { force: true });
+      await rm2(recoveryPath, { force: true });
   }
   try {
     await rmdir(path2);
@@ -302,21 +586,21 @@ async function recoverAbandonedLock(path2) {
 }
 async function acquireTurnLock(dataDir, key) {
   await secureDataDir(dataDir);
-  const path2 = lockPath(dataDir, key);
-  const ownerPath = join(path2, "owner.json");
-  const token = randomUUID();
-  for (let attempt = 0;attempt < lockAttempts; attempt += 1) {
+  const path2 = lockPath2(dataDir, key);
+  const ownerPath = join2(path2, "owner.json");
+  const token = randomUUID2();
+  for (let attempt = 0;attempt < lockAttempts2; attempt += 1) {
     try {
-      await mkdir(path2, { mode: 448 });
+      await mkdir2(path2, { mode: 448 });
       try {
-        await writeFile(ownerPath, `${JSON.stringify({ version: 1, token, pid: process.pid, createdAt: Date.now() })}
+        await writeFile2(ownerPath, `${JSON.stringify({ version: 1, token, pid: process.pid, createdAt: Date.now() })}
 `, {
           encoding: "utf8",
           flag: "wx",
           mode: 384
         });
       } catch (error) {
-        await rm(ownerPath, { force: true });
+        await rm2(ownerPath, { force: true });
         await rmdir(path2).catch(() => {
           return;
         });
@@ -328,7 +612,7 @@ async function acquireTurnLock(dataDir, key) {
       if (code !== "EEXIST")
         throw error;
       await recoverAbandonedLock(path2);
-      await delay(lockRetryMs);
+      await delay2(lockRetryMs2);
     }
   }
   throw new Error("timed out acquiring turn state lock");
@@ -337,7 +621,7 @@ async function releaseTurnLock(lock) {
   const owner = await readLockOwner(lock.ownerPath);
   if (owner?.token !== lock.token)
     return;
-  await rm(lock.ownerPath, { force: true });
+  await rm2(lock.ownerPath, { force: true });
   try {
     await rmdir(lock.path);
   } catch (error) {
@@ -354,19 +638,19 @@ async function withTurnLock(dataDir, key, operation) {
     await releaseTurnLock(lock);
   }
 }
-function validTime(value) {
+function validTime2(value) {
   return typeof value === "number" && Number.isFinite(value) && value >= 0;
 }
-function parseState(contents) {
+function parseState2(contents) {
   try {
     const candidate = JSON.parse(contents);
     if (candidate.version !== 1)
       return;
     if (!mutationKinds.has(candidate.mutationKind))
       return;
-    if (!validTime(candidate.mutatedAt))
+    if (!validTime2(candidate.mutatedAt))
       return;
-    if (candidate.verifiedAt !== undefined && !validTime(candidate.verifiedAt))
+    if (candidate.verifiedAt !== undefined && !validTime2(candidate.verifiedAt))
       return;
     if (typeof candidate.blockedOnce !== "boolean")
       return;
@@ -375,17 +659,17 @@ function parseState(contents) {
     return;
   }
 }
-async function readState(dataDir, key) {
-  const path2 = statePath(dataDir, key);
+async function readState2(dataDir, key) {
+  const path2 = statePath2(dataDir, key);
   try {
-    const info = await lstat(path2);
+    const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
-      await rm(path2, { force: true });
+      await rm2(path2, { force: true });
       return;
     }
-    const state = parseState(await readFile(path2, "utf8"));
+    const state = parseState2(await readFile2(path2, "utf8"));
     if (!state)
-      await rm(path2, { force: true });
+      await rm2(path2, { force: true });
     return state;
   } catch (error) {
     if (error.code === "ENOENT")
@@ -393,56 +677,56 @@ async function readState(dataDir, key) {
     throw error;
   }
 }
-async function writeState(dataDir, key, state) {
+async function writeState2(dataDir, key, state) {
   await secureDataDir(dataDir);
-  const path2 = statePath(dataDir, key);
-  const temporary = join(dataDir, `.${key}.${randomUUID()}.tmp`);
+  const path2 = statePath2(dataDir, key);
+  const temporary = join2(dataDir, `.${key}.${randomUUID2()}.tmp`);
   try {
-    await writeFile(temporary, `${JSON.stringify(state)}
+    await writeFile2(temporary, `${JSON.stringify(state)}
 `, { encoding: "utf8", flag: "wx", mode: 384 });
-    await rename(temporary, path2);
+    await rename2(temporary, path2);
   } finally {
-    await rm(temporary, { force: true });
+    await rm2(temporary, { force: true });
   }
 }
 async function markRuntimeSeen(dataDir, now = Date.now()) {
   await secureDataDir(dataDir);
-  const path2 = join(dataDir, "runtime.json");
-  const temporary = join(dataDir, `.runtime.${randomUUID()}.tmp`);
+  const path2 = join2(dataDir, "runtime.json");
+  const temporary = join2(dataDir, `.runtime.${randomUUID2()}.tmp`);
   try {
-    await writeFile(temporary, `${JSON.stringify({ version: 1, event: "SessionStart", lastSeenAt: now })}
+    await writeFile2(temporary, `${JSON.stringify({ version: 1, event: "SessionStart", lastSeenAt: now })}
 `, {
       encoding: "utf8",
       flag: "wx",
       mode: 384
     });
-    await rename(temporary, path2);
+    await rename2(temporary, path2);
   } finally {
-    await rm(temporary, { force: true });
+    await rm2(temporary, { force: true });
   }
 }
 async function recordMutation(dataDir, key, mutationKind, now = Date.now()) {
   if (!mutationKinds.has(mutationKind))
     throw new Error("invalid mutation kind");
-  await withTurnLock(dataDir, key, () => writeState(dataDir, key, { version: 1, mutationKind, mutatedAt: now, blockedOnce: false }));
+  await withTurnLock(dataDir, key, () => writeState2(dataDir, key, { version: 1, mutationKind, mutatedAt: now, blockedOnce: false }));
 }
 function scopeCovers(mutationKind, scope) {
   return scope === "code" || mutationKind === "docs";
 }
 async function recordVerification(dataDir, key, now = Date.now(), scope = "code") {
   await withTurnLock(dataDir, key, async () => {
-    const current = await readState(dataDir, key);
+    const current = await readState2(dataDir, key);
     if (!current || !scopeCovers(current.mutationKind, scope))
       return;
-    await writeState(dataDir, key, { ...current, verifiedAt: now, blockedOnce: false });
+    await writeState2(dataDir, key, { ...current, verifiedAt: now, blockedOnce: false });
   });
 }
 async function clearTurnUnlocked(dataDir, key) {
-  await rm(statePath(dataDir, key), { force: true });
+  await rm2(statePath2(dataDir, key), { force: true });
 }
 async function consumeEvidenceGate(dataDir, key) {
   return withTurnLock(dataDir, key, async () => {
-    const current = await readState(dataDir, key);
+    const current = await readState2(dataDir, key);
     if (!current)
       return { pending: false };
     if (current.verifiedAt !== undefined && current.verifiedAt >= current.mutatedAt) {
@@ -450,7 +734,7 @@ async function consumeEvidenceGate(dataDir, key) {
       return { pending: false };
     }
     if (!current.blockedOnce) {
-      await writeState(dataDir, key, { ...current, blockedOnce: true });
+      await writeState2(dataDir, key, { ...current, blockedOnce: true });
       return { pending: true, firstBlock: true, mutationKind: current.mutationKind };
     }
     await clearTurnUnlocked(dataDir, key);
@@ -470,18 +754,18 @@ async function tryWithTurnLock(dataDir, key, operation) {
   }
 }
 async function inspectPruneCandidateUnlocked(dataDir, key, removeInvalid) {
-  const path2 = statePath(dataDir, key);
+  const path2 = statePath2(dataDir, key);
   try {
-    const info = await lstat(path2);
+    const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
       if (removeInvalid)
-        await rm(path2, { force: true });
+        await rm2(path2, { force: true });
       return;
     }
-    const state = parseState(await readFile(path2, "utf8"));
+    const state = parseState2(await readFile2(path2, "utf8"));
     if (!state) {
       if (removeInvalid)
-        await rm(path2, { force: true });
+        await rm2(path2, { force: true });
       return;
     }
     return {
@@ -500,7 +784,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
   const maxAgeMs = Math.max(0, limits.maxAgeMs ?? 14 * 24 * 60 * 60 * 1000);
   const maxFiles = Math.max(0, Math.floor(limits.maxFiles ?? 256));
   const candidates = [];
-  for (const name of await readdir(dataDir)) {
+  for (const name of await readdir2(dataDir)) {
     const match = name.match(/^([a-f0-9]{64})\.json$/);
     if (!match)
       continue;
@@ -510,7 +794,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
       if (!current)
         return;
       if (now - current.modifiedAt > maxAgeMs) {
-        await rm(current.path, { force: true });
+        await rm2(current.path, { force: true });
         return;
       }
       return current;
@@ -526,7 +810,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
       if (!current)
         return false;
       if (now - current.modifiedAt > maxAgeMs) {
-        await rm(current.path, { force: true });
+        await rm2(current.path, { force: true });
         return true;
       }
       if (current.modifiedAt !== candidate.modifiedAt) {
@@ -537,7 +821,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
         survivorRank += 1;
         return false;
       }
-      await rm(current.path, { force: true });
+      await rm2(current.path, { force: true });
       return true;
     });
     if (!attempt.acquired)
@@ -576,6 +860,15 @@ var sessionContext = [
   "This plugin does not change model weights or prove AGI, determinism, or parity with another model"
 ].join(`
 `);
+var activatorCheckpointReason = [
+  "Riqor activator checkpoint: restore the current task and observable success criteria from this conversation",
+  "Inspect relevant repository evidence such as status, diff, tests, and recent tool results",
+  "Summarize only work actually completed",
+  "Identify scope drift, repeated work, stale assumptions, missing checks, and unsupported completion claims",
+  "Correct the plan and continue with the smallest relevant next action",
+  "Preserve the current approval policy and do not introduce destructive actions merely because this checkpoint ran",
+  "Keep the checkpoint concise and do not repeat the full conversation"
+].join(". ");
 var mutationTools = /^(?:apply_patch|write_file|edit_file|edit_block|multi_replace|create_file|delete_file)$/i;
 var shellTools = /^(?:bash|shell|exec_command|run_shell_command|start_process|interact_with_process)$/i;
 var docsExtension = /\.(?:md|mdx|rst|txt|adoc)$/i;
@@ -670,15 +963,40 @@ function evidenceReason(kind) {
     return "Run a documentation check such as `git diff --check` or the project documentation linter";
   return "Run the smallest relevant test, build, lint, typecheck, or validation command with a structured zero exit";
 }
-async function handleHook(input, dataDir) {
+async function boundedActivatorOperation(operation) {
+  try {
+    return await operation();
+  } catch {
+    return;
+  }
+}
+function activatorStopOutput(result) {
+  if (!result || result.kind === "none" || result.kind === "completed")
+    return {};
+  if (result.kind === "timeout") {
+    return {
+      systemMessage: `Riqor activator watchdog expired for checkpoint ${result.cycle}; the session was allowed to stop and the next interval was scheduled`
+    };
+  }
+  return {
+    decision: "block",
+    reason: `${activatorCheckpointReason}. Checkpoint cycle: ${result.cycle}`
+  };
+}
+async function handleHook(input, dataDir, environment = process.env, now = Date.now()) {
   const event = String(input.hook_event_name ?? "");
   const key = turnKey(input);
+  const activator = readActivatorConfig(environment);
   if (event === "SessionStart") {
     await pruneState(dataDir);
-    await markRuntimeSeen(dataDir);
+    await markRuntimeSeen(dataDir, now);
+    if (activator)
+      await boundedActivatorOperation(() => initializeActivator(dataDir, activator, now));
     return { hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: sessionContext } };
   }
   if (event === "UserPromptSubmit") {
+    if (activator)
+      await boundedActivatorOperation(() => touchActivator(dataDir, activator, now));
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
@@ -697,34 +1015,45 @@ async function handleHook(input, dataDir) {
   if (event === "PostToolUse") {
     const mutationKind = observedMutation(input);
     if (mutationKind)
-      await recordMutation(dataDir, key, mutationKind);
+      await recordMutation(dataDir, key, mutationKind, now);
     else {
       const scope = verificationScope(input);
       if (scope)
-        await recordVerification(dataDir, key, Date.now(), scope);
+        await recordVerification(dataDir, key, now, scope);
     }
+    if (activator)
+      await boundedActivatorOperation(() => touchActivator(dataDir, activator, now));
     return {};
   }
   if (event === "Stop") {
     if (input.stop_hook_active === true) {
       await clearTurn(dataDir, key);
-      return {};
+      if (!activator)
+        return {};
+      const result2 = await boundedActivatorOperation(() => observeActivatorStop(dataDir, activator, now, false));
+      return activatorStopOutput(result2);
     }
     const gate = await consumeEvidenceGate(dataDir, key);
-    if (!gate.pending)
-      return {};
-    if (gate.firstBlock) {
+    if (gate.pending) {
+      if (gate.firstBlock) {
+        return {
+          decision: "block",
+          reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`
+        };
+      }
       return {
-        decision: "block",
-        reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`
+        systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified"
       };
     }
-    return {
-      systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified"
-    };
+    if (!activator)
+      return {};
+    const result = await boundedActivatorOperation(() => observeActivatorStop(dataDir, activator, now, true));
+    return activatorStopOutput(result);
   }
   if (event === "SessionEnd") {
     await clearTurn(dataDir, key);
+    if (activator)
+      await boundedActivatorOperation(() => clearActivator(dataDir, activator));
   }
   return {};
 }

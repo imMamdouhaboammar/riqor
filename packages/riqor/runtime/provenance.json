@@ -1,7 +1,7 @@
 {
   "version": "0.1.0",
-  "sourceCommit": "1014d1dd94860cbd7a34637c7436dad3eed6b192",
-  "sourceDateEpoch": 1786012822,
+  "sourceCommit": "ee8453de058dc72db6c5d1482be53a82bdcc1acc",
+  "sourceDateEpoch": 1786082824,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -35,8 +35,8 @@
     },
     {
       "path": "plugins/codex-self-improvement/hooks/main.mjs",
-      "sha256": "c890e353f17f28f8e6872099c8e3a1eb288cc0e3a95f9dda6dc15391846b1d21",
-      "bytes": 31501
+      "sha256": "0c0634fa8b32d6b6e864ffa36312695f66a12cfaa52c456d8d4a7a15807cd49a",
+      "bytes": 43399
     },
     {
       "path": "plugins/codex-self-improvement/package.json",

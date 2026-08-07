@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
+import { mkdir, mkdtemp, realpath, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
@@ -34,7 +34,7 @@ describe("assurance repository identity", () => {
   });
 
   test("records a digest and git metadata without serializing the root path", async () => {
-    const root = await mkdtemp(join(tmpdir(), "riqor-identity-"));
+    const root = await realpath(await mkdtemp(join(tmpdir(), "riqor-identity-")));
     temporaryPaths.push(root);
     runGit(root, "init", "-q");
     runGit(root, "config", "user.email", "test@example.com");
@@ -59,7 +59,7 @@ describe("assurance repository identity", () => {
   });
 
   test("preserves leading and trailing spaces in a repository path", async () => {
-    const parent = await mkdtemp(join(tmpdir(), "riqor-identity-space-"));
+    const parent = await realpath(await mkdtemp(join(tmpdir(), "riqor-identity-space-")));
     temporaryPaths.push(parent);
     const root = join(parent, " repository with trailing space ");
     await mkdir(root);
@@ -92,7 +92,7 @@ describe("assurance repository identity", () => {
   });
 
   test("falls back to a canonical non-git directory", async () => {
-    const root = await mkdtemp(join(tmpdir(), "riqor-non-git-"));
+    const root = await realpath(await mkdtemp(join(tmpdir(), "riqor-non-git-")));
     temporaryPaths.push(root);
     const identity = await inspectRepositoryIdentity(root);
     expect(identity.rootPath).toBe(root);
