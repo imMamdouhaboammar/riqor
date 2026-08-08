@@ -24,6 +24,8 @@ describe("GitHub Workflow security", () => {
     const releaseYaml = await readFile(join(root, ".github/workflows/release.yml"), "utf8");
     expect(releaseYaml).toContain("permissions:\n  contents: write\n  id-token: write");
     expect(releaseYaml).toContain("environment: npm");
+    expect(releaseYaml).toContain("npm install --global npm@11.18.0");
+    expect(releaseYaml).not.toContain("NODE_AUTH_TOKEN");
   });
 
   test("verifyActionPins helper checks workflow SHA pins", async () => {
