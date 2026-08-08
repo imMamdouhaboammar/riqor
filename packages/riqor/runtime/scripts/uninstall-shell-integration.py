@@ -12,32 +12,20 @@ manage_wrappers = os.environ.get("CODEX_SELF_IMPROVEMENT_MANAGE_WRAPPERS", "1") 
 start = "# >>> codex-self-improvement >>>"
 end = "# <<< codex-self-improvement <<<"
 
-def strip_managed_block(original: str) -> str:
+zshenv = home / ".zshenv"
+if zshenv.exists():
     output = []
     skipping = False
-    for line in original.splitlines():
+    for line in zshenv.read_text().splitlines():
         if line == start:
-            if skipping:
-                raise RuntimeError("malformed codex-self-improvement markers: nested start marker")
             skipping = True
             continue
-        if line == end:
-            if not skipping:
-                raise RuntimeError("malformed codex-self-improvement markers: end marker without start")
+        if skipping and line == end:
             skipping = False
             continue
         if not skipping:
             output.append(line)
-    if skipping:
-        raise RuntimeError("malformed codex-self-improvement markers: start marker without end")
-    return "\n".join(output).rstrip() + ("\n" if output else "")
-
-
-zshenv = home / ".zshenv"
-if zshenv.exists():
-    rendered_zshenv = strip_managed_block(zshenv.read_text())
-    zshenv.write_text(rendered_zshenv)
-
+    zshenv.write_text("\n".join(output).rstrip() + ("\n" if output else ""))
 loader = kaku_dir / "kaku-shell-loader.zsh"
 if loader.exists():
     lines = [

@@ -155,12 +155,16 @@ export async function handleHook(
   const event = String(input.hook_event_name ?? "");
   const key = turnKey(input);
   const activator = readActivatorConfig(environment);
+  const actionsFirst = environment.RIQOR_ACTIONS_FIRST === "1";
+  const actionsFirstSuffix = actionsFirst
+    ? "\n⚡ Actions-First Mode: Provide executable code, diffs, or commands FIRST. Omit conversational fluff. Max 3 bullet points summary.\n✂️ Ponytail YAGNI Filter: Apply 6-step filter (Skip -> Native -> Reuse -> Existing Dep -> One-liner -> Minimal diff) before creating code."
+    : "";
 
   if (event === "SessionStart") {
     await pruneState(dataDir);
     await markRuntimeSeen(dataDir, now);
     if (activator) await boundedActivatorOperation(() => initializeActivator(dataDir, activator, now));
-    return { hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: sessionContext } };
+    return { hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `${sessionContext}${actionsFirstSuffix}` } };
   }
 
   if (event === "UserPromptSubmit") {
@@ -168,7 +172,7 @@ export async function handleHook(
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: routingContext(promptFrom(input)),
+        additionalContext: `${routingContext(promptFrom(input))}${actionsFirstSuffix}`,
       },
     };
   }

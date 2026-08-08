@@ -1,7 +1,7 @@
 {
-  "version": "0.1.1",
-  "sourceCommit": "3493b11837dba2f345a2ccbc4ccb074a15cdebcf",
-  "sourceDateEpoch": 1786083201,
+  "version": "0.1.0",
+  "sourceCommit": "0a97904bc8737065ba1920265e901d0d68375c78",
+  "sourceDateEpoch": 1786208833,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -90,8 +90,8 @@
     },
     {
       "path": "scripts/uninstall-shell-integration.py",
-      "sha256": "52bca6b4c7f9d2ebcbc8c6c4a0d5a4f7f17c5c75ad5b5f82ced1344d858fddb2",
-      "bytes": 2750
+      "sha256": "52f6f5d0f47dd4c62c1da43be5ca589b67e64c0a3ebeba2e1a90149037f2d68b",
+      "bytes": 2261
     },
     {
       "path": "scripts/uninstall-shell-integration.sh",

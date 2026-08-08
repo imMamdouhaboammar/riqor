@@ -5,6 +5,7 @@ import { isAbsolute, join, normalize, relative } from "node:path";
 import { resolveUserPaths } from "../paths";
 import { runCommand } from "../process";
 import { CheckRecord, DoctorOptions, DoctorReport } from "../types";
+import { runOfflineSecurityScan } from "../../../../src/security-scan";
 
 async function exists(path: string) {
   try {
@@ -144,6 +145,13 @@ export async function doctor(options: DoctorOptions = {}): Promise<DoctorReport>
 
   const kaku = await runCommand(["kaku", "--version"]);
   checks.push({ id: "kaku-cli", ok: kaku.exitCode === 0, detail: kaku.exitCode === 0 ? kaku.stdout : "missing" });
+
+  const securityResult = runOfflineSecurityScan(["package.json", "README.md"]);
+  checks.push({
+    id: "security-audit",
+    ok: securityResult.passed,
+    detail: securityResult.passed ? "0 critical security findings" : `${securityResult.findings.length} security finding(s)`,
+  });
 
   return { ok: checks.every((check) => check.ok), checks, externalIssues };
 }

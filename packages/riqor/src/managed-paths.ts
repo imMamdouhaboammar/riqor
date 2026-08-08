@@ -21,10 +21,9 @@ export async function classifyManagedPath(path: string): Promise<ManagedPathKind
     return target === "riqor" ? "riqor-alias" : "foreign";
   }
 
-  if (!stat.isFile() || stat.size > 64 * 1024) return "foreign";
+  if (!stat.isFile()) return "foreign";
   const content = await readFile(path, "utf8");
-  const header = content.split(/\r?\n/, 6);
-  if (header.includes("# Managed by Riqor")) return "riqor-managed";
-  if (header.includes("# Managed by Codex Self Improvement")) return "legacy-managed";
+  if (content.includes("# Managed by Riqor")) return "riqor-managed";
+  if (content.includes("# Managed by Codex Self Improvement")) return "legacy-managed";
   return "foreign";
 }

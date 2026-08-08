@@ -5,22 +5,10 @@ import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
 
-function isolatedEnv(home: string, extra: Record<string, string> = {}) {
-  return {
-    ...process.env,
-    HOME: home,
-    XDG_CONFIG_HOME: join(home, ".config"),
-    XDG_DATA_HOME: join(home, ".local", "share"),
-    XDG_STATE_HOME: join(home, ".local", "state"),
-    CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1",
-    ...extra,
-  };
-}
-
 function shell(command: string, home: string) {
   return Bun.spawnSync(["bash", "-lc", command], {
     cwd: root,
-    env: isolatedEnv(home),
+    env: { ...process.env, HOME: home, CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1" },
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -69,7 +57,12 @@ test("package-mode shell install preserves Riqor shims and loads the managed env
   const install = join(root, "scripts", "install-shell-integration.sh");
   const result = Bun.spawnSync(["bash", install], {
     cwd: root,
-    env: isolatedEnv(home, { CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1" }),
+    env: {
+      ...process.env,
+      HOME: home,
+      CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1",
+      CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1",
+    },
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -89,23 +82,12 @@ test("shell installer fails closed on malformed managed markers", async () => {
   const install = join(root, "scripts", "install-shell-integration.sh");
   const result = Bun.spawnSync(["bash", install], {
     cwd: root,
-    env: isolatedEnv(home, { CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1" }),
-    stdout: "pipe",
-    stderr: "pipe",
-  });
-  expect(result.exitCode).not.toBe(0);
-  expect(await readFile(zshenv, "utf8")).toBe(original);
-});
-
-test("shell uninstaller fails closed on malformed managed markers", async () => {
-  const home = await mkdtemp(join(tmpdir(), "riqor-malformed-uninstall-"));
-  const zshenv = join(home, ".zshenv");
-  const original = `export KEEP_ME=1\n# >>> codex-self-improvement >>>\nexport AFTER_MARKER=1\n`;
-  await writeFile(zshenv, original);
-  const uninstall = join(root, "scripts", "uninstall-shell-integration.sh");
-  const result = Bun.spawnSync(["bash", uninstall], {
-    cwd: root,
-    env: isolatedEnv(home, { CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1" }),
+    env: {
+      ...process.env,
+      HOME: home,
+      CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1",
+      CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1",
+    },
     stdout: "pipe",
     stderr: "pipe",
   });

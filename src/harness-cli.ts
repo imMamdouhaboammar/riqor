@@ -15,12 +15,20 @@ import {
   type TerminalState,
 } from "./terminal-runtime";
 import { resolveRuntimeLayout } from "./runtime-paths";
+import { runSkepticalVerification } from "./skeptical-verifier";
+import { getSessionTelemetry } from "./telemetry-mcp";
+import { loadCrystallizedRules, addCrystallizedRule, formatCrystallizedRulesHighDensity } from "./crystallized-rules";
+import { calculateEnvironmentDelta } from "./environment-delta";
+import { runDeliberationGate } from "./deliberation-gate";
+import { auditRepositoryConventions } from "./convention-auditor";
+import { recordHeartbeat, listActiveSessions, writeScratchpadEntry, readScratchpad } from "./scratchpad-isolation";
+import { executeKernelCommand } from "./bun-kernel";
 
 const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
 const pluginRoot = layout.pluginRoot;
 const pluginId = "codex-self-improvement@codex-self-improvement-dev";
-const usage = "usage: codex-harness <version|status|doctor|paths list|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--activator-interval 15m] [--activator-watchdog 3m]";
+const usage = "usage: codex-harness <version|status|doctor|paths list|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--actions-first] [--activator-interval 15m] [--activator-watchdog 3m]";
 
 const defaultActivatorIntervalMs = 15 * 60_000;
 const defaultActivatorWatchdogMs = 3 * 60_000;
@@ -33,17 +41,20 @@ const activatorEnvironmentKeys = [
   "RIQOR_ACTIVATOR_SESSION",
   "RIQOR_ACTIVATOR_INTERVAL_MS",
   "RIQOR_ACTIVATOR_WATCHDOG_MS",
+  "RIQOR_ACTIONS_FIRST",
 ] as const;
 
 type Json = Record<string, unknown>;
 type Check = { id: string; ok: boolean; detail: string };
 export type CodexActivatorOptions = Readonly<{
   enabled: true;
+  actionsFirst?: boolean;
   intervalMs: number;
   watchdogMs: number;
 }>;
 export type ParsedCodexActivatorArgs = Readonly<{
   codexArgs: string[];
+  actionsFirst?: boolean;
   activator?: CodexActivatorOptions;
 }>;
 
@@ -81,6 +92,7 @@ function flagValue(argument: string, name: string) {
 export function parseCodexActivatorArgs(args: string[]): ParsedCodexActivatorArgs {
   const codexArgs: string[] = [];
   let enabled = false;
+  let actionsFirst = false;
   let timingConfigured = false;
   let intervalMs = defaultActivatorIntervalMs;
   let watchdogMs = defaultActivatorWatchdogMs;
@@ -93,6 +105,10 @@ export function parseCodexActivatorArgs(args: string[]): ParsedCodexActivatorArg
     }
     if (argument === "--activator") {
       enabled = true;
+      continue;
+    }
+    if (argument === "--actions-first") {
+      actionsFirst = true;
       continue;
     }
 
@@ -118,9 +134,14 @@ export function parseCodexActivatorArgs(args: string[]): ParsedCodexActivatorArg
   }
 
   if (!enabled && timingConfigured) throw new Error("activator timing flags require --activator");
-  return enabled
-    ? { codexArgs, activator: { enabled: true, intervalMs, watchdogMs } }
-    : { codexArgs };
+  const activator: CodexActivatorOptions | undefined = enabled
+    ? { enabled: true, ...(actionsFirst ? { actionsFirst: true } : {}), intervalMs, watchdogMs }
+    : undefined;
+  return {
+    codexArgs,
+    ...(actionsFirst ? { actionsFirst: true } : {}),
+    ...(activator ? { activator } : {}),
+  };
 }
 
 export function buildActivatorEnvironment(options: CodexActivatorOptions, session = randomUUID()) {
@@ -129,6 +150,7 @@ export function buildActivatorEnvironment(options: CodexActivatorOptions, sessio
     RIQOR_ACTIVATOR_SESSION: session,
     RIQOR_ACTIVATOR_INTERVAL_MS: String(options.intervalMs),
     RIQOR_ACTIVATOR_WATCHDOG_MS: String(options.watchdogMs),
+    ...(options.actionsFirst ? { RIQOR_ACTIONS_FIRST: "1" } : {}),
   };
 }
 
@@ -136,14 +158,17 @@ export function buildCodexEnvironment(
   baseEnvironment: NodeJS.ProcessEnv,
   activator?: CodexActivatorOptions,
   session?: string,
+  actionsFirst = false,
 ): NodeJS.ProcessEnv {
   const environment: NodeJS.ProcessEnv = {
     ...baseEnvironment,
     CODEX_SELF_IMPROVEMENT_ENABLED: "1",
     CODEX_SELF_IMPROVEMENT_SURFACE: baseEnvironment.CODEX_SELF_IMPROVEMENT_SURFACE ?? "codex-harness",
+    ...(actionsFirst || activator?.actionsFirst ? { RIQOR_ACTIONS_FIRST: "1" } : {}),
   };
   for (const key of activatorEnvironmentKeys) delete environment[key];
   if (activator) Object.assign(environment, buildActivatorEnvironment(activator, session));
+  else if (actionsFirst) environment.RIQOR_ACTIONS_FIRST = "1";
   return environment;
 }
 
@@ -324,7 +349,7 @@ async function passthroughCodex(args: string[]) {
   const parsed = parseCodexActivatorArgs(args);
   const child = spawn("codex", parsed.codexArgs, {
     cwd: process.cwd(),
-    env: buildCodexEnvironment(process.env, parsed.activator),
+    env: buildCodexEnvironment(process.env, parsed.activator, undefined, parsed.actionsFirst),
     stdio: "inherit",
     shell: false,
   });
@@ -370,6 +395,53 @@ export async function main(args = process.argv.slice(2)) {
   if (command === "shell" && subcommand === "uninstall") return lifecycle("uninstall-shell-integration.sh");
   if (command === "install") return lifecycle("install-universal.sh");
   if (command === "uninstall") return lifecycle("uninstall-universal.sh");
+  if (command === "verify") {
+    const report = runSkepticalVerification(process.cwd());
+    return print(report, json);
+  }
+  if (command === "telemetry") {
+    const report = getSessionTelemetry(process.cwd());
+    return print(report, json);
+  }
+  if (command === "rules") {
+    if (subcommand === "add") {
+      const ruleText = rest.join(" ");
+      if (!ruleText) throw new Error("rules add requires rule text");
+      const rule = addCrystallizedRule(process.cwd(), ruleText);
+      return print(rule, json);
+    }
+    const rules = loadCrystallizedRules(process.cwd());
+    return print(json ? { rules } : formatCrystallizedRulesHighDensity(rules), json);
+  }
+  if (command === "delta") {
+    const delta = calculateEnvironmentDelta(process.cwd());
+    return print(delta, false);
+  }
+  if (command === "deliberate") {
+    const consensus = runDeliberationGate(process.cwd());
+    return print(consensus, json);
+  }
+  if (command === "conventions") {
+    const report = auditRepositoryConventions(process.cwd());
+    return print(report, json);
+  }
+  if (command === "scratchpad") {
+    const sessionId = rest[0] || `session-${process.ppid}`;
+    if (subcommand === "write") {
+      const key = rest[1];
+      const val = rest.slice(2).join(" ");
+      if (!key) throw new Error("scratchpad write requires key");
+      const entry = writeScratchpadEntry(sessionId, key, val, process.cwd());
+      return print(entry, json);
+    }
+    const pad = readScratchpad(sessionId, process.cwd());
+    return print(pad, json);
+  }
+  if (command === "heartbeat") {
+    const sessionId = subcommand || `session-${process.ppid}`;
+    const hb = recordHeartbeat(sessionId, process.cwd());
+    return print(hb, json);
+  }
   if (command === "terminal") return terminalCommand([subcommand ?? "", ...rest]);
   if (command === "codex") return passthroughCodex(args.slice(1));
   process.stderr.write(`${usage}\n`);

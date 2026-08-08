@@ -82,7 +82,7 @@ export async function uninstall(options: UninstallOptions = {}): Promise<Uninsta
   for (const target of targets) {
     const kind = await classifyManagedPath(target.path);
     const owned = target.primary
-      ? kind === "riqor-managed" || kind === "legacy-managed" || kind === "absent"
+      ? kind === "riqor-managed" || kind === "absent"
       : kind === "riqor-alias" || kind === "legacy-managed" || kind === "riqor-managed" || kind === "absent";
     if (!owned) {
       preserved.push(target.path);

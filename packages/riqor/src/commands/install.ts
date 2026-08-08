@@ -13,7 +13,7 @@ function modulePackageRoot() {
 }
 
 function canReplacePrimary(kind: Awaited<ReturnType<typeof classifyManagedPath>>) {
-  return kind === "absent" || kind === "riqor-managed" || kind === "legacy-managed";
+  return kind === "absent" || kind === "riqor-managed";
 }
 
 function canReplaceAlias(kind: Awaited<ReturnType<typeof classifyManagedPath>>) {

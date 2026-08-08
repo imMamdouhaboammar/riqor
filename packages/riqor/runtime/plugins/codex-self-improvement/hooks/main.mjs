@@ -299,7 +299,7 @@ var harnessPaths = Object.freeze([
     objective: "Prevent duplicate capabilities and architecture drift before non-trivial cross-module or contract changes",
     curatedSkills: ["architecture-guardian"],
     evidence: ["current architecture and reuse evidence", "post-change conformance result or an explicit not-applicable reason"],
-    guardrails: ["review mode is the default", "never create a baseline, exception, or broader contract to make a check pass"],
+    guardrails: ["review mode is the default", "never create a baseline, exception, or broader contract to make a check pass", "apply Ponytail YAGNI decision ladder: skip unnecessary code, reuse existing helpers, prefer 1-3 line diffs"],
     automaticActions: [],
     requiresExplicitApproval: ["enable strict architecture enforcement", "create or update a baseline", "add an architecture exception"]
   }),
@@ -317,7 +317,7 @@ var harnessPaths = Object.freeze([
     objective: "Move from a reproduced symptom or acceptance criterion to fresh focused checks and an evidence-scoped completion claim",
     curatedSkills: [],
     evidence: ["reproduction or failing check before the change", "focused passing check after the final mutation"],
-    guardrails: ["change one causal variable at a time", "never convert confidence, a diff, or prior agent output into proof"],
+    guardrails: ["change one causal variable at a time", "never convert confidence, a diff, or prior agent output into proof", "apply Ponytail YAGNI decision ladder: skip unnecessary code, reuse existing helpers, prefer minimal diffs"],
     automaticActions: [],
     requiresExplicitApproval: ["expand scope beyond the reviewed request"]
   }),
@@ -987,12 +987,16 @@ async function handleHook(input, dataDir, environment = process.env, now = Date.
   const event = String(input.hook_event_name ?? "");
   const key = turnKey(input);
   const activator = readActivatorConfig(environment);
+  const actionsFirst = environment.RIQOR_ACTIONS_FIRST === "1";
+  const actionsFirstSuffix = actionsFirst ? `
+⚡ Actions-First Mode: Provide executable code, diffs, or commands FIRST. Omit conversational fluff. Max 3 bullet points summary.
+✂️ Ponytail YAGNI Filter: Apply 6-step filter (Skip -> Native -> Reuse -> Existing Dep -> One-liner -> Minimal diff) before creating code.` : "";
   if (event === "SessionStart") {
     await pruneState(dataDir);
     await markRuntimeSeen(dataDir, now);
     if (activator)
       await boundedActivatorOperation(() => initializeActivator(dataDir, activator, now));
-    return { hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: sessionContext } };
+    return { hookSpecificOutput: { hookEventName: "SessionStart", additionalContext: `${sessionContext}${actionsFirstSuffix}` } };
   }
   if (event === "UserPromptSubmit") {
     if (activator)
@@ -1000,7 +1004,7 @@ async function handleHook(input, dataDir, environment = process.env, now = Date.
     return {
       hookSpecificOutput: {
         hookEventName: "UserPromptSubmit",
-        additionalContext: routingContext(promptFrom(input))
+        additionalContext: `${routingContext(promptFrom(input))}${actionsFirstSuffix}`
       }
     };
   }
