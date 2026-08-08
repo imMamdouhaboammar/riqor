@@ -7,7 +7,7 @@
   "npxCleanHome": "passed",
   "npmGlobal": "passed",
   "homebrewInstall": "passed",
-  "fullInstall": "passed",
+  "fullInstall": "known-issue",
   "artifacts": [
     {
       "file": "riqor-0.1.0.tgz",
@@ -19,5 +19,10 @@
       "sha256": "a809d001397db84e08dd5beb2d63a478840dcaa5cf7e6b2f1a8548831e99147c",
       "url": "https://github.com/imMamdouhaboammar/riqor/releases/download/v0.1.0/riqor-0.1.0-homebrew.tar.gz"
     }
+  ],
+  "knownIssues": [
+    "The npm tarball omitted lifecycle scripts referenced by the packaged CLI.",
+    "Package install could report success after shell integration failed.",
+    "Package-mode shell setup could overwrite the riqor shim through the codex-harness compatibility symlink."
   ]
 }

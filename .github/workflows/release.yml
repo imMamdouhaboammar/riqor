@@ -34,6 +34,9 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Build Riqor runtime for package tests
+        run: bun run riqor:build
+
       - name: Run CI test suite
         run: |
           bun test

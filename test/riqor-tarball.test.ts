@@ -16,7 +16,7 @@ describe("riqor tarball inspection", () => {
     expect(packResult.exitCode).toBe(0);
 
     const packInfo = JSON.parse(packResult.stdout) as Array<{ filename: string }>;
-    const tarballName = packInfo[0]?.filename ?? "riqor-0.1.0.tgz";
+    const tarballName = packInfo[0]?.filename ?? "riqor-0.1.1.tgz";
     const tarballPath = join(packageRoot, tarballName);
 
     const report = await inspectRiqorTarball(tarballPath);
@@ -24,6 +24,9 @@ describe("riqor tarball inspection", () => {
     expect(report.errors).toHaveLength(0);
     expect(report.entries).toContain("bin/riqor.mjs");
     expect(report.entries).toContain("dist/cli.mjs");
+    expect(report.entries).toContain("runtime/scripts/install-shell-integration.sh");
+    expect(report.entries).toContain("runtime/scripts/uninstall-shell-integration.py");
+    expect(report.entries).toContain("runtime/scripts/install-plugin.sh");
 
     await rm(tarballPath, { force: true });
   });

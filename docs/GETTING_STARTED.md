@@ -41,7 +41,7 @@ brew install imMamdouhaboammar/tap/riqor
 riqor install
 ```
 
-The installer copies a versioned payload, updates the `current` symlink, creates command shims, attempts shell integration, writes an install manifest, and runs package diagnostics.
+The installer copies a versioned payload, updates the `current` symlink, creates ownership-checked command shims, installs managed shell integration, registers the bundled Codex plugin when Codex CLI is available, writes an install manifest, and runs package integrity diagnostics. It returns a non-zero result when a required managed step fails.
 
 ## 3. Confirm the Command Is Available
 
@@ -86,7 +86,7 @@ riqor doctor --package-only --json
 A full doctor report checks:
 
 - package version
-- payload provenance file
+- SHA-256 payload provenance and exact runtime file set
 - supported platform
 - installed executable shim
 - Codex CLI availability
@@ -177,7 +177,7 @@ Closing the managed Codex child process ends the activator for that session. Riq
 riqor uninstall
 ```
 
-The package uninstaller removes the `riqor`, `codex-harness`, and `cxh` shims, invokes the managed shell uninstaller when present, removes the active symlink and versioned Riqor data directory, and deletes the install manifest.
+The package uninstaller removes only recognized Riqor or legacy-managed `riqor`, `codex-harness`, and `cxh` paths, removes a plugin registration recorded by the install manifest, invokes the managed shell uninstaller, removes Riqor-owned version directories and the active symlink, and deletes the install manifest. Unknown paths are preserved and reported instead of being deleted.
 
 After uninstalling, confirm the result:
 
@@ -187,5 +187,7 @@ ls -la ~/.config/riqor ~/.local/share/riqor ~/.local/state/riqor 2>/dev/null || 
 ```
 
 The installer state directory may remain when it contains no managed file targeted by the package uninstaller. Inspect it before deleting anything manually.
+
+For an affected `0.1.0` npm installation, `npx riqor@0.1.1 install` recognizes the legacy managed wrapper signature and repairs the primary shim without allowing arbitrary executable replacement.
 
 See [Troubleshooting](TROUBLESHOOTING.md) when installation, diagnostics, or shell integration does not behave as expected.

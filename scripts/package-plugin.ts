@@ -27,7 +27,7 @@ for current, dirs, files in os.walk(root):
     dirs[:] = sorted(d for d in dirs if d not in {"node_modules", ".git"})
     for name in sorted(files):
         rel = os.path.relpath(os.path.join(current, name), root).replace(os.sep, "/")
-        if name == ".DS_Store" or rel.endswith(".test.ts") or rel.startswith("node_modules/"):
+        if name in {".DS_Store", "Thumbs.db"} or name.startswith("._") or rel.endswith(".test.ts") or rel.startswith("node_modules/"):
             continue
         entries.append(rel)
 with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:

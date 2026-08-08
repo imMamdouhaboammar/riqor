@@ -13,7 +13,7 @@ describe("tarball installation and uninstallation", () => {
     const report = await install({ home: tempHome });
 
     expect(report.ok).toBe(true);
-    expect(report.version).toBe("0.1.0");
+    expect(report.version).toBe("0.1.1");
     expect(report.surfaces).toContain(join(tempHome, ".local", "bin", "riqor"));
 
     const uninstallReport = await uninstall({ home: tempHome });

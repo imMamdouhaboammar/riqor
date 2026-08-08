@@ -78,7 +78,9 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
     /(?:^|\/)(?:auth\.json|credentials?(?:\.|$)|secrets?(?:\.|$)|\.env(?:\.|$))/i.test(path)
   );
   if (credentialShapedFiles.length > 0) errors.push("credential-shaped files are present");
-  const unwantedFiles = relativeFiles.filter((path) => path.split("/").includes(".DS_Store"));
+  const unwantedFiles = relativeFiles.filter((path) => path.split("/").some((name) =>
+    name === ".DS_Store" || name === "Thumbs.db" || name.startsWith("._")
+  ));
   if (unwantedFiles.length > 0) errors.push("operating-system metadata files are present");
   if (relativeFiles.some((path) => path.startsWith("fixtures/") || path.startsWith(".runs/"))) {
     errors.push("development fixtures or runs are present in the plugin package");

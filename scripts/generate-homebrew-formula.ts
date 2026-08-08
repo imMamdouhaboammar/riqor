@@ -52,7 +52,8 @@ end
 }
 
 if (import.meta.main) {
-  const version = process.env.RIQOR_VERSION ?? "0.1.0";
+  const pkg = JSON.parse(await readFile(join(process.cwd(), "packages", "riqor", "package.json"), "utf8")) as { version: string };
+  const version = process.env.RIQOR_VERSION ?? pkg.version;
   const archivePath = join(process.cwd(), "dist", `riqor-${version}-homebrew.tar.gz`);
   readFile(archivePath)
     .then(async (content) => {

@@ -60,17 +60,17 @@ Exit status is non-zero when required checks fail.
 
 ### `riqor install`
 
-Installs the versioned package payload and managed local integrations.
+Installs the versioned package payload and managed local integrations with ownership checks and package integrity verification.
 
 ```bash
 riqor install
 ```
 
-The command creates versioned package data, updates the `current` symlink, creates executable shims, attempts shell integration, writes an install manifest, and returns a rollback command.
+The command creates versioned package data, updates the `current` symlink, creates executable shims only when their existing paths are safe to replace, installs shell integration, registers the bundled Codex plugin when Codex CLI is available, writes an install manifest, verifies packaged SHA-256 provenance, and returns a rollback command. Bun is not required for the published package install path.
 
 ### `riqor uninstall`
 
-Removes the Riqor-managed installation.
+Removes the Riqor-managed installation. Unknown executable paths and unsafe current-link targets are preserved and reported instead of being deleted.
 
 ```bash
 riqor uninstall
@@ -290,7 +290,7 @@ riqor plugin status --json
 
 ### `riqor plugin install`
 
-Runs the bundled Codex plugin installer.
+Runs the bundled Codex plugin installer. In the published npm package this uses package mode and does not require Bun.
 
 ```bash
 riqor plugin install

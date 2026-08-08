@@ -57,7 +57,9 @@ Upgrade Node, start a new terminal, and rerun:
 riqor doctor --package-only --json
 ```
 
-## Payload Provenance Is Missing
+## Payload Provenance or Integrity Check Fails
+
+`riqor doctor --package-only` validates the provenance manifest, every listed SHA-256 digest and byte size, and the exact runtime file set. A modified, missing, unexpected, or unsafe-path entry fails the check.
 
 Check the active payload:
 
@@ -87,7 +89,7 @@ command -v codex
 codex --version
 ```
 
-Install and authenticate Codex before using `riqor codex` or expecting a fully green Codex diagnostic.
+Install and authenticate Codex before using `riqor codex` or expecting a fully green Codex diagnostic. If Riqor was installed before Codex, register the bundled plugin with `riqor plugin install`; the published package does not require Bun for this operation.
 
 Then run:
 
@@ -147,6 +149,17 @@ Then rerun:
 riqor doctor --json
 ```
 
+## Installer Reports an Existing Executable Conflict
+
+Riqor refuses to overwrite an executable path that does not carry a recognized Riqor or legacy-managed marker. Inspect the reported path before changing anything:
+
+```bash
+type -a riqor codex-harness cxh
+ls -la ~/.local/bin/riqor ~/.local/bin/codex-harness ~/.local/bin/cxh 2>/dev/null || true
+```
+
+Move or remove a conflicting file only after confirming it belongs to you and is no longer needed. Do not bypass the ownership check.
+
 ## Shell Integration Is Missing
 
 Inspect managed shell files:
@@ -162,7 +175,7 @@ riqor shell uninstall
 riqor shell install
 ```
 
-Open a new terminal after the installer finishes.
+Open a new terminal after the installer finishes. If the installer reports malformed `codex-self-improvement` markers, repair the unmatched start/end marker in `.zshenv` manually first. Riqor fails closed and leaves the file unchanged rather than guessing which user content belongs to the managed block.
 
 ## `verification-pending` Does Not Clear
 
@@ -264,6 +277,8 @@ Run:
 riqor uninstall
 hash -r 2>/dev/null || true
 ```
+
+If uninstall reports a preserved path, Riqor did not recognize that path as managed and intentionally left it in place. Inspect it before manual removal.
 
 Then inspect:
 

@@ -1,7 +1,7 @@
 # Managed by Codex Self Improvement for interactive Kaku panes
 [[ -n "${_CODEX_SELF_IMPROVEMENT_KAKU_LOADED:-}" ]] && return 0
 typeset -g _CODEX_SELF_IMPROVEMENT_KAKU_LOADED=1
-[[ -r "$HOME/.config/codex-self-improvement/env.zsh" ]] && source "$HOME/.config/codex-self-improvement/env.zsh"
+[[ -r "${XDG_CONFIG_HOME:-$HOME/.config}/codex-self-improvement/env.zsh" ]] && source "${XDG_CONFIG_HOME:-$HOME/.config}/codex-self-improvement/env.zsh"
 export CODEX_SELF_IMPROVEMENT_SURFACE="kaku"
 
 _csi_terminal_session() {

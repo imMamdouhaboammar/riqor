@@ -12,6 +12,7 @@ describe("release preflight resource classification", () => {
   test("classifyNpm handles available, owned, conflict, and unreachable", () => {
     expect(classifyNpm({ status: 404 }, "imMamdouhaboammar")).toBe("available");
     expect(classifyNpm({ status: 200, maintainers: ["imMamdouhaboammar"] }, "imMamdouhaboammar")).toBe("owned");
+    expect(classifyNpm({ status: 200, maintainers: ["mamdouh-aboammar <mamdouhfces1997@gmail.com>"] }, "mamdouh-aboammar")).toBe("owned");
     expect(classifyNpm({ status: 200, maintainers: ["another-user"] }, "imMamdouhaboammar")).toBe("conflict");
     expect(classifyNpm({ status: 500 }, "imMamdouhaboammar")).toBe("unreachable");
   });

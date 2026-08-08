@@ -1,125 +1,76 @@
 ---
 name: riqor-conventions
-description: Development conventions and patterns for riqor. TypeScript project with conventional commits.
+description: Use when changing, testing, packaging, installing, uninstalling, diagnosing, or releasing the Riqor repository or its npm distribution.
 ---
 
 # Riqor Conventions
 
-> Generated from [imMamdouhaboammar/riqor](https://github.com/imMamdouhaboammar/riqor) on 2026-08-06
+## Core rule
 
-## Overview
+Riqor makes completion claims depend on observable evidence. Apply the same standard to Riqor itself: reproduce failures, add a regression test, fix the smallest responsible boundary, and run fresh verification before release claims.
 
-This skill teaches Claude the development patterns and conventions used in riqor.
+## Runtime boundaries
 
-## Tech Stack
+Keep these surfaces distinct:
 
-- **Primary Language**: TypeScript
-- **Architecture**: hybrid module organization
-- **Test Location**: separate
+- Repository development may use Bun
+- The published `riqor` package requires Node.js 22+, Python 3 for shell integration, and Codex only for Codex features
+- Published install, uninstall, shell, and plugin lifecycle commands must not require Bun
+- Packaged commands must resolve files from the packaged runtime, not from repository-only paths
+- Hosted ChatGPT is outside the local Riqor runtime boundary
 
-## When to Use This Skill
+## Filesystem safety
 
-Activate this skill when:
-- Making changes to this repository
-- Adding new features following established patterns
-- Writing tests that match project conventions
-- Creating commits with proper message format
+Before replacing a user path, classify ownership. Known Riqor and recognized legacy-managed paths may be migrated. Unknown paths must be preserved and reported.
 
-## Commit Conventions
+Never follow a symlink and then overwrite its target during install. Never recursively remove a data root merely because its name matches Riqor. Remove only validated Riqor-owned payload directories and managed files.
 
-Follow these commit message conventions based on 4 analyzed commits.
+## Package integrity
 
-### Commit Style: Conventional Commits
+`runtime/provenance.json` is a verification input, not decoration. Package diagnostics must validate version, safe relative paths, regular-file type, byte size, SHA-256 digest, missing files, and unexpected files.
 
-### Prefixes Used
+Exclude operating-system metadata such as `.DS_Store`, `Thumbs.db`, and AppleDouble `._*` files from runtime and plugin archives.
 
-- `docs`
-- `test`
+## Shell configuration
 
-### Message Guidelines
+Managed shell markers are a user-file boundary. Unmatched, nested, or out-of-order markers must fail closed before rewriting `.zshenv`. Package mode must not create development wrappers that can replace the `riqor` shim.
 
-- Average message length: ~44 characters
-- Keep first line concise and descriptive
-- Use imperative mood ("Add feature" not "Added feature")
+Respect `XDG_CONFIG_HOME`, `XDG_DATA_HOME`, and `XDG_STATE_HOME`. Tests using a custom home must not leak writes into the developer's real XDG paths.
 
+## Required regression coverage
 
-*Commit message example*
+For installer or packaging changes, cover at least:
 
-```text
-docs: specify managed Codex session activator
+- clean install and idempotent uninstall
+- foreign executable preservation
+- recognized legacy migration
+- package mode without Bun
+- Codex plugin lifecycle with isolated `CODEX_HOME`
+- provenance tampering and path traversal
+- malformed shell markers
+- archive content inspection
+
+Prefer temporary homes and mock external CLIs where behavior can be isolated.
+
+## Release gate
+
+Do not tag or publish from a dirty or shared worktree. Use an isolated branch and verify the exact release tree.
+
+Run the complete release checks, including:
+
+```bash
+bun test
+bun run plugin:health
+bun run skills:health
+bun run riqor:pack
+bun run riqor:inspect -- packages/riqor/riqor-*.tgz
+bun run riqor:test
+bun run actions:verify
+bun run release:preflight
 ```
 
-*Commit message example*
+Inspect `npm pack --dry-run` or the generated tarball before publishing. After publication, query npm again and run the published package in a clean temporary home.
 
-```text
-test: define Codex activator CLI contract
-```
+Keep the root and npm package versions aligned. Release notes must exist for that npm version. Homebrew is a separate publication channel and its formula must remain internally consistent with the artifact it actually references.
 
-*Commit message example*
-
-```text
-docs: plan Codex session activator implementation
-```
-
-*Commit message example*
-
-```text
-test: define managed activator lifecycle
-```
-
-## Architecture
-
-### Project Structure: Single Package
-
-This project uses **hybrid** module organization.
-
-### Guidelines
-
-- This project uses a hybrid organization
-- Follow existing patterns when adding new code
-
-## Code Style
-
-### Language: TypeScript
-
-### Naming Conventions
-
-| Element | Convention |
-|---------|------------|
-| Files | kebab-case |
-| Functions | camelCase |
-| Classes | PascalCase |
-| Constants | SCREAMING_SNAKE_CASE |
-
-### Import Style: Mixed Style
-
-### Export Style: Named Exports
-
-
-*Preferred export style*
-
-```typescript
-// Use named exports
-export function calculateTotal() { ... }
-export const TAX_RATE = 0.1
-export interface Order { ... }
-```
-
-## Best Practices
-
-Based on analysis of the codebase, follow these practices:
-
-### Do
-
-- Use conventional commit format (feat:, fix:, etc.)
-- Use kebab-case for file names
-- Prefer named exports
-
-### Don't
-
-- Don't write vague commit messages
-- Don't deviate from established patterns without discussion
-
----
-
-*This skill was auto-generated by [ECC Tools](https://ecc.tools). Review and customize as needed for your team.*
+Never rewrite historical release evidence to hide a discovered defect. Record a correction and identify the release that fixes it.

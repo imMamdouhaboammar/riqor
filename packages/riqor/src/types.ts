@@ -30,6 +30,8 @@ export type UninstallReport = Readonly<{
   ok: boolean;
   removed: readonly string[];
   restored: readonly string[];
+  preserved: readonly string[];
+  checks: readonly CheckRecord[];
 }>;
 
 export type MarketplaceState = "absent" | "current" | "legacy-compatible" | "conflict";

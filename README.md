@@ -112,8 +112,8 @@ Riqor uses local lifecycle hooks and local state. Activator state is scoped to a
 
 | Command | Purpose |
 | --- | --- |
-| `riqor install` | Install the versioned runtime payload and local shims |
-| `riqor uninstall` | Remove managed files and restore shell state |
+| `riqor install` | Install the versioned runtime, safe shims, shell integration, and bundled Codex plugin when Codex is available |
+| `riqor uninstall` | Remove Riqor-owned files while preserving unrelated local paths |
 | `riqor status` | Show the installed version and detected integrations |
 | `riqor doctor` | Check package health, platform support, Codex, and current Kaku integration |
 | `riqor version` | Print Riqor and plugin versions |
@@ -139,11 +139,13 @@ The package installer uses XDG paths when configured and otherwise writes to the
 ~/.local/bin/cxh            compatibility alias
 ```
 
-Shell integration may also create managed Kaku and zsh files with backups. Run `riqor uninstall` to remove Riqor-managed changes.
+Shell integration may also create managed Kaku and zsh files with backups. The installer refuses unrelated executable paths instead of overwriting them, and uninstall preserves any path that does not carry a Riqor or recognized legacy ownership marker. Run `riqor uninstall` to remove Riqor-managed changes.
 
 ## Security Boundaries
 
 - Riqor runs locally and does not expose a network service
+- Packaged runtime files are checked against SHA-256 provenance before package diagnostics pass
+- Installer and uninstaller ownership checks preserve unrelated command paths
 - Activator values are bounded before use
 - Codex is launched with argument arrays and `shell: false`
 - Managed activator sessions use random tokens and hashed state filenames

@@ -1,7 +1,7 @@
 {
-  "version": "0.1.0",
-  "sourceCommit": "a879fed8623acf1b90bfdb20bd4a31246977c27e",
-  "sourceDateEpoch": 1786083098,
+  "version": "0.1.1",
+  "sourceCommit": "3493b11837dba2f345a2ccbc4ccb074a15cdebcf",
+  "sourceDateEpoch": 1786083201,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -15,8 +15,8 @@
     },
     {
       "path": "config/shell/codex-self-improvement-kaku.zsh",
-      "sha256": "648445a960cb731fde4d3d83ce1f6c932b30328559ab28af75abcf7ccd1a291a",
-      "bytes": 2930
+      "sha256": "2504f9a8ed7edaa72d6256cd13c67ff79b9a75a36daa534d9156ecccb1d8856d",
+      "bytes": 2970
     },
     {
       "path": "config/skill-curation.json",
@@ -62,6 +62,41 @@
       "path": "plugins/codex-self-improvement/skills/universal-session-runtime/SKILL.md",
       "sha256": "ed068755583835a16c37de232c1b5afaaf60307893a300151059b1ad5b8cee5c",
       "bytes": 1671
+    },
+    {
+      "path": "scripts/check-marketplace-source.py",
+      "sha256": "65a6ec3a0fc233d3c8506be90676b6173a2ac6fb33a83968d35fbb08be134ef7",
+      "bytes": 1447
+    },
+    {
+      "path": "scripts/install-plugin.sh",
+      "sha256": "444c16cde9a5988b5a818e09720ca9c5f30ead3aa974d070cd926523d8b7ce5b",
+      "bytes": 2579
+    },
+    {
+      "path": "scripts/install-shell-integration.py",
+      "sha256": "a32072150545fa72989572ae063aab7adc4fdb48c17a2f7c248ec7414b2eb232",
+      "bytes": 5592
+    },
+    {
+      "path": "scripts/install-shell-integration.sh",
+      "sha256": "fc50a12e304fd6477b7ca40c6e13e56cbd5c3e21c69636f3ee2a3bec7ebc92b3",
+      "bytes": 1041
+    },
+    {
+      "path": "scripts/uninstall-plugin.sh",
+      "sha256": "bea547e10537b58fb599532ef8f5e84e240e50d258652c8ed866bed76c6ab7fc",
+      "bytes": 956
+    },
+    {
+      "path": "scripts/uninstall-shell-integration.py",
+      "sha256": "52bca6b4c7f9d2ebcbc8c6c4a0d5a4f7f17c5c75ad5b5f82ced1344d858fddb2",
+      "bytes": 2750
+    },
+    {
+      "path": "scripts/uninstall-shell-integration.sh",
+      "sha256": "930901b316cdc56f1b863384724ab4b4b57cba7e09858398af5a20335b66f618",
+      "bytes": 586
     },
     {
       "path": "skills-lock.json",

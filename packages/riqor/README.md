@@ -10,20 +10,22 @@ Evidence gates, repository run traces, and managed Codex checkpoints for local c
 
 `riqor` is the official npm distribution of [Riqor](https://github.com/imMamdouhaboammar/riqor).
 
-It installs a versioned local runtime, command shims, shell integration, and the bundled Codex plugin. The CLI can track verification state, maintain a repository-scoped run trace, and start Codex sessions with an optional periodic task checkpoint.
+It installs a versioned local runtime, ownership-checked command shims, shell integration, and the bundled Codex plugin when Codex CLI is available. The CLI can track verification state, maintain a repository-scoped run trace, and start Codex sessions with an optional periodic task checkpoint.
 
 ## Requirements
 
 - macOS or Linux
 - Node.js 22 or newer
 - Python 3 for managed shell integration
-- Codex CLI for Codex features
+- Codex CLI for Codex features; installation can complete without Codex and plugin setup can be run later
 
 ## Install
 
 ```bash
 npx riqor install
 ```
+
+Bun is not required for the published package install path. When Codex CLI is present, the installer registers the bundled plugin automatically.
 
 Confirm the installation:
 
@@ -123,13 +125,14 @@ The installer uses XDG paths when configured. Default locations include:
 ```text
 ~/.local/share/riqor/
 ~/.config/riqor/
+~/.config/codex-self-improvement/
 ~/.local/state/riqor/
 ~/.local/bin/riqor
 ```
 
 Set `RIQOR_STATE_HOME` to override the run state root. Terminal verification metadata continues to use `CODEX_SELF_IMPROVEMENT_DATA` when that variable is set.
 
-Run `riqor uninstall` for managed package rollback. Existing repository run records are not silently removed.
+Run `riqor uninstall` for managed package rollback. Uninstall removes only recognized Riqor or legacy-managed installation paths and reports foreign paths instead of deleting them. Existing repository run records are not silently removed.
 
 ## Privacy and Scope
 

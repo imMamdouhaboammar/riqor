@@ -203,15 +203,15 @@ The watchdog is not a process killer. It limits activator checkpoint behavior on
 
 ## Installation and Rollback
 
-The package installer writes a versioned payload and updates a `current` symlink. Command shims point to that active payload.
+The package installer writes a versioned payload and updates a `current` symlink. Command shims point to that active payload. Before replacing executable paths, the installer classifies them as absent, Riqor-managed, recognized legacy-managed, or foreign. Foreign paths make installation fail before those paths are modified.
 
-Managed files include local executable shims, package data, an install manifest, and optional shell integration. The documented rollback command is:
+Managed files include local executable shims, package data, an install manifest, shell integration, and a Codex plugin registration when Codex is available. Package diagnostics hash every provenance-listed runtime file, reject unexpected files, and validate provenance paths before the package is considered healthy. The documented rollback command is:
 
 ```bash
 riqor uninstall
 ```
 
-Uninstall removes managed installation files. Repository run records under the state root are user data and are not silently deleted as part of package rollback.
+Uninstall removes only recognized managed installation files and Riqor-owned version directories. Unknown executable paths or an unsafe `current` path are preserved and reported. Repository run records under the state root are user data and are not silently deleted as part of package rollback.
 
 The installer and uninstaller should be treated as local filesystem mutation tools. Review changes when running them in a customized shell environment.
 

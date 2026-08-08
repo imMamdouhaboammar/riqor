@@ -50,7 +50,12 @@ export function classifyNpm(
 ): ResourceState {
   if (result.status === 404) return "available";
   if (result.status === 200 && result.maintainers) {
-    const isOwner = result.maintainers.some((m) => m.toLowerCase() === expectedOwner.toLowerCase());
+    const expected = expectedOwner.trim().toLowerCase();
+    const isOwner = result.maintainers.some((maintainer) => {
+      const normalized = maintainer.trim().toLowerCase();
+      const username = normalized.split(/\s|</, 1)[0];
+      return username === expected;
+    });
     return isOwner ? "owned" : "conflict";
   }
   return "unreachable";

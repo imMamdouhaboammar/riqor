@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, test } from "bun:test";
 import { createHash } from "node:crypto";
-import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { buildPluginArchive, pythonSupportsCompressionLevel } from "../scripts/package-plugin";
@@ -29,6 +29,19 @@ describe("plugin build", () => {
     expect(report.skills).toEqual(["evidence-engineering", "harness-paths", "self-improvement-loop", "universal-session-runtime"]);
     expect(report.credentialShapedFiles).toEqual([]);
     expect(report.unwantedFiles).toEqual([]);
+  });
+
+  test("health inspection rejects common operating-system metadata", async () => {
+    const root = await mkdtemp(join(tmpdir(), "codex-self-improvement-metadata-"));
+    roots.push(root);
+    const source = resolve(import.meta.dir, "..", "plugins", "codex-self-improvement");
+    const plugin = join(root, "codex-self-improvement");
+    await cp(source, plugin, { recursive: true });
+    await writeFile(join(plugin, "Thumbs.db"), "metadata");
+    await writeFile(join(plugin, "._resource"), "metadata");
+    const report = await inspectPlugin(plugin);
+    expect(report.ok).toBe(false);
+    expect(report.unwantedFiles.sort()).toEqual(["._resource", "Thumbs.db"].sort());
   });
 
   test("builds a deterministic minimal archive", async () => {

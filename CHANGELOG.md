@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.1.1] - 2026-08-08
+
 ### Added
 
 - Repository-scoped run records with explicit goals, workflow paths, and `standard` or `assured` execution profiles
@@ -36,6 +38,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 - Expanded contribution guidance with focused checks, security review points, commit conventions, and documentation rules
 - Clarified the private vulnerability reporting policy and supported security scope
 - Extended action pin verification to discover every YAML workflow automatically
+
+### Fixed
+
+- Bundled package lifecycle scripts required by npm installs, shell integration, and Codex plugin operations
+- Prevented package-mode shell setup from overwriting the Riqor executable through a compatibility symlink
+- Added ownership checks so install and uninstall preserve unrelated executable paths
+- Added cryptographic runtime provenance verification with exact file-set validation
+- Separated Codex core health from unrelated doctor warnings and removed hard-coded status version fallbacks
+- Made malformed managed shell markers fail closed without rewriting the user's `.zshenv`
+- Excluded common operating-system metadata from plugin archives and packaged runtime payloads
+- Added safe migration for the managed wrapper produced by the affected `0.1.0` installation path
+
 
 ## [0.1.0] - 2026-08-04
 
