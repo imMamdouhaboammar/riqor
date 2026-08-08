@@ -1,7 +1,7 @@
 {
-  "version": "0.1.0",
-  "sourceCommit": "0a97904bc8737065ba1920265e901d0d68375c78",
-  "sourceDateEpoch": 1786208833,
+  "version": "0.1.1",
+  "sourceCommit": "385c62c0a7831881c84262d3543f6a44a00225aa",
+  "sourceDateEpoch": 1786211231,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -35,8 +35,8 @@
     },
     {
       "path": "plugins/codex-self-improvement/hooks/main.mjs",
-      "sha256": "0c0634fa8b32d6b6e864ffa36312695f66a12cfaa52c456d8d4a7a15807cd49a",
-      "bytes": 43399
+      "sha256": "0d8eab082eeeeb1bb8fc2c59786bd5676a4ed1aa49e12460af8dcd7b5e914caf",
+      "bytes": 44061
     },
     {
       "path": "plugins/codex-self-improvement/package.json",
@@ -90,8 +90,8 @@
     },
     {
       "path": "scripts/uninstall-shell-integration.py",
-      "sha256": "52f6f5d0f47dd4c62c1da43be5ca589b67e64c0a3ebeba2e1a90149037f2d68b",
-      "bytes": 2261
+      "sha256": "52bca6b4c7f9d2ebcbc8c6c4a0d5a4f7f17c5c75ad5b5f82ced1344d858fddb2",
+      "bytes": 2750
     },
     {
       "path": "scripts/uninstall-shell-integration.sh",
