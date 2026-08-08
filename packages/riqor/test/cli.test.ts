@@ -33,7 +33,7 @@ describe("packages/riqor CLI", () => {
       expect(stderr).not.toContain("at ");
     } finally {
       process.stderr.write = originalWrite;
-      process.exitCode = previousExitCode;
+      process.exitCode = previousExitCode ?? 0;
     }
   });
 });

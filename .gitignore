@@ -11,3 +11,4 @@ __pycache__/
 
 # Isolated implementation worktrees
 .worktrees/
+.riqor/

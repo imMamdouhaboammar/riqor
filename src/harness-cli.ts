@@ -15,6 +15,14 @@ import {
   type TerminalState,
 } from "./terminal-runtime";
 import { resolveRuntimeLayout } from "./runtime-paths";
+import { runSkepticalVerification } from "./skeptical-verifier";
+import { getSessionTelemetry } from "./telemetry-mcp";
+import { loadCrystallizedRules, addCrystallizedRule, formatCrystallizedRulesHighDensity } from "./crystallized-rules";
+import { calculateEnvironmentDelta } from "./environment-delta";
+import { runDeliberationGate } from "./deliberation-gate";
+import { auditRepositoryConventions } from "./convention-auditor";
+import { recordHeartbeat, listActiveSessions, writeScratchpadEntry, readScratchpad } from "./scratchpad-isolation";
+import { executeKernelCommand } from "./bun-kernel";
 
 const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
@@ -370,6 +378,53 @@ export async function main(args = process.argv.slice(2)) {
   if (command === "shell" && subcommand === "uninstall") return lifecycle("uninstall-shell-integration.sh");
   if (command === "install") return lifecycle("install-universal.sh");
   if (command === "uninstall") return lifecycle("uninstall-universal.sh");
+  if (command === "verify") {
+    const report = runSkepticalVerification(process.cwd());
+    return print(report, json);
+  }
+  if (command === "telemetry") {
+    const report = getSessionTelemetry(process.cwd());
+    return print(report, json);
+  }
+  if (command === "rules") {
+    if (subcommand === "add") {
+      const ruleText = rest.join(" ");
+      if (!ruleText) throw new Error("rules add requires rule text");
+      const rule = addCrystallizedRule(process.cwd(), ruleText);
+      return print(rule, json);
+    }
+    const rules = loadCrystallizedRules(process.cwd());
+    return print(json ? { rules } : formatCrystallizedRulesHighDensity(rules), json);
+  }
+  if (command === "delta") {
+    const delta = calculateEnvironmentDelta(process.cwd());
+    return print(delta, false);
+  }
+  if (command === "deliberate") {
+    const consensus = runDeliberationGate(process.cwd());
+    return print(consensus, json);
+  }
+  if (command === "conventions") {
+    const report = auditRepositoryConventions(process.cwd());
+    return print(report, json);
+  }
+  if (command === "scratchpad") {
+    const sessionId = rest[0] || `session-${process.ppid}`;
+    if (subcommand === "write") {
+      const key = rest[1];
+      const val = rest.slice(2).join(" ");
+      if (!key) throw new Error("scratchpad write requires key");
+      const entry = writeScratchpadEntry(sessionId, key, val, process.cwd());
+      return print(entry, json);
+    }
+    const pad = readScratchpad(sessionId, process.cwd());
+    return print(pad, json);
+  }
+  if (command === "heartbeat") {
+    const sessionId = subcommand || `session-${process.ppid}`;
+    const hb = recordHeartbeat(sessionId, process.cwd());
+    return print(hb, json);
+  }
   if (command === "terminal") return terminalCommand([subcommand ?? "", ...rest]);
   if (command === "codex") return passthroughCodex(args.slice(1));
   process.stderr.write(`${usage}\n`);

@@ -6,7 +6,7 @@ export type TarballReport = Readonly<{
   errors: readonly string[];
 }>;
 
-const forbiddenPattern = /(?:^|\/)(?:auth\.json|\.env(?:\.|$)|credentials?|secrets?|\.DS_Store|work|fixtures|test)(?:\/|$)/i;
+const forbiddenPattern = /(?:^|\/)(?:auth\.json|\.env(?:\.|$)|credentials?|secrets?|\.DS_Store|Thumbs\.db|\._[^/]*|work|fixtures|test)(?:\/|$)/i;
 
 export async function inspectRiqorTarball(tarballPath: string): Promise<TarballReport> {
   const result = await runProcess(["tar", "-tzf", tarballPath]);

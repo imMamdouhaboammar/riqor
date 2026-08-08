@@ -11,7 +11,7 @@ function isInside(candidate: string, root: string) {
   return relation === "" || (!isAbsolute(relation) && relation !== ".." && !relation.startsWith(`..${process.platform === "win32" ? "\\" : "/"}`));
 }
 
-function assertIsolatableRepo(repo: string) {
+export function assertIsolatableRepo(repo: string) {
   const candidates = new Set([resolve(repo), realpathSync(repo)]);
   const temporaryRoots = new Set([resolve(tmpdir()), realpathSync(tmpdir())]);
   if (process.platform === "darwin") {

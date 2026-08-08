@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
-import { dirname, join, relative, resolve } from "node:path";
+import { basename, dirname, join, relative, resolve } from "node:path";
 import { runProcess } from "../src/process";
 
 export type BuildOptions = Readonly<{
@@ -16,6 +16,11 @@ export type BuildReport = Readonly<{
   files: readonly { path: string; sha256: string; bytes: number }[];
 }>;
 
+export function isPortableRuntimePath(path: string) {
+  const name = basename(path);
+  return name !== ".DS_Store" && name !== "Thumbs.db" && !name.startsWith("._");
+}
+
 const staticRuntimeFiles = [
   "plugins/codex-self-improvement/.codex-plugin/plugin.json",
   "plugins/codex-self-improvement/package.json",
@@ -24,6 +29,13 @@ const staticRuntimeFiles = [
   ".agents/plugins/marketplace.json",
   "skills-lock.json",
   "config/skill-curation.json",
+  "scripts/install-shell-integration.sh",
+  "scripts/uninstall-shell-integration.sh",
+  "scripts/install-shell-integration.py",
+  "scripts/uninstall-shell-integration.py",
+  "scripts/install-plugin.sh",
+  "scripts/uninstall-plugin.sh",
+  "scripts/check-marketplace-source.py",
 ] as const;
 
 export async function buildRiqorPackage(options: BuildOptions = {}): Promise<BuildReport> {
@@ -64,7 +76,7 @@ export async function buildRiqorPackage(options: BuildOptions = {}): Promise<Bui
     const srcPath = join(repositoryRoot, item);
     const destPath = join(runtimeRoot, item);
     await mkdir(dirname(destPath), { recursive: true });
-    await cp(srcPath, destPath, { recursive: true });
+    await cp(srcPath, destPath, { recursive: true, filter: (source) => isPortableRuntimePath(source) });
   }
 
   // 4. Generate packaged hooks.json

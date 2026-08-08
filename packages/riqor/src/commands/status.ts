@@ -7,8 +7,8 @@ export async function status(options: StatusOptions = {}): Promise<StatusReport>
   const paths = resolveUserPaths(options.home);
   const packageRoot = process.env.RIQOR_PACKAGE_ROOT ?? join(paths.riqorCurrentLink);
 
-  let version = "0.1.0";
-  let pluginVersion = "0.2.0";
+  let version = "missing";
+  let pluginVersion = "missing";
 
   try {
     const pkg = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8"));

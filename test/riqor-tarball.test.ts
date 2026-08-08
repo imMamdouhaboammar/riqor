@@ -24,6 +24,9 @@ describe("riqor tarball inspection", () => {
     expect(report.errors).toHaveLength(0);
     expect(report.entries).toContain("bin/riqor.mjs");
     expect(report.entries).toContain("dist/cli.mjs");
+    expect(report.entries).toContain("runtime/scripts/install-shell-integration.sh");
+    expect(report.entries).toContain("runtime/scripts/uninstall-shell-integration.py");
+    expect(report.entries).toContain("runtime/scripts/install-plugin.sh");
 
     await rm(tarballPath, { force: true });
   });

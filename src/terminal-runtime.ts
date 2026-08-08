@@ -154,3 +154,10 @@ export async function recordTerminalPostexec(
 export async function readTerminalState(dataDir: string, session: string): Promise<TerminalState> {
   return publicState(await load(dataDir, session));
 }
+
+export function formatTerminalStatusLine(state: TerminalState): string {
+  const statusBadge = state.evidencePending ? "🔴 MUTATION PENDING" : "🟢 VERIFIED";
+  const routeBadge = `[Path: ${state.route.toUpperCase()}]`;
+  const lastExitBadge = state.lastExitCode !== null ? `Exit: ${state.lastExitCode}` : "Active";
+  return `RIQOR STATUS | ${statusBadge} | ${routeBadge} | Last Kind: ${state.lastKind} | ${lastExitBadge}`;
+}
