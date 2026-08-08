@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "version": "0.1.1",
-  "verifiedAt": "2026-08-08T16:54:00Z",
+  "verifiedAt": "2026-08-08T17:01:26Z",
   "tag": "v0.1.1",
   "tagTarget": "07643324861f5a493fc16bcb0481164bdbaa1aa9",
   "npm": {
@@ -46,7 +46,11 @@
     "tarballInspection": "passed",
     "registryCleanHomeE2E": "passed",
     "registryE2EWithoutBun": true,
-    "registryE2EWithoutCodex": true
+    "registryE2EWithoutCodex": true,
+    "registryE2EWithCodex": true,
+    "codexVersion": "0.145.0",
+    "codexPluginInstall": "passed",
+    "codexPluginUninstall": "passed"
   },
   "releaseWorkflow": {
     "runId": 31267888382,
@@ -60,5 +64,12 @@
   "homebrew": {
     "publishedForThisVersion": false,
     "formulaVersion": "0.1.0"
+  },
+  "postReleaseMain": {
+    "commit": "ef056c748c86cb898081c1f26dca0f0008198277",
+    "ciRunId": 31268293296,
+    "ci": "passed",
+    "secureAiScanRunId": 31268293288,
+    "secureAiScan": "passed"
   }
 }
