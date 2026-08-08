@@ -14,6 +14,7 @@ Use this page to move from installation to implementation details without search
 | Review current development priorities | [Backlog](../BACKLOG.md) |
 | Operate the development backlog | [Backlog guide](backlog/README.md) |
 | Configure security scans, badges, and demo captures | [Automation](AUTOMATION.md) |
+| Publish and verify a release | [Releasing](RELEASING.md) |
 | Review the visual product preview | [Preview source](preview/index.html) |
 | Contribute code or documentation | [Contributing](../CONTRIBUTING.md) |
 | Review release history | [Changelog](../CHANGELOG.md) |

@@ -7,6 +7,10 @@ export function pythonSupportsCompressionLevel(major: number, minor: number) {
   return major > 3 || (major === 3 && minor >= 7);
 }
 
+export function defaultPluginArchivePath(repositoryRoot: string, version: string) {
+  return join(resolve(repositoryRoot), "dist", "plugins", `codex-self-improvement-${version}.zip`);
+}
+
 function assertSupportedPython() {
   const execution = Bun.spawnSync(["python3", "-c", "import json,sys; print(json.dumps(list(sys.version_info[:2])))"], {
     stdout: "pipe",
@@ -64,7 +68,7 @@ if (import.meta.main) {
   const repositoryRoot = resolve(import.meta.dir, "..");
   const pluginRoot = resolve(process.argv[2] ?? join(repositoryRoot, "plugins", "codex-self-improvement"));
   const report = await inspectPlugin(pluginRoot);
-  const output = resolve(process.argv[3] ?? join(repositoryRoot, "dist", `codex-self-improvement-${report.version}.zip`));
+  const output = resolve(process.argv[3] ?? defaultPluginArchivePath(repositoryRoot, report.version));
   const built = await buildPluginArchive(pluginRoot, output);
   process.stdout.write(`${JSON.stringify(built, null, 2)}\n`);
 }

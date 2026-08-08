@@ -74,3 +74,9 @@ Inspect `npm pack --dry-run` or the generated tarball before publishing. After p
 Keep the root and npm package versions aligned. Release notes must exist for that npm version. Homebrew is a separate publication channel and its formula must remain internally consistent with the artifact it actually references.
 
 Never rewrite historical release evidence to hide a discovered defect. Record a correction and identify the release that fixes it.
+
+## Published release immutability
+
+After npm accepts a version, do not move that version's Git tag. Treat the npm tarball, GitHub Release tarball, and tag target as one immutable release record. Put release-automation repairs in a later commit on `main`.
+
+Riqor releases use npm Trusted Publishing. Before relying on automated publish, verify that the npm package trusts `imMamdouhaboammar/riqor`, workflow `release.yml`, environment `npm`, with publish permission. If the account-side mapping is absent or mismatched, fail visibly and repair that mapping. Do not copy a developer's local npm credential into CI as a shortcut.

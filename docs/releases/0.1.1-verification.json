@@ -1,0 +1,64 @@
+{
+  "schemaVersion": 1,
+  "version": "0.1.1",
+  "verifiedAt": "2026-08-08T16:54:00Z",
+  "tag": "v0.1.1",
+  "tagTarget": "07643324861f5a493fc16bcb0481164bdbaa1aa9",
+  "npm": {
+    "published": true,
+    "latest": "0.1.1",
+    "shasum": "f36c8cc20bc5396ef64278740800dd3362b30039",
+    "sha256": "e9d79c1e04a20d44bc0e75dcaf1fe48474661c1477d586a4f5bd67cbaf412577",
+    "integrity": "sha512-pjfgMWg0NQzxqVvQAMEqXrhzSCDtUPkQ2leds9UFva/2aU0y9EZMFe0a8FR95BkeRHW2JCcye/T66mXfoG7Oeg==",
+    "fileCount": 26,
+    "unpackedSize": 181295,
+    "publishMethod": "authenticated maintainer CLI",
+    "provenanceAttached": false
+  },
+  "githubRelease": {
+    "published": true,
+    "url": "https://github.com/imMamdouhaboammar/riqor/releases/tag/v0.1.1",
+    "npmTarballSha256": "e9d79c1e04a20d44bc0e75dcaf1fe48474661c1477d586a4f5bd67cbaf412577",
+    "npmTarballMatchesRegistry": true,
+    "assets": [
+      {
+        "name": "riqor-0.1.1.tgz",
+        "sha256": "e9d79c1e04a20d44bc0e75dcaf1fe48474661c1477d586a4f5bd67cbaf412577"
+      },
+      {
+        "name": "codex-self-improvement-0.2.0+codex.20260804101214.zip",
+        "sha256": "f17d365393dcb28c0ebf69e22cac192b824e4d253976b2993696d8929b806e9a"
+      }
+    ]
+  },
+  "verification": {
+    "fullSuite": {
+      "tests": 267,
+      "failures": 0,
+      "assertions": 921,
+      "files": 51,
+      "hostileXdgEnvironment": true
+    },
+    "pluginHealth": "passed",
+    "skillsHealth": "passed",
+    "actionPins": "passed",
+    "backlogCheck": "passed",
+    "tarballInspection": "passed",
+    "registryCleanHomeE2E": "passed",
+    "registryE2EWithoutBun": true,
+    "registryE2EWithoutCodex": true
+  },
+  "releaseWorkflow": {
+    "runId": 31267888382,
+    "ciSuite": "passed",
+    "packageBuild": "passed",
+    "tarballInspection": "passed",
+    "npmPublish": "failed",
+    "failureReason": "npm Trusted Publisher mapping did not authorize the repository workflow",
+    "followUp": "Configure the npm Trusted Publisher mapping documented in docs/RELEASING.md"
+  },
+  "homebrew": {
+    "publishedForThisVersion": false,
+    "formulaVersion": "0.1.0"
+  }
+}

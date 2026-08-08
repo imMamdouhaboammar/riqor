@@ -164,6 +164,7 @@ Read the [security model](docs/SECURITY_MODEL.md) for trust boundaries and state
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security model](docs/SECURITY_MODEL.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)
+- [Releasing](docs/RELEASING.md)
 - [Contributing](CONTRIBUTING.md)
 - [Changelog](CHANGELOG.md)
 

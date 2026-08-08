@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { buildPluginArchive, pythonSupportsCompressionLevel } from "../scripts/package-plugin";
+import { buildPluginArchive, defaultPluginArchivePath, pythonSupportsCompressionLevel } from "../scripts/package-plugin";
 import { inspectPlugin } from "../scripts/plugin-health";
 
 const roots: string[] = [];
@@ -14,6 +14,13 @@ afterEach(async () => {
 const sha256 = async (path: string) => createHash("sha256").update(await readFile(path)).digest("hex");
 
 describe("plugin build", () => {
+  test("default release archive path matches the GitHub release workflow", () => {
+    const repositoryRoot = resolve(import.meta.dir, "..");
+    expect(defaultPluginArchivePath(repositoryRoot, "1.2.3")).toBe(
+      join(repositoryRoot, "dist", "plugins", "codex-self-improvement-1.2.3.zip"),
+    );
+  });
+
   test("requires Python 3.7 or newer for deterministic compression", () => {
     expect(pythonSupportsCompressionLevel(3, 7)).toBe(true);
     expect(pythonSupportsCompressionLevel(3, 13)).toBe(true);
