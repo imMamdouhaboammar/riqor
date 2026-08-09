@@ -6,10 +6,13 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.5] - 2026-08-09
+
 ### Changed
 
-- Exclude the rejected penetration-testing specialist from the public ChatGPT/Codex plugin, its distributed native-agent profile, generated mapping, and release archive while preserving the canonical repository agent source
+- Exclude the rejected penetration-testing specialist from the public ChatGPT/Codex plugin, its distributed native-agent profile, generated mapping, routing index, and release archive while preserving the canonical repository agent source
 - Add a generator-level public-plugin exclusion guard so the removed specialist cannot return during regeneration
+- Update public plugin counts to 100 generated specialist pairs plus 11 workflow Skills, for 111 bundled Skills total
 
 ## [0.2.4] - 2026-08-09
 
