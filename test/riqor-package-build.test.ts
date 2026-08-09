@@ -44,5 +44,7 @@ describe("riqor package build", () => {
     await access(join(packageRoot, "runtime", "scripts", "uninstall-shell-integration.sh"));
     await access(join(packageRoot, "runtime", "scripts", "install-plugin.sh"));
     await access(join(packageRoot, "runtime", "scripts", "check-marketplace-source.py"));
+    await access(join(packageRoot, "runtime", "plugins", "riqor", ".codex", "riqor.config.toml"));
+    await access(join(packageRoot, "runtime", "plugins", "riqor", ".codex", "agents", "engineering-senior-developer.toml"));
   });
 });

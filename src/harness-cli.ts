@@ -27,6 +27,7 @@ import { GoalLoopOrchestrator } from "./goal-orchestrator";
 import { SchemaContractFuzzer } from "./assurance/schema-fuzzer";
 import { RepoIntelligenceAnalyzer } from "./diagnostics/repo-intelligence";
 import { AutoResearchEngine } from "./assurance/auto-research";
+import { withRiqorCodexProfile } from "../packages/riqor/src/codex-agents";
 
 const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
@@ -464,7 +465,10 @@ async function terminalCommand(args: string[]) {
 
 async function passthroughCodex(args: string[]) {
   const parsed = parseCodexActivatorArgs(args);
-  const child = spawn("codex", parsed.codexArgs, {
+  const codexHome = process.env.CODEX_HOME ? resolve(process.env.CODEX_HOME) : join(homedir(), ".codex");
+  const profileAvailable = await exists(join(codexHome, "riqor.config.toml"));
+  const codexArgs = profileAvailable ? withRiqorCodexProfile(parsed.codexArgs) : parsed.codexArgs;
+  const child = spawn("codex", codexArgs, {
     cwd: process.cwd(),
     env: buildCodexEnvironment(process.env, parsed.activator, undefined, parsed.actionsFirst),
     stdio: "inherit",

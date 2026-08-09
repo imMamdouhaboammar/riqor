@@ -4,7 +4,7 @@ import { cp, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { buildPluginArchive, defaultPluginArchivePath, pythonSupportsCompressionLevel } from "../scripts/package-plugin";
-import { inspectPlugin } from "../scripts/plugin-health";
+import { inspectPlugin, isCredentialShapedPluginPath } from "../scripts/plugin-health";
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -67,6 +67,10 @@ describe("plugin build", () => {
     expect(entries).toContain("riqor/");
     expect(entries).toContain("riqor/.codex-plugin/");
     expect(entries).toContain("riqor/.codex-plugin/plugin.json");
+    expect(entries).toContain("riqor/.codex/riqor.config.toml");
+    expect(entries).not.toContain("riqor/.codex/config.toml");
+    expect(entries).toContain("riqor/.codex/agents/engineering-senior-developer.toml");
+    expect(entries.filter((entry) => /^riqor\/.codex\/agents\/[^/]+\.toml$/.test(entry))).toHaveLength(101);
     expect(entries).toContain("riqor/hooks/main.ts");
     expect(entries).toContain("riqor/skills/evidence-engineering/SKILL.md");
     expect(entries).toContain("riqor/skills/harness-paths/SKILL.md");
@@ -75,6 +79,6 @@ describe("plugin build", () => {
     const topLevel = new Set(entries.filter(Boolean).map((entry) => entry.split("/", 1)[0]));
     expect([...topLevel]).toEqual(["riqor"]);
     expect(entries.some((entry) => entry.endsWith(".test.ts"))).toBe(false);
-    expect(entries.some((entry) => /auth\.json|\.env(?:\.|$)|credential|secret/i.test(entry))).toBe(false);
+    expect(entries.some((entry) => isCredentialShapedPluginPath(entry.replace(/^riqor\//, "")))).toBe(false);
   });
 });

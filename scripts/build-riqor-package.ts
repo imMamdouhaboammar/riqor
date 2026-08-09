@@ -26,6 +26,7 @@ const staticRuntimeFiles = [
   "plugins/riqor/package.json",
   "plugins/riqor/assets",
   "plugins/riqor/skills",
+  "plugins/riqor/.codex",
   "config/shell",
   ".agents/plugins/marketplace.json",
   "skills-lock.json",

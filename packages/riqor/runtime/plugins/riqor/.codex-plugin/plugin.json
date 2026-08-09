@@ -1,6 +1,6 @@
 {
   "name": "riqor",
-  "version": "0.2.0+codex.20260809115546",
+  "version": "0.2.1+codex.20260809123816",
   "description": "Evidence gates, session continuity, managed Codex workflows, and release checks for AI coding agents",
   "author": {
     "name": "Mamdouh Aboammar",

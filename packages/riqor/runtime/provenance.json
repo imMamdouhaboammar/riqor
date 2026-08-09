@@ -1,7 +1,7 @@
 {
-  "version": "0.2.0",
-  "sourceCommit": "32ef7d027659de9dfd71692962dc69c43b78db09",
-  "sourceDateEpoch": 1786266760,
+  "version": "0.2.1",
+  "sourceCommit": "bcf52e4484eb28c708c51df99c9540e2cf0735e6",
+  "sourceDateEpoch": 1786277696,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -25,8 +25,518 @@
     },
     {
       "path": "plugins/riqor/.codex-plugin/plugin.json",
-      "sha256": "1be4e24fb4b59ea9e439cacbb21cf8362e0f6d6906401e945c337b3dbde8034c",
+      "sha256": "ebe8c31c9a688ce76b2fd55853474737ddcc9cc4783b2006f564f64a12e41eea",
       "bytes": 1569
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/agents-orchestrator.toml",
+      "sha256": "829abfd2eb8aa503c4d61365bb769129e2fd8705b9b8d3a273d3b2dee6611774",
+      "bytes": 16028
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-brand-guardian.toml",
+      "sha256": "143f873e00172a858d9f66b2fafc0def56877fe0442d7c5c83bcf3ce1462e2b8",
+      "bytes": 11887
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-image-prompt-engineer.toml",
+      "sha256": "baba313713bdec27c0fc6c849378c8fa1699cd3744375ced0a4fc0b113819827",
+      "bytes": 11299
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-inclusive-visuals-specialist.toml",
+      "sha256": "b44947b4c5aa2d4d6d3cb1ee645a44a13a45711f9b04265505f31eed986778c4",
+      "bytes": 6797
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-persona-walkthrough.toml",
+      "sha256": "b7764ba0c8148b2866d80e1a6b11dc41688fc3f9481b3c6984b97658b9cec115",
+      "bytes": 16969
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-ui-designer.toml",
+      "sha256": "0a1f6d6082bea1622ccef93acd56c0764ae98f2b6a18d670f6b943434beeacba",
+      "bytes": 13639
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-ui-finish-gate-reviewer.toml",
+      "sha256": "64537184f826d7577af0bbc7b4898f4148f27e96d800185c2706ce944c45168f",
+      "bytes": 9051
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-ux-architect.toml",
+      "sha256": "a39a5fff52d8bf7628901e2fed256c5d5cfdf0869c05719fd01a76983bb0603f",
+      "bytes": 16175
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-ux-researcher.toml",
+      "sha256": "19d46b064b79a7ffa59050691951da657fe6c30ce6d6b122b0faee2f9f9d8a32",
+      "bytes": 13285
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-visual-storyteller.toml",
+      "sha256": "3b7b5240ad15af4986ec2493645a96f466271f5d5fafd9c6c6091006b5e9b441",
+      "bytes": 7486
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/design-whimsy-injector.toml",
+      "sha256": "d3eef91735eed9898d21e1ff8c663c4404b968c58da427cb35e116e759eba86a",
+      "bytes": 16258
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/docs-researcher.toml",
+      "sha256": "e14712b0a5f5e7378819200a07b2867ff84607d7b7dccd222e6fe38da17533e4",
+      "bytes": 316
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-ai-data-remediation-engineer.toml",
+      "sha256": "cb5a2176ec0d9bf899d6146f3f288ed05fcca96e23f295dde6f7321aea2dfefb",
+      "bytes": 10846
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-ai-engineer.toml",
+      "sha256": "f97d62e63a20c01ad879725250a38adbce719a66c03b89a06493259076073ad5",
+      "bytes": 7462
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-api-platform-engineer.toml",
+      "sha256": "e5645137da4f831fec2446aede90a89d3c30c20b38f230159e4ac41c4840e6dd",
+      "bytes": 13636
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-autonomous-optimization-architect.toml",
+      "sha256": "6226cf6474277c2fb36eaab8ce6b8c80a08d05c764b7b3a450a9b158e7d48dba",
+      "bytes": 7987
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-backend-architect.toml",
+      "sha256": "0079dc054384e437620c838fe29571f1e7550da2fd37abacf37486a251b8a93f",
+      "bytes": 11072
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-cms-developer.toml",
+      "sha256": "0e4378a89beccb845979f214a46653ee54225b70927985e133fed1e6929bdfd0",
+      "bytes": 20139
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-code-reviewer.toml",
+      "sha256": "40e32a1188bb51af8bc5bdfa69341510e8f9c2d331d3ed6b53f25b71c052eeaf",
+      "bytes": 3063
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-codebase-onboarding-engineer.toml",
+      "sha256": "7d998862630c1bed686207b43dd677fa67df14eea63cb607dec28a82176b1f63",
+      "bytes": 9631
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-data-engineer.toml",
+      "sha256": "7aa425e9378b340e13784f8d282ef7197e76d68d28fabcb914b3a4828cb13d92",
+      "bytes": 15120
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-data-visualization-engineer.toml",
+      "sha256": "2b622d9522a498726c781838019156b9b5dfc264bed0b62735119632c172a121",
+      "bytes": 13824
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-database-optimizer.toml",
+      "sha256": "b6719825e0cdc3f45f5783b3dfb7bb604c1d532135b31a2a62b398804617f122",
+      "bytes": 5614
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-database-reliability-engineer.toml",
+      "sha256": "749cde31339d9720a1149cad9edccf282038bdadfa9b0fb747a6a868feea32d6",
+      "bytes": 14415
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-desktop-app-engineer.toml",
+      "sha256": "decd9f3ea716c0d4d1063416c45cba210dba037280c3c0aee2ef75114db7a2e7",
+      "bytes": 14675
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-devops-automator.toml",
+      "sha256": "3e8ddc7ad2c5ad58b85ba94482d2911a5e2dbc3b7ca0a96c43dab54d0fb9737b",
+      "bytes": 13232
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-drupal-performance.toml",
+      "sha256": "bf3d496a6a6d5a032d628242f729006ad1e1aa8fc49b911e87bb4d60421f04bd",
+      "bytes": 23367
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-drupal-shopping-cart.toml",
+      "sha256": "8a7f0a73162edc8ce48a287a0152ede6972f76a750b671d56a6e4cdf8c6e11a2",
+      "bytes": 21381
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-email-intelligence-engineer.toml",
+      "sha256": "8817303b6f89f0dd75c323ecdbb53bfcdcfe1df430df75683f486a425c907e82",
+      "bytes": 16975
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-embedded-firmware-engineer.toml",
+      "sha256": "ace4f068029ea790b5bf4fba5cb8c4810ed9d02af29cf8dc659a75c01fbfe3c4",
+      "bytes": 6665
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-feishu-integration-developer.toml",
+      "sha256": "1a3a64af20200ddf6f7b439c73abd191f193c88a134d0fd9be21c732d704b218",
+      "bytes": 21581
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-filament-optimization-specialist.toml",
+      "sha256": "41695c9fc0c2c53dfd57b9eff4dfd284c42a6e03e4505a58873f73125fa2cf3e",
+      "bytes": 14512
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-finops-engineer.toml",
+      "sha256": "c0aee2be7a04319613922ff9fca4f21fb28c3742eccaf2a42ee28322f598a1d4",
+      "bytes": 12924
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-frontend-developer.toml",
+      "sha256": "774e15531ea51378b7d8cf599732571705de9754cfb4282fe0616c99fdff0f10",
+      "bytes": 9436
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-gaussdb-expert.toml",
+      "sha256": "c9b08cf8a70a2ad0850865b24acc484f25bf57a88213f766dca9217c813735c7",
+      "bytes": 15829
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-git-workflow-master.toml",
+      "sha256": "7a109b468788db05b8563d19150aaef71f424bfd6ba7ed1056c970a2336961e3",
+      "bytes": 3352
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-i18n-engineer.toml",
+      "sha256": "e4102142d1aa4db68ddb863177213cb6973e35e25d031f41dbf473a90000c104",
+      "bytes": 12891
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-identity-access-engineer.toml",
+      "sha256": "2abcd36ff66461ea42f22e6b9e5bb0b9d6d6fa930dc69eb9f8b7d2b38737760e",
+      "bytes": 14942
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-incident-response-commander.toml",
+      "sha256": "698befe63f7a08a0a8dd259c479000a15d61eafd5558e4b8b4a7e31546652494",
+      "bytes": 21558
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-iot-fleet-engineer.toml",
+      "sha256": "c94bddb02125efab4bdb5533a977dfe26695ea241e30413ef52a86b12209ed46",
+      "bytes": 13579
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-it-service-manager.toml",
+      "sha256": "b2ed30111f41bc614bb167a989aad63339d5d2abed4cc46b06a25688caaacb27",
+      "bytes": 27938
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-llm-post-training-engineer.toml",
+      "sha256": "a6b8350d711be106aedc8de71afa01141c69f263578c2b61aacd322ddf20e56c",
+      "bytes": 10932
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-minimal-change-engineer.toml",
+      "sha256": "1e1ff753662bb4827df5d3d4707988b6fc8e13225833ee7cd1d141c876f88d2b",
+      "bytes": 11422
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-mobile-app-builder.toml",
+      "sha256": "d4962512d87928682f9bf4db9670ef33ce2397a81edf4261b47f55da3bcf9ca8",
+      "bytes": 17467
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-mobile-release-engineer.toml",
+      "sha256": "90f9f5be5a910e05d44ddf3b0c330653651734d1becd59a3dba22b6e2ca27e1e",
+      "bytes": 13684
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-multi-agent-systems-architect.toml",
+      "sha256": "da186fa44e18433080a7f05f6bd2add6e689a482dd5367d55da0e80b787b60df",
+      "bytes": 29761
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-network-engineer.toml",
+      "sha256": "1a5c19ae8f600c18ee549526a5a4f35f03f66381844537fd90e9a35fc5105c3f",
+      "bytes": 13505
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-orgscript-engineer.toml",
+      "sha256": "1ffcf5b71e0cd0c6aedda72328045eb024771cccda8873eb0eee95943bdeaec3",
+      "bytes": 5636
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-payments-billing-engineer.toml",
+      "sha256": "1d16ead0b5f6b210d69c398756f6a2d4e874fd30037721349f88870bd568ef77",
+      "bytes": 12660
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-privacy-engineer.toml",
+      "sha256": "e4424716b7047dbb09c8a4e14f2233e8f70138b9d150d419f32dd7d1c49e1aab",
+      "bytes": 14294
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-prompt-engineer.toml",
+      "sha256": "b6191206d9b72a3689dce1d70d929de6947e80451c29f92ad318153d4608819f",
+      "bytes": 9719
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-rag-pipeline-engineer.toml",
+      "sha256": "cff471d833f08c13903386009bd28ac6301aa2e4723e2fe37653d997dc71e12d",
+      "bytes": 18701
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-rapid-prototyper.toml",
+      "sha256": "c54b5b7c358911d870c3be56cbdec4d4be6682798073314f5968348d59c89daf",
+      "bytes": 15991
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-realtime-collaboration-engineer.toml",
+      "sha256": "c4d31df3937969f7655a905ee571356761f7d78353062f41cbd6f6376fc96551",
+      "bytes": 14328
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-rust-refactoring-specialist.toml",
+      "sha256": "2fc1b81dabe8ee85e7941c7ee69e61e48765a63d6bba1e8c2256ff94534b32ff",
+      "bytes": 15086
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-search-relevance-engineer.toml",
+      "sha256": "876088e5fc018e2c67985a9e77d23ce1a7c5648bce1f68524a59a730b5c94fa0",
+      "bytes": 15471
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-section-508-specialist.toml",
+      "sha256": "2104fe896f180d3a6059713732162b1aeef4951364a57f168f7bc60e9f0b3c3f",
+      "bytes": 26345
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-senior-developer.toml",
+      "sha256": "5366c695927828b116b48b0aa0d188792adb8698b06f363d9ba87861c953c3ce",
+      "bytes": 6348
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-software-architect.toml",
+      "sha256": "dec3e4de3fdbac219d2d1420be7c40fd98fdd241b887ee74fcbde80e5ffdcd2a",
+      "bytes": 6484
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-solidity-smart-contract-engineer.toml",
+      "sha256": "7d0f777da539fb44dea8a38929eeb6f538568a278dfd4c483e8d7951ac758c65",
+      "bytes": 22228
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-sre.toml",
+      "sha256": "a5ee075aa2a49d57b9ffbaa2b00c42efa0d19e7d803d1b15389a025ccd00e669",
+      "bytes": 3886
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-technical-writer.toml",
+      "sha256": "1e0a7043850192233cc3c4423db1f49ed15529476bb94f5046b3fdb71450a47b",
+      "bytes": 14567
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-uswds-developer.toml",
+      "sha256": "c1350d96774a6fb09beb3254ba4a0bc747940f091c1e94d1cd2ab02b5c20da88",
+      "bytes": 24021
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-video-streaming-engineer.toml",
+      "sha256": "09ebf3f8450c0e50f78e30d564571fa5440f01be71937491693923370b1a0689",
+      "bytes": 12933
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-voice-ai-integration-engineer.toml",
+      "sha256": "8074dbc1933bddc131436ab746cee224e87b276143b8d5d59eb2ea1d7720de2f",
+      "bytes": 28121
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-webassembly-engineer.toml",
+      "sha256": "ace74310dbfa485a6e43a47eeabd35fce8bdb17b7a6b31b37ca78aae1b92e5bf",
+      "bytes": 13161
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-wechat-mini-program-developer.toml",
+      "sha256": "6ec69d63525b39c9c7cc07333bcba446f81987854da24e39e4f70820be416e0e",
+      "bytes": 15836
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-wordpress-performance.toml",
+      "sha256": "62a989617d378d4a7aeff463ccea77a59776477cc3eaa4b08be33ee2b55b0e47",
+      "bytes": 24044
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/engineering-wordpress-shopping-cart.toml",
+      "sha256": "548612b0f03a23e9c633b684eafcf4e16383f86b2c15e34523355cc517b05a3d",
+      "bytes": 22043
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/explorer.toml",
+      "sha256": "ba9d7a10cf04a9b25a35ae8fc094b840cceef624d542f45b9d7cf3cdc78126ab",
+      "bytes": 314
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/product-sprint-prioritizer.toml",
+      "sha256": "2f21f4ab56d86b1389a72144aef3d89b4b512ada7dd3d1d5d663ead340b1ec87",
+      "bytes": 9480
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/project-management-experiment-tracker.toml",
+      "sha256": "55e68119f7cf8a6ba1f56a396bad00855dc4471b2fbfa9e80bcf913902cd94d8",
+      "bytes": 9574
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/project-management-project-shepherd.toml",
+      "sha256": "56c739de65a03c3faaea6b140edea8187f75f745203566fb1d23c5f91dcb02e5",
+      "bytes": 9943
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/project-manager-senior.toml",
+      "sha256": "6d4edcb955f20c79fd193b931b85853271c89520c7f321204db6fda688a88794",
+      "bytes": 5355
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/reviewer.toml",
+      "sha256": "9edbc2b5334fed555f2e8001142fcd78938bd1de8355aeb020c0dd8f0315cd80",
+      "bytes": 295
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-ai-generated-code-auditor.toml",
+      "sha256": "a2ed19652eb0d81a394344bb8fbe6b6c362b3f5654ab8ef64477aec95595cfb7",
+      "bytes": 17275
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-appsec-engineer.toml",
+      "sha256": "90a79524fd7b0a6448c4f56a86cc5e28788138f406f63d66a8bb58fc99c3aa26",
+      "bytes": 26365
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-architect.toml",
+      "sha256": "a0c458a831a042f4dde42fc69680911034f91632259e5b6a808ee2601acea80c",
+      "bytes": 18234
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-blockchain-security-auditor.toml",
+      "sha256": "f82a1feb2899bf61a9bc04d3f0419a5a539602bd510c137192b39c9b99e9112f",
+      "bytes": 21576
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-cloud-security-architect.toml",
+      "sha256": "f90eef27a9e94575336603243de0ba4735caf9e8115f51524f1f78f598249af7",
+      "bytes": 23606
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-compliance-auditor.toml",
+      "sha256": "8b3636b0c6f2255ad06c7f6958d96ffc0b7c1674f1a321c8d096fe310f72e838",
+      "bytes": 7268
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-incident-responder.toml",
+      "sha256": "dd1e8e40ae0e237d92489c268f6b71fb89ebcaa082424ed9875bec21148a1650",
+      "bytes": 24903
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-penetration-tester.toml",
+      "sha256": "8caef948958ced0384625a5a35053907d7dbd03febfbb4751d6f4c2fa914385c",
+      "bytes": 21998
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-secrets-credential-engineer.toml",
+      "sha256": "d758de5ccf566d6a4b7657be3b795c6a3413e5c7ac4a8b071e8dd88646b90f08",
+      "bytes": 13342
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-senior-secops.toml",
+      "sha256": "8411a18f14fb93efd91a4a25922d940ec8127dd5272227a8750093947ea9caed",
+      "bytes": 32142
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-threat-detection-engineer.toml",
+      "sha256": "29f11d536efdba5a9d43558356e95dd36ae96bf68cf66fed1a358325c12f46cb",
+      "bytes": 25529
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/security-threat-intelligence-analyst.toml",
+      "sha256": "1582dc594bf0286e009cdac43e183b9d80a320a9532117e0199e68d6841ab733",
+      "bytes": 29187
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/support-executive-summary-generator.toml",
+      "sha256": "4d740b9e3744c943833c3cbe9f45b0a7d99e335517da578701ca3b2cc220bca0",
+      "bytes": 9133
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/support-finance-tracker.toml",
+      "sha256": "640b1ed86a6e62ca9702821b4a271b3c140187ec4b5f31f75ae3b485ab40a007",
+      "bytes": 19665
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/support-infrastructure-maintainer.toml",
+      "sha256": "42004cc9a1045cd29e1f250babbc97d3d5d81a1081aa91250728154a7e8da250",
+      "bytes": 23212
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/support-legal-compliance-checker.toml",
+      "sha256": "1bfe97ce27e4c1d4c452c5272cce9aee885756d4b789054f5b55569aa299f781",
+      "bytes": 27164
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/support-support-responder.toml",
+      "sha256": "455d136d5ba4bb37e520384ccb63ca92e5899c5a7fbacdbb3c7414d2eaa13a36",
+      "bytes": 25264
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-accessibility-auditor.toml",
+      "sha256": "093dd07b2045d6899dd11e4b166784f84a3f1dd27009b625069646613f6df542",
+      "bytes": 15550
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-api-tester.toml",
+      "sha256": "9e6e5addf754b2740b4bc8e4c87f01f245ce5f2e4150fc4a1d9b0e22c4646045",
+      "bytes": 12793
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-evidence-collector.toml",
+      "sha256": "437477c50bb8e40cac5e7612ad3c2e2a022b604c4ba428c27b3c3a08e852645f",
+      "bytes": 8522
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-performance-benchmarker.toml",
+      "sha256": "5ec6963b84c331b5cb3692c38255d68b8819395c4455104ef0cb040eac05d9e7",
+      "bytes": 12403
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-reality-checker.toml",
+      "sha256": "c820df1f0fc131238b423e5343a28d29a7d8f5f2e5ee5dbdaa69868fa8357bc7",
+      "bytes": 11057
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-test-automation-engineer.toml",
+      "sha256": "b4c52c74f8c6fc854e61d0561df5f7f955338b1ebf24af03d3986e734a59dad0",
+      "bytes": 12330
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-test-results-analyzer.toml",
+      "sha256": "c989bfb0674718618169fc4caee92bc1b2b3a4e1471159d0beeaf7ac58565ef7",
+      "bytes": 14853
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-tool-evaluator.toml",
+      "sha256": "4692e2f0d988fb61d2635f657e2e6f4e9d5b4f2a60e47de51e8046b043097bb9",
+      "bytes": 18006
+    },
+    {
+      "path": "plugins/riqor/.codex/agents/testing-workflow-optimizer.toml",
+      "sha256": "754dfae4d9e567462bcbf66dbf5656a3a3dd0be660f8c509f1d9f08a332dde9d",
+      "bytes": 22693
+    },
+    {
+      "path": "plugins/riqor/.codex/riqor.config.toml",
+      "sha256": "00dd8d5b5dbd484127c8e6b6d73b204c4c4dc16e4a36a3b932441a7e72a02bb0",
+      "bytes": 33429
     },
     {
       "path": "plugins/riqor/assets/logo.svg",
@@ -50,7 +560,7 @@
     },
     {
       "path": "plugins/riqor/package.json",
-      "sha256": "c5a0aec335cd1c6e2c20ec207507c45b312c231f2da45e67d002f28a74532012",
+      "sha256": "5d38df110516d5f243d302a41566ef7c422922559d9552da563caa359471d4f7",
       "bytes": 96
     },
     {

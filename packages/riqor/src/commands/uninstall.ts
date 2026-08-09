@@ -4,6 +4,7 @@ import { classifyManagedPath } from "../managed-paths";
 import { resolveUserPaths } from "../paths";
 import { runCommand } from "../process";
 import { CheckRecord, UninstallOptions, UninstallReport } from "../types";
+import { uninstallRiqorAgentProfile } from "../codex-agents";
 
 async function exists(path: string) {
   try {
@@ -32,8 +33,17 @@ export async function uninstall(options: UninstallOptions = {}): Promise<Uninsta
     if (Array.isArray(manifest.surfaces)) installedSurfaces = manifest.surfaces.filter((item): item is string => typeof item === "string");
   } catch {}
 
+  const codexHome = options.codexHome ? resolve(options.codexHome) : join(paths.home, ".codex");
+  if (installedSurfaces.includes("codex-agents")) {
+    const agentProfile = await uninstallRiqorAgentProfile({ codexHome });
+    checks.push({ id: "codex-agents", ok: agentProfile.ok, detail: agentProfile.ok ? "removed" : "foreign Codex agent profile paths preserved" });
+    removed.push(...agentProfile.removed);
+    preserved.push(...agentProfile.preserved);
+  } else {
+    checks.push({ id: "codex-agents", ok: true, detail: "not recorded as installed" });
+  }
+
   if (installedSurfaces.includes("codex-plugin")) {
-    const codexHome = options.codexHome ? resolve(options.codexHome) : join(paths.home, ".codex");
     const codexEnv = {
       HOME: paths.home,
       CODEX_HOME: codexHome,

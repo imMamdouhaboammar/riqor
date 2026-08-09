@@ -6,6 +6,7 @@ import { classifyManagedPath } from "../managed-paths";
 import { resolveUserPaths } from "../paths";
 import { runCommand } from "../process";
 import { CheckRecord, InstallOptions, InstallReport } from "../types";
+import { installRiqorAgentProfile } from "../codex-agents";
 import { doctor } from "./doctor";
 
 function modulePackageRoot() {
@@ -111,6 +112,17 @@ export async function install(options: InstallOptions = {}): Promise<InstallRepo
 
   const codexHome = options.codexHome ? resolve(options.codexHome) : join(paths.home, ".codex");
   await mkdir(codexHome, { recursive: true, mode: 0o700 });
+  const agentProfile = await installRiqorAgentProfile({
+    codexHome,
+    sourceCodexDir: join(versionedDataDir, "runtime", "plugins", "riqor", ".codex"),
+  });
+  checks.push({
+    id: "codex-agents",
+    ok: agentProfile.ok,
+    detail: agentProfile.ok ? `installed ${agentProfile.agentCount} native agents` : agentProfile.error ?? "agent profile install failed",
+  });
+  if (agentProfile.ok) surfaces.push("codex-agents");
+
   const codexEnv = {
     HOME: paths.home,
     CODEX_HOME: codexHome,

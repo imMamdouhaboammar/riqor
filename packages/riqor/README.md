@@ -48,6 +48,8 @@ riqor codex --activator \
   --activator-watchdog 2m
 ```
 
+Riqor also installs its bundled native Codex agent catalog into a managed `riqor` profile under `CODEX_HOME`. The current package contains **101 role configs**. `riqor codex` selects that profile automatically unless you pass `-p` or `--profile` yourself. Riqor does not add apps, MCP servers, or tool configuration to the profile
+
 The activator applies only to the Codex child process launched by Riqor and waits for a safe lifecycle Stop boundary
 
 Google Antigravity uses the same pattern

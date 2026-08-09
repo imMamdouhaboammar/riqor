@@ -1,6 +1,14 @@
 import { readdir, readFile } from "node:fs/promises";
 import { basename, join, resolve } from "node:path";
 
+
+export function isCredentialShapedPluginPath(path: string) {
+  const normalized = path.replaceAll("\\", "/");
+  if (/^\.codex\/agents\/[^/]+\.toml$/i.test(normalized)) return false;
+  return /(?:^|\/)(?:auth\.json|credentials?(?:\.|$)|secrets?(?:\.|$)|\.env(?:\.|$))/i.test(normalized)
+    || /(?:credential|secret)/i.test(normalized);
+}
+
 export type PluginHealthReport = {
   ok: boolean;
   pluginName: string;
@@ -75,9 +83,7 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
   let relativeFiles: string[] = [];
   try { relativeFiles = (await filesBelow(root)).map((path) => path.slice(root.length + 1)); }
   catch (error) { errors.push(`plugin files unreadable: ${String(error)}`); }
-  const credentialShapedFiles = relativeFiles.filter((path) =>
-    /(?:^|\/)(?:auth\.json|credentials?(?:\.|$)|secrets?(?:\.|$)|\.env(?:\.|$))/i.test(path)
-  );
+  const credentialShapedFiles = relativeFiles.filter(isCredentialShapedPluginPath);
   if (credentialShapedFiles.length > 0) errors.push("credential-shaped files are present");
   const unwantedFiles = relativeFiles.filter((path) => path.split("/").some((name) =>
     name === ".DS_Store" || name === "Thumbs.db" || name.startsWith("._")

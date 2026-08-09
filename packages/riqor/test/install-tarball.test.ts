@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
+import { access, mkdir, mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { install } from "../src/commands/install";
@@ -17,9 +17,16 @@ describe("tarball installation and uninstallation", () => {
     expect(report.ok).toBe(true);
     expect(report.version).toBe(packageVersion);
     expect(report.surfaces).toContain(join(tempHome, ".local", "bin", "riqor"));
+    expect(report.surfaces).toContain("codex-agents");
+    const profile = await readFile(join(tempHome, ".codex", "riqor.config.toml"), "utf8");
+    expect(profile).toStartWith("# Managed by Riqor\n");
+    expect(profile).toContain("[agents.engineering-senior-developer]");
+    await access(join(tempHome, ".codex", "riqor-agents", "engineering-senior-developer.toml"));
 
     const uninstallReport = await uninstall({ home: tempHome });
     expect(uninstallReport.ok).toBe(true);
+    await expect(access(join(tempHome, ".codex", "riqor.config.toml"))).rejects.toThrow();
+    await expect(access(join(tempHome, ".codex", "riqor-agents"))).rejects.toThrow();
 
     await rm(tempHome, { recursive: true, force: true });
   }, 15000);

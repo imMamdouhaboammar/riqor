@@ -1,6 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
+import { isCredentialShapedPluginPath } from "../scripts/plugin-health";
 
 const root = resolve(import.meta.dir, "..");
 const plugin = join(root, "plugins", "riqor");
@@ -57,9 +58,16 @@ describe("plugin package", () => {
 
   test("ships only bounded plugin assets and no credential-shaped files", async () => {
     const paths = (await filesBelow(plugin)).map((path) => path.slice(plugin.length + 1));
-    expect(paths.some((path) => /auth\.json|\.env(?:\.|$)|credentials|secret/i.test(path))).toBe(false);
+    expect(paths.some(isCredentialShapedPluginPath)).toBe(false);
     expect(paths.some((path) => path.startsWith("fixtures/"))).toBe(false);
     expect(paths.some((path) => path.startsWith(".runs/"))).toBe(false);
+  });
+
+  test("credential filename exemption is limited to native agent TOML files", () => {
+    expect(isCredentialShapedPluginPath(".codex/agents/security-secrets-credential-engineer.toml")).toBe(false);
+    expect(isCredentialShapedPluginPath("secrets.txt")).toBe(true);
+    expect(isCredentialShapedPluginPath("config/credentials.json")).toBe(true);
+    expect(isCredentialShapedPluginPath(".codex/agents/secret.txt")).toBe(true);
   });
 
   test("skills have complete frontmatter", async () => {

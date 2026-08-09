@@ -55,7 +55,9 @@ codex plugin marketplace add imMamdouhaboammar/riqor --ref main
 codex plugin add riqor@riqor
 ```
 
-The plugin adds Riqor guidance and lifecycle hooks inside Codex. The npm package provides the local CLI and runtime used by commands such as `riqor doctor`, `riqor run`, and `riqor codex`
+The plugin adds Riqor guidance, lifecycle hooks, and a bundled catalog of **101 native Codex subagent roles**. `riqor install` registers them in an isolated `riqor` Codex profile, and `riqor codex` uses that profile automatically unless you select another profile explicitly. The profile adds no apps, MCP servers, or tool configuration
+
+The npm package provides the local CLI and runtime used by commands such as `riqor doctor`, `riqor run`, and `riqor codex`
 
 ## What Riqor watches
 

@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-08-09
+
+### Added
+
+- Bundled all 101 repository Codex subagent configs as native role files in the Riqor plugin and npm runtime
+- Added an isolated Riqor Codex profile that registers the bundled roles without apps, MCP servers, or tool configuration
+
+### Fixed
+
+- Repaired a malformed control escape in the Mobile App Builder agent so every bundled role parses as TOML
+- Made `riqor codex` activate the managed Riqor profile without overriding an explicit user-selected profile
+- Preserved foreign Codex profile paths during install and uninstall instead of overwriting user configuration
+
 ## [0.2.0] - 2026-08-09
 
 ### Added
