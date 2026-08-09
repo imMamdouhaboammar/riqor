@@ -10,6 +10,7 @@ const skillRoot = join(pluginRoot, "skills");
 const profilePath = join(pluginRoot, ".codex", "riqor.config.toml");
 const mapPath = join(pluginRoot, "agent-skill-map.json");
 const indexPath = join(skillRoot, "riqor-core", "references", "specialists.md");
+const publicPluginExcludedAgents = new Set(["security-penetration-tester"]);
 const sha256 = (value: string | Uint8Array) => createHash("sha256").update(value).digest("hex");
 
 function titleize(slug: string) {
@@ -47,10 +48,14 @@ async function desiredArtifacts() {
   const profile = Bun.TOML.parse(await readFile(profilePath, "utf8")) as any;
   const files = (await readdir(sourceRoot)).filter((name) => name.endsWith(".toml")).sort();
   if (files.length !== 101) throw new Error(`expected 101 canonical agents, found ${files.length}`);
+  const publicFiles = files.filter((file) => !publicPluginExcludedAgents.has(file.slice(0, -5)));
+  for (const slug of publicPluginExcludedAgents) {
+    if (profile.agents?.[slug] !== undefined) throw new Error(`public plugin profile registers excluded agent: ${slug}`);
+  }
   const artifacts = new Map<string, string>();
   const pairs: any[] = [];
   const index: string[] = ["# Riqor Specialists", "", "The Riqor plugin exposes these native specialist roles as portable bundled Skills for ChatGPT and Codex.", ""];
-  for (const file of files) {
+  for (const file of publicFiles) {
     const slug = file.slice(0, -5);
     const sourcePath = join(sourceRoot, file);
     const source = Bun.TOML.parse(await readFile(sourcePath, "utf8")) as Record<string, unknown>;
@@ -79,29 +84,42 @@ async function desiredArtifacts() {
   }
   artifacts.set(mapPath, `${JSON.stringify({ schemaVersion: 1, pairs }, null, 2)}\n`);
   artifacts.set(indexPath, `${index.join("\n")}\n`);
-  return { artifacts, slugs: files.map((file) => file.slice(0, -5)) };
+  return {
+    artifacts,
+    slugs: publicFiles.map((file) => file.slice(0, -5)),
+    canonicalSlugs: files.map((file) => file.slice(0, -5)),
+    excludedSlugs: [...publicPluginExcludedAgents],
+  };
 }
-async function checkCurrent(artifacts: Map<string, string>) {
+async function checkCurrent(artifacts: Map<string, string>, excludedSlugs: string[]) {
   const stale: string[] = [];
   for (const [path, expected] of artifacts) {
     if (!(await exists(path)) || await readFile(path, "utf8") !== expected) stale.push(relative(root, path));
   }
+  for (const slug of excludedSlugs) {
+    for (const path of [join(skillRoot, slug), join(pluginAgentRoot, `${slug}.toml`)]) {
+      if (await exists(path)) stale.push(relative(root, path));
+    }
+  }
   return stale;
 }
-async function writeArtifacts(artifacts: Map<string, string>, slugs: string[]) {
-  for (const slug of slugs) await rm(join(skillRoot, slug), { recursive: true, force: true });
+async function writeArtifacts(artifacts: Map<string, string>, canonicalSlugs: string[]) {
+  for (const slug of canonicalSlugs) {
+    await rm(join(skillRoot, slug), { recursive: true, force: true });
+    await rm(join(pluginAgentRoot, `${slug}.toml`), { force: true });
+  }
   for (const [path, content] of artifacts) {
     await mkdir(resolve(path, ".."), { recursive: true });
     await writeFile(path, content);
   }
 }
 
-const { artifacts, slugs } = await desiredArtifacts();
+const { artifacts, slugs, canonicalSlugs, excludedSlugs } = await desiredArtifacts();
 if (process.argv.includes("--check")) {
-  const stale = await checkCurrent(artifacts);
+  const stale = await checkCurrent(artifacts, excludedSlugs);
   if (stale.length) { console.error(`stale generated agent-skill artifacts:\n${stale.join("\n")}`); process.exit(1); }
   console.log(`agent-skill catalog current: ${slugs.length} pairs`);
 } else {
-  await writeArtifacts(artifacts, slugs);
+  await writeArtifacts(artifacts, canonicalSlugs);
   console.log(`generated ${slugs.length} agent-skill pairs`);
 }

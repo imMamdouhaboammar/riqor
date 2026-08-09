@@ -55,11 +55,11 @@ codex plugin marketplace add imMamdouhaboammar/riqor --ref main
 codex plugin add riqor@riqor
 ```
 
-One plugin installation exposes **101 specialist Skills** to ChatGPT and Codex. The same 101 roles are also bundled as native Codex agents, and every native agent is required to load its paired Skill before task execution. `riqor install` registers the native agents in an isolated `riqor` Codex profile, while the plugin itself remains Skills + lifecycle hooks only: no apps, MCP servers, or tool configuration
+One plugin installation exposes **100 public specialist Skills** to ChatGPT and Codex. The distributed plugin bundles the same 100 roles as native Codex agents, and every bundled native agent is required to load its paired Skill before task execution. `riqor install` registers the native agents in an isolated `riqor` Codex profile, while the plugin itself remains Skills + lifecycle hooks only: no apps, MCP servers, or tool configuration
 
 The npm package provides the local CLI and runtime used by commands such as `riqor doctor`, `riqor run`, and `riqor codex`
 
-The specialist catalog is generated deterministically from the 101 canonical agent definitions. `riqor-core` includes a generated specialist index so a general Riqor request can route to the closest Skill instead of loading the whole catalog at once
+The public specialist catalog is generated deterministically from the canonical agent definitions after applying the explicit public-plugin safety exclusion list. `riqor-core` includes a generated specialist index so a general Riqor request can route to the closest Skill instead of loading the whole catalog at once
 
 ## What Riqor watches
 

@@ -48,7 +48,7 @@ riqor codex --activator \
   --activator-watchdog 2m
 ```
 
-Riqor installs **101 native Codex agent configs** into a managed `riqor` profile under `CODEX_HOME`. The bundled plugin also exposes the same 101 specialists as portable Skills for ChatGPT and Codex. Each native agent requires its paired Skill before task execution. `riqor codex` selects the managed profile automatically unless you pass `-p` or `--profile` yourself. Riqor does not add apps, MCP servers, or tool configuration to the profile
+Riqor installs **100 distributed native Codex agent configs** into a managed `riqor` profile under `CODEX_HOME`. The bundled plugin exposes the same 100 public specialists as portable Skills for ChatGPT and Codex. Each native agent requires its paired Skill before task execution. `riqor codex` selects the managed profile automatically unless you pass `-p` or `--profile` yourself. Riqor does not add apps, MCP servers, or tool configuration to the profile
 
 The activator applies only to the Codex child process launched by Riqor and waits for a safe lifecycle Stop boundary
 
@@ -96,7 +96,7 @@ codex plugin marketplace add imMamdouhaboammar/riqor --ref main
 codex plugin add riqor@riqor
 ```
 
-The plugin ships 101 generated specialist Skills plus 11 Riqor workflow Skills for setup, evidence, diagnostics, managed sessions, security, and release work. The specialist Skills are directly usable in ChatGPT and Codex after the plugin is installed
+The plugin ships 100 generated specialist Skills plus 11 Riqor workflow Skills for setup, evidence, diagnostics, managed sessions, security, and release work. The specialist Skills are directly usable in ChatGPT and Codex after the plugin is installed
 
 ## Core commands
 

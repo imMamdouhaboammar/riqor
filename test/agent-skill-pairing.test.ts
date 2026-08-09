@@ -8,18 +8,29 @@ const sourceRoot = join(root, ".codex", "agents");
 const pluginRoot = join(root, "plugins", "riqor");
 const skillRoot = join(pluginRoot, "skills");
 const pluginAgents = join(pluginRoot, ".codex", "agents");
+const publicExcluded = new Set(["security-penetration-tester"]);
 const sha256 = (value: string) => createHash("sha256").update(value).digest("hex");
 const exists = async (path: string) => { try { await access(path); return true; } catch { return false; } };
 const tomls = async (dir: string) => (await readdir(dir)).filter((name) => name.endsWith(".toml")).sort();
 
 describe("agent skill pairing", () => {
-  test("exposes every native specialist as a bundled Skill", async () => {
+  test("exposes only public-safe native specialists as bundled Skills", async () => {
     const sources = await tomls(sourceRoot);
-    const sourceSlugs = sources.map((name) => name.slice(0, -5));
+    const publicSlugs = sources.map((name) => name.slice(0, -5)).filter((slug) => !publicExcluded.has(slug));
     const skillDirs = (await readdir(skillRoot, { withFileTypes: true })).filter((entry) => entry.isDirectory()).map((entry) => entry.name).sort();
+    const bundledAgents = (await tomls(pluginAgents)).map((name) => name.slice(0, -5));
     expect(sources).toHaveLength(101);
-    expect(skillDirs).toHaveLength(112);
-    for (const slug of sourceSlugs) expect(skillDirs).toContain(slug);
+    expect(publicSlugs).toHaveLength(100);
+    expect(skillDirs).toHaveLength(111);
+    expect(bundledAgents).toHaveLength(100);
+    for (const slug of publicSlugs) {
+      expect(skillDirs).toContain(slug);
+      expect(bundledAgents).toContain(slug);
+    }
+    for (const slug of publicExcluded) {
+      expect(skillDirs).not.toContain(slug);
+      expect(bundledAgents).not.toContain(slug);
+    }
   });
 
   test("keeps a deterministic one-to-one mapping and mandatory contract", async () => {
@@ -27,7 +38,8 @@ describe("agent skill pairing", () => {
     expect(await exists(mapPath)).toBe(true);
     if (!(await exists(mapPath))) return;
     const mapping = JSON.parse(await readFile(mapPath, "utf8")) as { pairs: Array<any> };
-    expect(mapping.pairs).toHaveLength(101);
+    expect(mapping.pairs).toHaveLength(100);
+    expect(mapping.pairs.some((pair) => pair.slug === "security-penetration-tester")).toBe(false);
     for (const pair of mapping.pairs) {
       const source = Bun.TOML.parse(await readFile(join(root, pair.sourceAgent), "utf8")) as Record<string, unknown>;
       const plugin = Bun.TOML.parse(await readFile(join(root, pair.pluginAgent), "utf8")) as Record<string, unknown>;

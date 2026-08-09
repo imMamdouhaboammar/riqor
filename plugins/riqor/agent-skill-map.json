@@ -822,16 +822,6 @@
       "referenceSha256": "db03540e8641e6b6444f21b79b4172e0681b36886dce948118f43dbdd2893dcf"
     },
     {
-      "slug": "security-penetration-tester",
-      "displayName": "Penetration Tester",
-      "sourceAgent": ".codex/agents/security-penetration-tester.toml",
-      "pluginAgent": "plugins/riqor/.codex/agents/security-penetration-tester.toml",
-      "skill": "plugins/riqor/skills/security-penetration-tester/SKILL.md",
-      "reference": "plugins/riqor/skills/security-penetration-tester/references/agent-instructions.md",
-      "instructionsSha256": "b02e7bcc86a820c5f23870d5f3e9ba7b0168b23383377c288c019ae03c361a50",
-      "referenceSha256": "d7ac2d72cdcbd72f162543b66f4546ec46078c8ef2f01c2abd8831245aea6f34"
-    },
-    {
       "slug": "security-secrets-credential-engineer",
       "displayName": "Secrets & Credential Hygiene Engineer",
       "sourceAgent": ".codex/agents/security-secrets-credential-engineer.toml",

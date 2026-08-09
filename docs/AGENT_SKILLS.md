@@ -2,7 +2,7 @@
 
 Riqor ships a canonical set of operational skills for AI coding agents that work with Riqor itself or use Riqor to manage coding sessions
 
-The public Riqor plugin also exposes **101 generated specialist Skills** paired one-to-one with the 101 native Codex agents. Together with the 11 plugin workflow Skills, the Plugin Directory artifact contains 112 Skills
+The public Riqor plugin exposes **100 generated specialist Skills** paired one-to-one with 100 distributed native Codex agents. Together with the 11 plugin workflow Skills, the Plugin Directory artifact contains 111 Skills
 
 The repository source is `skills/riqor-pack/`. The npm package includes the same files under `runtime/skills/riqor-pack/`, so the guidance travels with the installed version
 
@@ -21,7 +21,7 @@ Each skill has bounded scope and can be loaded independently. Agents should sele
 
 ## Marketplace specialist catalog
 
-The canonical specialist definitions live in `.codex/agents/*.toml`. `scripts/generate-agent-skills.ts` deterministically creates the plugin copies under `plugins/riqor/skills/<slug>/`, the mandatory-pairing native agent configs, `agent-skill-map.json`, and the generated specialist index used by `riqor-core`
+The canonical specialist definitions live in `.codex/agents/*.toml`. `scripts/generate-agent-skills.ts` applies the explicit public-plugin safety exclusion list, then deterministically creates the plugin copies under `plugins/riqor/skills/<slug>/`, the mandatory-pairing native agent configs, `agent-skill-map.json`, and the generated specialist index used by `riqor-core`
 
 In ChatGPT and Codex, the specialist Skill is the portable representation of the role. In native Codex multi-agent workflows, the corresponding agent remains the execution identity and must load its paired Skill before doing the task. Run `bun run scripts/generate-agent-skills.ts --check` to reject drift
 

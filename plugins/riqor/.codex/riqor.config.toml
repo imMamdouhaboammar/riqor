@@ -337,10 +337,6 @@ config_file = "agents/security-compliance-auditor.toml"
 description = "Digital forensics and incident response specialist who leads breach investigations, contains active threats, coordinates crisis response, and writes post-mortems that prevent recurrence."
 config_file = "agents/security-incident-responder.toml"
 
-[agents.security-penetration-tester]
-description = "Offensive security specialist conducting authorized penetration tests, red team operations, and vulnerability assessments across networks, web applications, and cloud infrastructure."
-config_file = "agents/security-penetration-tester.toml"
-
 [agents.security-secrets-credential-engineer]
 description = "Owns the full lifecycle of secrets and credentials — detection, prevention, vaulting, rotation, and leak response — so an application runs on short-lived, least-privilege credentials that are never in the code and are already rotated by the time a leak is found."
 config_file = "agents/security-secrets-credential-engineer.toml"

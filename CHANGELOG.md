@@ -6,6 +6,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+### Changed
+
+- Exclude the rejected penetration-testing specialist from the public ChatGPT/Codex plugin, its distributed native-agent profile, generated mapping, and release archive while preserving the canonical repository agent source
+- Add a generator-level public-plugin exclusion guard so the removed specialist cannot return during regeneration
+
 ## [0.2.4] - 2026-08-09
 
 ### Added

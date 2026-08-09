@@ -1,7 +1,7 @@
 {
   "name": "riqor",
   "version": "0.2.4",
-  "description": "101 specialist Skills, evidence gates, and session continuity for AI-assisted engineering",
+  "description": "100 specialist Skills, evidence gates, and session continuity for AI-assisted engineering",
   "type": "module",
   "license": "MIT",
   "bin": {

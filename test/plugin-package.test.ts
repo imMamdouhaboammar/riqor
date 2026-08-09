@@ -37,8 +37,8 @@ describe("plugin package", () => {
     expect(manifest.interface?.privacyPolicyURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/PRIVACY.md");
     expect(manifest.interface?.termsOfServiceURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/TERMS.md");
     expect(manifest.interface?.supportURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/SUPPORT.md");
-    expect(manifest.description).toContain("101 specialist Skills");
-    expect(manifest.interface?.longDescription).toContain("101 specialist Skills");
+    expect(manifest.description).toContain("100 specialist Skills");
+    expect(manifest.interface?.longDescription).toContain("100 specialist Skills");
   });
 
   test("discovers lifecycle hooks from the default plugin path", async () => {
