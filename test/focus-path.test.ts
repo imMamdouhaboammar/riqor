@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test";
-import { harnessPaths, harnessPathForProfile } from "../plugins/codex-self-improvement/hooks/paths";
-import { classifyPrompt } from "../plugins/codex-self-improvement/hooks/router";
+import { harnessPaths, harnessPathForProfile } from "../plugins/riqor/hooks/paths";
+import { classifyPrompt } from "../plugins/riqor/hooks/router";
 
 describe("Anti-Overwhelm Focus Path (i-have-adhd integration)", () => {
   test("defines anti-overwhelm-focus path with micro-step guardrails", () => {

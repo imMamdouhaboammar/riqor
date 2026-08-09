@@ -1,4 +1,4 @@
-import { harnessPaths, type HarnessPathId } from "../../plugins/codex-self-improvement/hooks/paths";
+import { harnessPaths, type HarnessPathId } from "../../plugins/riqor/hooks/paths";
 import {
   inspectRepositoryIdentity,
   resolveRiqorStateRoot,

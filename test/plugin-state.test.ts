@@ -10,7 +10,7 @@ import {
   recordMutation,
   recordVerification,
   turnKey,
-} from "../plugins/codex-self-improvement/hooks/state";
+} from "../plugins/riqor/hooks/state";
 
 const roots: string[] = [];
 async function dataDir() {

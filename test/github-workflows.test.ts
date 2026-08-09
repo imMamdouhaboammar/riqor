@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
+import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { verifyActionPins } from "../scripts/verify-action-pins";
 
@@ -32,12 +32,22 @@ describe("GitHub Workflow security", () => {
     expect(ciYaml).toMatch(/^\s{2}workflow_dispatch:\s*$/m);
   });
 
-  test("release workflow specifies strict publish permissions and environment", async () => {
-    const releaseYaml = await readFile(join(root, ".github/workflows/release.yml"), "utf8");
-    expect(releaseYaml).toContain("permissions:\n  contents: write\n  id-token: write");
-    expect(releaseYaml).toContain("environment: npm");
-    expect(releaseYaml).toContain("npm install --global npm@11.18.0");
-    expect(releaseYaml).not.toContain("NODE_AUTH_TOKEN");
+  test("all workflows enforce local terminal npm publishing policy", async () => {
+    const workflowDir = join(root, ".github", "workflows");
+    for (const name of await readdir(workflowDir)) {
+      if (!/\.ya?ml$/.test(name)) continue;
+      const workflow = await readFile(join(workflowDir, name), "utf8");
+      expect(workflow).not.toMatch(/(^|\s)npm\s+publish(\s|$)/m);
+      expect(workflow).not.toMatch(/(^|\s)bun\s+publish(\s|$)/m);
+      expect(workflow).not.toContain("NODE_AUTH_TOKEN");
+      expect(workflow).not.toContain("NPM_TOKEN");
+      expect(workflow).not.toContain(`registry-url: "https://registry.npmjs.org"`);
+    }
+
+    const releaseYaml = await readFile(join(workflowDir, "release.yml"), "utf8");
+    expect(releaseYaml).toContain("permissions:\n  contents: write");
+    expect(releaseYaml).not.toContain("id-token: write");
+    expect(releaseYaml).toContain("Automated package deployment to the registry is disabled");
   });
 
   test("release workflow preserves prerelease channel semantics", async () => {
@@ -45,12 +55,14 @@ describe("GitHub Workflow security", () => {
     const steps = workflowStepBlocks(releaseYaml);
     const channel = steps.get("Resolve release channel");
     const versionCheck = steps.get("Verify tag matches package version");
-    const publish = steps.get("Publish to npm with trusted publishing");
+    const registryCompare = steps.get("Fetch and compare published npm tarball");
     const githubRelease = steps.get("Create GitHub Release");
 
     expect(channel).toContain('npm_tag="${version#*-}"');
     expect(versionCheck).toContain("RELEASE_VERSION: ${{ steps.release-channel.outputs.version }}");
-    expect(publish).toContain('npm publish packages/riqor/riqor-*.tgz --access public --tag "${{ steps.release-channel.outputs.npm-tag }}"');
+    expect(registryCompare).toContain('npm pack "riqor@${RELEASE_VERSION}"');
+    expect(registryCompare).toContain('cmp -- "${built[0]}" "${registry[0]}"');
+    expect(githubRelease).toContain("dist/npm-registry/riqor-*.tgz");
     expect(githubRelease).toContain("prerelease: ${{ steps.release-channel.outputs.prerelease == 'true' }}");
   });
 

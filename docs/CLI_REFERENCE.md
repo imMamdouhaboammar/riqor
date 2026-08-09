@@ -366,7 +366,7 @@ JSON output includes each path identifier, objective, curated skills, required e
 
 ## Harness Analysis and Continuity Commands
 
-These commands operate on the current repository or Riqor local state. They are part of the `0.2.0-beta.2` CLI surface and return structured JSON when `--json` is supported.
+These commands operate on the current repository or Riqor local state. They are part of the `0.2.0-beta.3` CLI surface and return structured JSON when `--json` is supported.
 
 ### `riqor evidence`
 

@@ -1,4 +1,4 @@
-// plugins/codex-self-improvement/hooks/activator.ts
+// plugins/riqor/hooks/activator.ts
 import { createHash, randomUUID } from "node:crypto";
 import { chmod, lstat, mkdir, readdir, readFile, rename, rm, writeFile } from "node:fs/promises";
 import { join } from "node:path";
@@ -282,7 +282,7 @@ async function clearActivator(dataDir, config) {
   await withLock(dataDir, config, () => rm(statePath(dataDir, activatorKey(config)), { force: true }));
 }
 
-// plugins/codex-self-improvement/hooks/paths.ts
+// plugins/riqor/hooks/paths.ts
 function path(definition) {
   return Object.freeze({
     ...definition,
@@ -404,7 +404,7 @@ function harnessPathForProfile(profile) {
   return harnessPathById(profilePaths[profile]);
 }
 
-// plugins/codex-self-improvement/hooks/router.ts
+// plugins/riqor/hooks/router.ts
 function decision(profile, skills, guidance) {
   const selectedPath = harnessPathForProfile(profile);
   return Object.freeze({
@@ -460,7 +460,7 @@ function routingContext(prompt) {
 `).slice(0, 900);
 }
 
-// plugins/codex-self-improvement/hooks/state.ts
+// plugins/riqor/hooks/state.ts
 import { createHash as createHash2, randomUUID as randomUUID2 } from "node:crypto";
 import { chmod as chmod2, lstat as lstat2, mkdir as mkdir2, readdir as readdir2, readFile as readFile2, rename as rename2, rm as rm2, rmdir, writeFile as writeFile2 } from "node:fs/promises";
 import { join as join2 } from "node:path";
@@ -845,7 +845,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
   }
 }
 
-// plugins/codex-self-improvement/hooks/io.ts
+// plugins/riqor/hooks/io.ts
 async function readStdinText(stream = process.stdin) {
   return new Promise((resolve, reject) => {
     let data = "";
@@ -868,7 +868,7 @@ function isMainModule(metaUrl, argv1 = process.argv[1]) {
   }
 }
 
-// plugins/codex-self-improvement/hooks/main.ts
+// plugins/riqor/hooks/main.ts
 var sessionContext = [
   "Riqor is a measured control plane around the model",
   "Define observable success, inspect the real flow, load only relevant skills, and make the smallest coherent change",

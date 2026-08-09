@@ -1,0 +1,40 @@
+{
+  "name": "riqor",
+  "version": "0.2.0-beta.3+codex.20260809085156",
+  "description": "Evidence gates, session continuity, managed Codex workflows, and release checks for AI coding agents",
+  "author": {
+    "name": "Mamdouh Aboammar",
+    "url": "https://github.com/imMamdouhaboammar"
+  },
+  "license": "MIT",
+  "keywords": [
+    "riqor",
+    "codex",
+    "ai-agents",
+    "verification",
+    "evidence",
+    "developer-tools",
+    "session-continuity"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Riqor",
+    "shortDescription": "Evidence gates and continuity for coding agents",
+    "longDescription": "Adds repository-scoped evidence gates, managed Codex session continuity, diagnostics, release checks, and bounded lifecycle guidance. The local npm runtime is installed or upgraded explicitly from a terminal; the plugin never publishes packages or replaces the Codex binary.",
+    "developerName": "Mamdouh Aboammar",
+    "category": "Developer Tools",
+    "capabilities": [
+      "Instructions",
+      "Lifecycle hooks",
+      "Local developer tooling"
+    ],
+    "websiteURL": "https://github.com/imMamdouhaboammar/riqor",
+    "defaultPrompt": [
+      "Set up Riqor for this repository and verify it.",
+      "Run this task with Riqor evidence gates.",
+      "Diagnose this Riqor or managed Codex failure."
+    ]
+  },
+  "homepage": "https://github.com/imMamdouhaboammar/riqor",
+  "repository": "https://github.com/imMamdouhaboammar/riqor"
+}

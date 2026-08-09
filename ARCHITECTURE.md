@@ -1,7 +1,7 @@
 # Measured Self-Improvement Architecture
 
 Version: 0.6.0
-Plugin: `codex-self-improvement`
+Plugin: `riqor`
 Installed plugin version: `0.2.0+codex.20260809081834`
 
 ## Boundary

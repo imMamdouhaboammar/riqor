@@ -45,7 +45,7 @@ When an AI agent modifies your codebase, how do you verify that its completion c
 npx riqor@beta install
 ```
 
-The Homebrew formula tracks the stable channel (`0.1.x`). The `0.2.0-beta.2` feature set is published through npm under the `beta` dist-tag.
+The Homebrew formula tracks the stable channel (`0.1.x`). The `0.2.0-beta.3` feature set is published through npm under the `beta` dist-tag.
 
 ### 2. Verify Your Environment
 

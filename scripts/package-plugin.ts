@@ -8,7 +8,7 @@ export function pythonSupportsCompressionLevel(major: number, minor: number) {
 }
 
 export function defaultPluginArchivePath(repositoryRoot: string, version: string) {
-  return join(resolve(repositoryRoot), "dist", "plugins", `codex-self-improvement-${version}.zip`);
+  return join(resolve(repositoryRoot), "dist", "plugins", `riqor-${version}.zip`);
 }
 
 function assertSupportedPython() {
@@ -66,7 +66,7 @@ export async function buildPluginArchive(pluginRoot: string, outputPath: string)
 
 if (import.meta.main) {
   const repositoryRoot = resolve(import.meta.dir, "..");
-  const pluginRoot = resolve(process.argv[2] ?? join(repositoryRoot, "plugins", "codex-self-improvement"));
+  const pluginRoot = resolve(process.argv[2] ?? join(repositoryRoot, "plugins", "riqor"));
   const report = await inspectPlugin(pluginRoot);
   const output = resolve(process.argv[3] ?? defaultPluginArchivePath(repositoryRoot, report.version));
   const built = await buildPluginArchive(pluginRoot, output);

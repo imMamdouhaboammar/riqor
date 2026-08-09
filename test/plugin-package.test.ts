@@ -3,7 +3,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
-const plugin = join(root, "plugins", "codex-self-improvement");
+const plugin = join(root, "plugins", "riqor");
 
 async function json(path: string) {
   return JSON.parse(await readFile(path, "utf8")) as Record<string, any>;
@@ -23,8 +23,8 @@ async function filesBelow(directory: string): Promise<string[]> {
 describe("plugin package", () => {
   test("uses a valid bounded Codex manifest", async () => {
     const manifest = await json(join(plugin, ".codex-plugin", "plugin.json"));
-    expect(manifest.name).toBe("codex-self-improvement");
-    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+(?:[-+][0-9A-Za-z.-]+)?$/);
+    expect(manifest.name).toBe("riqor");
+    expect(manifest.version).toMatch(/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?(?:\+[0-9A-Za-z.-]+)?$/);
     expect(manifest.description).toBeString();
     expect(manifest.author?.name).toBeString();
     expect(manifest.skills).toBe("./skills/");
@@ -40,15 +40,17 @@ describe("plugin package", () => {
     expect(hooks.hooks.PostToolUse).toBeArray();
     expect(hooks.hooks.Stop).toBeArray();
     const serialized = JSON.stringify(hooks);
-    expect(serialized).toContain("${PLUGIN_ROOT}/hooks/main.ts");
+    expect(serialized).toContain("${PLUGIN_ROOT}/hooks/main.mjs");
+    expect(serialized).not.toContain("bun ");
     expect(serialized).not.toContain("/Users/");
+    expect((await readFile(join(plugin, "hooks", "main.mjs"), "utf8")).length).toBeGreaterThan(1000);
   });
 
   test("publishes through the repository-local marketplace", async () => {
     const marketplace = await json(join(root, ".agents", "plugins", "marketplace.json"));
-    expect(marketplace.name).toBe("codex-self-improvement-dev");
-    const entry = marketplace.plugins.find((candidate: any) => candidate.name === "codex-self-improvement");
-    expect(entry.source).toEqual({ source: "local", path: "./plugins/codex-self-improvement" });
+    expect(marketplace.name).toBe("riqor");
+    const entry = marketplace.plugins.find((candidate: any) => candidate.name === "riqor");
+    expect(entry.source).toEqual({ source: "local", path: "./plugins/riqor" });
     expect(entry.policy).toEqual({ installation: "AVAILABLE", authentication: "ON_INSTALL" });
     expect(entry.category).toBe("Developer Tools");
   });

@@ -5,7 +5,7 @@ import { buildRiqorPackage } from "../scripts/build-riqor-package";
 
 const root = resolve(import.meta.dir, "..");
 const packRoot = join(root, "skills", "riqor-pack");
-const expectedSkills = ["core", "evidence", "managed-codex", "diagnostics", "security", "release"];
+const expectedSkills = ["setup", "core", "evidence", "managed-codex", "diagnostics", "security", "release"];
 
 describe("Riqor Skills Pack", () => {
   test("ships a canonical manifest and focused skills", async () => {

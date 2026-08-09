@@ -22,9 +22,9 @@ export function isPortableRuntimePath(path: string) {
 }
 
 const staticRuntimeFiles = [
-  "plugins/codex-self-improvement/.codex-plugin/plugin.json",
-  "plugins/codex-self-improvement/package.json",
-  "plugins/codex-self-improvement/skills",
+  "plugins/riqor/.codex-plugin/plugin.json",
+  "plugins/riqor/package.json",
+  "plugins/riqor/skills",
   "config/shell",
   ".agents/plugins/marketplace.json",
   "skills-lock.json",
@@ -64,10 +64,10 @@ export async function buildRiqorPackage(options: BuildOptions = {}): Promise<Bui
   if (cliBuild.exitCode !== 0) throw new Error(`CLI build failed: ${cliBuild.stderr}`);
 
   // 2. Build Hook bundle for Node
-  const hookDir = join(runtimeRoot, "plugins", "codex-self-improvement", "hooks");
+  const hookDir = join(runtimeRoot, "plugins", "riqor", "hooks");
   await mkdir(hookDir, { recursive: true });
   const hookBuild = await runProcess(
-    ["bun", "build", join(repositoryRoot, "plugins", "codex-self-improvement", "hooks", "main.ts"), "--target=node", "--format=esm", `--outfile=${join(hookDir, "main.mjs")}`],
+    ["bun", "build", join(repositoryRoot, "plugins", "riqor", "hooks", "main.ts"), "--target=node", "--format=esm", `--outfile=${join(hookDir, "main.mjs")}`],
     { cwd: repositoryRoot }
   );
   if (hookBuild.exitCode !== 0) throw new Error(`Hook build failed: ${hookBuild.stderr}`);
@@ -81,7 +81,7 @@ export async function buildRiqorPackage(options: BuildOptions = {}): Promise<Bui
   }
 
   // 4. Generate packaged hooks.json
-  const sourceHooksJson = JSON.parse(await readFile(join(repositoryRoot, "plugins", "codex-self-improvement", "hooks", "hooks.json"), "utf8")) as { hooks: Record<string, Array<{ type: string; command: string }>> };
+  const sourceHooksJson = JSON.parse(await readFile(join(repositoryRoot, "plugins", "riqor", "hooks", "hooks.json"), "utf8")) as { hooks: Record<string, Array<{ type: string; command: string }>> };
   const packagedHooksJson = {
     hooks: Object.fromEntries(
       Object.entries(sourceHooksJson.hooks).map(([event, steps]) => [

@@ -45,7 +45,7 @@ bun test
 | Packaged CLI | `packages/riqor/` |
 | Harness CLI and Codex wrapper | `src/harness-cli.ts` |
 | Terminal verification state | `src/terminal-runtime.ts` |
-| Codex plugin | `plugins/codex-self-improvement/` |
+| Codex plugin | `plugins/riqor/` |
 | Shell and package scripts | `scripts/` |
 | Main integration tests | `test/` |
 | Packaged CLI tests | `packages/riqor/test/` |

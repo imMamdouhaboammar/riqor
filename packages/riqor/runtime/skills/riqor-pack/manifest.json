@@ -3,6 +3,7 @@
   "schemaVersion": 1,
   "description": "Operational skills for AI coding agents that install, run, diagnose, secure, or release Riqor",
   "skills": [
+    "setup",
     "core",
     "evidence",
     "managed-codex",

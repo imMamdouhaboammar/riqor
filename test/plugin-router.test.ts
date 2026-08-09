@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { classifyPrompt, routingContext } from "../plugins/codex-self-improvement/hooks/router";
+import { classifyPrompt, routingContext } from "../plugins/riqor/hooks/router";
 
 describe("task router", () => {
   const cases = [

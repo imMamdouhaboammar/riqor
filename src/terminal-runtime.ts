@@ -1,7 +1,7 @@
 import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { classifyPrompt, type TaskProfile } from "../plugins/codex-self-improvement/hooks/router";
+import { classifyPrompt, type TaskProfile } from "../plugins/riqor/hooks/router";
 
 export type TerminalCommandKind = "mutation" | "verification" | "agent" | "other";
 

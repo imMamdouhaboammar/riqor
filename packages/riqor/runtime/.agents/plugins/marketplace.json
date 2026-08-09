@@ -1,14 +1,14 @@
 {
-  "name": "codex-self-improvement-dev",
+  "name": "riqor",
   "interface": {
-    "displayName": "Codex Self Improvement Development"
+    "displayName": "Riqor"
   },
   "plugins": [
     {
-      "name": "codex-self-improvement",
+      "name": "riqor",
       "source": {
         "source": "local",
-        "path": "./plugins/codex-self-improvement"
+        "path": "./plugins/riqor"
       },
       "policy": {
         "installation": "AVAILABLE",

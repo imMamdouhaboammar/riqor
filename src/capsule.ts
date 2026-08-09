@@ -1,11 +1,11 @@
 import { chmod, lstat, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { homedir, tmpdir } from "node:os";
 import { join, resolve } from "node:path";
-import { classifyPrompt } from "../plugins/codex-self-improvement/hooks/router";
-import { harnessPathForProfile, type HarnessPath, type TaskProfile } from "../plugins/codex-self-improvement/hooks/paths";
+import { classifyPrompt } from "../plugins/riqor/hooks/router";
+import { harnessPathForProfile, type HarnessPath, type TaskProfile } from "../plugins/riqor/hooks/paths";
 
 export type Capability = { name: string; path: string };
-export type { TaskProfile } from "../plugins/codex-self-improvement/hooks/paths";
+export type { TaskProfile } from "../plugins/riqor/hooks/paths";
 
 const globalSkillRoot = join(homedir(), ".agents", "skills");
 const projectSkillRoot = resolve(import.meta.dir, "..", ".agents", "skills");

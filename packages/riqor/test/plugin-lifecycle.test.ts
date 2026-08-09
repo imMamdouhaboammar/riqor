@@ -23,7 +23,7 @@ case "$*" in
   "plugin marketplace list --json") printf '%s\\n' '{"marketplaces":[]}' ;;
   "plugin marketplace add "*) exit 0 ;;
   "plugin add "*) exit 0 ;;
-  "plugin list --json") printf '%s\\n' '{"installed":[{"name":"codex-self-improvement","marketplaceName":"codex-self-improvement-dev","installed":true,"enabled":true}]}' ;;
+  "plugin list --json") printf '%s\\n' '{"installed":[{"name":"riqor","marketplaceName":"riqor","installed":true,"enabled":true}]}' ;;
   "plugin remove "*) exit 0 ;;
   "plugin marketplace remove "*) exit 0 ;;
   *) printf '%s\\n' "unexpected codex args: $*" >&2; exit 2 ;;
@@ -51,13 +51,13 @@ describe("packaged Codex plugin lifecycle", () => {
       expect(installed.surfaces).toContain("codex-plugin");
       const afterInstall = await readFile(log, "utf8");
       expect(afterInstall).toContain("plugin marketplace add");
-      expect(afterInstall).toContain("plugin add codex-self-improvement@codex-self-improvement-dev");
+      expect(afterInstall).toContain("plugin add riqor@riqor");
 
       const removed = await uninstall({ home, codexHome: join(home, ".codex") });
       expect(removed.ok).toBe(true);
       const afterUninstall = await readFile(log, "utf8");
-      expect(afterUninstall).toContain("plugin remove codex-self-improvement@codex-self-improvement-dev");
-      expect(afterUninstall).toContain("plugin marketplace remove codex-self-improvement-dev");
+      expect(afterUninstall).toContain("plugin remove riqor@riqor");
+      expect(afterUninstall).toContain("plugin marketplace remove riqor");
     } finally {
       if (previousPath === undefined) delete process.env.PATH;
       else process.env.PATH = previousPath;

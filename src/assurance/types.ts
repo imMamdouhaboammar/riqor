@@ -1,4 +1,4 @@
-import type { HarnessPathId } from "../../plugins/codex-self-improvement/hooks/paths";
+import type { HarnessPathId } from "../../plugins/riqor/hooks/paths";
 
 export type ExecutionProfileId = "standard" | "assured";
 

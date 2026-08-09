@@ -1,5 +1,5 @@
 import type { ScenarioDefinition } from "./harness";
-import type { HarnessPathId } from "../plugins/codex-self-improvement/hooks/paths";
+import type { HarnessPathId } from "../plugins/riqor/hooks/paths";
 
 export type BenchmarkCheck = { id: string; command: string[] };
 

@@ -1,7 +1,7 @@
 import { expect, test } from "bun:test";
 import { parseCodexActivatorArgs, buildCodexEnvironment } from "../src/harness-cli";
-import { handleHook } from "../plugins/codex-self-improvement/hooks/main";
-import { harnessPaths } from "../plugins/codex-self-improvement/hooks/paths";
+import { handleHook } from "../plugins/riqor/hooks/main";
+import { harnessPaths } from "../plugins/riqor/hooks/paths";
 
 test("parseCodexActivatorArgs parses --actions-first flag correctly", () => {
   const result = parseCodexActivatorArgs(["--actions-first", "--activator", "prompt"]);

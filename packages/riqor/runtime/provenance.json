@@ -1,12 +1,12 @@
 {
-  "version": "0.2.0-beta.2",
-  "sourceCommit": "4c968a152656d531e2aca3248d8d75d55ff06878",
-  "sourceDateEpoch": 1786262480,
+  "version": "0.2.0-beta.3",
+  "sourceCommit": "28c26de49a2dad09481fc67354a959836e3c331f",
+  "sourceDateEpoch": 1786263902,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
-      "sha256": "220c7a901ae6b349c975317b3bfa730b405fb23b8ccc6f231dfdd831f3ec4cc4",
-      "bytes": 437
+      "sha256": "286d7996fb734d265cfb6d9ba4dbd906827f36ea12e0436d89b0e02a3c98fd85",
+      "bytes": 353
     },
     {
       "path": "config/shell/codex-self-improvement-env.zsh",
@@ -24,42 +24,77 @@
       "bytes": 6909
     },
     {
-      "path": "plugins/codex-self-improvement/.codex-plugin/plugin.json",
-      "sha256": "a628bcc9e0139eb08dfb1ca03598f36117e2f27259be4cd28bdf1753eb43b122",
-      "bytes": 1103
+      "path": "plugins/riqor/.codex-plugin/plugin.json",
+      "sha256": "bb4a5591af132c09e86e072dabc4010ef4aee46ae934f86837feb6c39f21cd14",
+      "bytes": 1473
     },
     {
-      "path": "plugins/codex-self-improvement/hooks/hooks.json",
-      "sha256": "efc7312841b0991d8b390cdc1df04c3588976c63e8e8d4d2f7f6bf2549300d97",
-      "bytes": 2173
+      "path": "plugins/riqor/hooks/hooks.json",
+      "sha256": "4f0f7913da6e56ce1b80adf27e25a7e13450ebcd1c89b79f8a40a74f772a303d",
+      "bytes": 2185
     },
     {
-      "path": "plugins/codex-self-improvement/hooks/main.mjs",
-      "sha256": "48def53fd5751de0ada017ac54cc6a0f75569c1bc96b17e2fbe46be9e552c97b",
-      "bytes": 44977
+      "path": "plugins/riqor/hooks/main.mjs",
+      "sha256": "64e8c5000981e4e7edd6bc4a5f295de847c1e49e07bf68ebd196555a2a5340cb",
+      "bytes": 44875
     },
     {
-      "path": "plugins/codex-self-improvement/package.json",
-      "sha256": "0cebe6a8f910fbfabe98b872e112ec89ad8adf34f7e94755e3aca78d46166bbb",
-      "bytes": 107
+      "path": "plugins/riqor/package.json",
+      "sha256": "42629c1beebb9f03fc5d685f028e00eb7084597fceb9118945bab42ec3bcf15b",
+      "bytes": 103
     },
     {
-      "path": "plugins/codex-self-improvement/skills/evidence-engineering/SKILL.md",
+      "path": "plugins/riqor/skills/evidence-engineering/SKILL.md",
       "sha256": "f9f9072069f60955d97533b6ef418925969c5d8cbcbb24d4369defa8966dec10",
       "bytes": 1291
     },
     {
-      "path": "plugins/codex-self-improvement/skills/harness-paths/SKILL.md",
+      "path": "plugins/riqor/skills/harness-paths/SKILL.md",
       "sha256": "59c41b78ecdce39c04d28a669be1f756c1b1d9099e33cb90223bec94fbb3506d",
       "bytes": 3353
     },
     {
-      "path": "plugins/codex-self-improvement/skills/self-improvement-loop/SKILL.md",
+      "path": "plugins/riqor/skills/riqor-core/SKILL.md",
+      "sha256": "9a7efda8b8e45c956957c4fa6b18d90b4dc7db018064bc6960481b60dc4c3780",
+      "bytes": 1761
+    },
+    {
+      "path": "plugins/riqor/skills/riqor-diagnostics/SKILL.md",
+      "sha256": "c254eda68cbbd86716432944827488449b8eb0c9b123b3a2c9259f2efb28ed62",
+      "bytes": 1554
+    },
+    {
+      "path": "plugins/riqor/skills/riqor-evidence/SKILL.md",
+      "sha256": "8481ee91bc671394493dddc24b03d54b1198319a835f9867bf042e0b772f5eaf",
+      "bytes": 1565
+    },
+    {
+      "path": "plugins/riqor/skills/riqor-managed-codex/SKILL.md",
+      "sha256": "bb04e4a46572f51f43a55e862d203365f162574200646a6e0b176ee7d95d2f64",
+      "bytes": 1295
+    },
+    {
+      "path": "plugins/riqor/skills/riqor-release/SKILL.md",
+      "sha256": "bc51203fca371db2842366c1957ff9962efd1068c6d524e82562a1087929c489",
+      "bytes": 1927
+    },
+    {
+      "path": "plugins/riqor/skills/riqor-security/SKILL.md",
+      "sha256": "fb2d09c405c4a14ba1439000e245a2536e9a30fe87e77f32c0d8c7f872edd7a3",
+      "bytes": 1812
+    },
+    {
+      "path": "plugins/riqor/skills/riqor-setup/SKILL.md",
+      "sha256": "c2e6bd33431fa77f41a7a0367c21b027024d481d6d6e085cad759757ebe0dce2",
+      "bytes": 1265
+    },
+    {
+      "path": "plugins/riqor/skills/self-improvement-loop/SKILL.md",
       "sha256": "a0caa90dea3a470464f9e0a9084d3e52459cbbf66fb5942d8029704375376a18",
       "bytes": 1426
     },
     {
-      "path": "plugins/codex-self-improvement/skills/universal-session-runtime/SKILL.md",
+      "path": "plugins/riqor/skills/universal-session-runtime/SKILL.md",
       "sha256": "ed068755583835a16c37de232c1b5afaaf60307893a300151059b1ad5b8cee5c",
       "bytes": 1671
     },
@@ -70,8 +105,8 @@
     },
     {
       "path": "scripts/install-plugin.sh",
-      "sha256": "444c16cde9a5988b5a818e09720ca9c5f30ead3aa974d070cd926523d8b7ce5b",
-      "bytes": 2579
+      "sha256": "d3cc2086c89113604d144a9faf87a75264185b7b1f6bd7d590740c42033ecc5b",
+      "bytes": 2562
     },
     {
       "path": "scripts/install-shell-integration.py",
@@ -125,18 +160,23 @@
     },
     {
       "path": "skills/riqor-pack/manifest.json",
-      "sha256": "4470ec7c6a519716d1ec11dd868efe4306c680c835fff2ecc09e91d51430d589",
-      "bytes": 287
+      "sha256": "2aa2cd8b6054ebbbdcb33d22b294a709243364c830ce30c296e67c01ea09bf12",
+      "bytes": 300
     },
     {
       "path": "skills/riqor-pack/release/SKILL.md",
-      "sha256": "ab4a3990b78fd03c7a5e8891c88eb6dcfa0c6509e7fb33e8e4d50f3a5bcf4c66",
-      "bytes": 1564
+      "sha256": "bc51203fca371db2842366c1957ff9962efd1068c6d524e82562a1087929c489",
+      "bytes": 1927
     },
     {
       "path": "skills/riqor-pack/security/SKILL.md",
       "sha256": "fb2d09c405c4a14ba1439000e245a2536e9a30fe87e77f32c0d8c7f872edd7a3",
       "bytes": 1812
+    },
+    {
+      "path": "skills/riqor-pack/setup/SKILL.md",
+      "sha256": "c2e6bd33431fa77f41a7a0367c21b027024d481d6d6e085cad759757ebe0dce2",
+      "bytes": 1265
     }
   ]
 }

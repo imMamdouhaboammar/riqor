@@ -26,7 +26,7 @@ export function resolveRuntimeLayout(options: RuntimeLayoutOptions = {}): Runtim
   return {
     packageRoot,
     runtimeRoot,
-    pluginRoot: resolve(runtimeRoot, "plugins", "codex-self-improvement"),
+    pluginRoot: resolve(runtimeRoot, "plugins", "riqor"),
     scriptsRoot: resolve(runtimeRoot, "scripts"),
     shellTemplatesRoot: resolve(runtimeRoot, "config", "shell"),
     packageJsonPath: resolve(packageRoot, "package.json"),

@@ -5,7 +5,7 @@ import { join } from "node:path";
 import {
   initializeActivator,
   observeActivatorStop,
-} from "../plugins/codex-self-improvement/hooks/activator";
+} from "../plugins/riqor/hooks/activator";
 
 const roots: string[] = [];
 afterEach(async () => {

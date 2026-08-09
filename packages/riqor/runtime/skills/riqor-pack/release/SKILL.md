@@ -39,7 +39,9 @@ Review the final diff and security-sensitive boundaries before tagging
 
 ## Publishing
 
-Riqor uses npm Trusted Publishing through GitHub Actions OIDC. Do not add a long-lived npm token to the workflow as a shortcut
+Riqor publishes npm packages only from an authenticated local terminal. GitHub Actions may verify and attach release artifacts, but it must never run `npm publish`, `bun publish`, or receive npm publish credentials
+
+Publish prereleases with `npm publish <tarball> --access public --tag beta` and stable releases with `--tag latest`. Do not enable npm provenance in `publishConfig` for this local-only release path because npm provenance generation requires a supported cloud CI environment
 
 After the workflow succeeds, query npm for the published version and dist-tags, download or pack the registry artifact, install it in a clean temporary HOME, and run version, status, doctor, install, and uninstall smoke checks
 

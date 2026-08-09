@@ -1,5 +1,4 @@
 {
-  "description": "Bounded routing, continuity, and evidence hooks for Codex Self Improvement",
   "hooks": {
     "SessionStart": [
       {
@@ -7,12 +6,13 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\"",
             "timeout": 5,
             "statusMessage": "Loading measured execution guidance",
             "additionalContextLimit": 900
           }
-        ]
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
       }
     ],
     "UserPromptSubmit": [
@@ -20,11 +20,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\"",
             "timeout": 5,
             "additionalContextLimit": 900
           }
-        ]
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
       }
     ],
     "SubagentStart": [
@@ -32,11 +33,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\"",
             "timeout": 5,
             "additionalContextLimit": 600
           }
-        ]
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
       }
     ],
     "PostToolUse": [
@@ -45,10 +47,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\"",
             "timeout": 5
           }
-        ]
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
       }
     ],
     "Stop": [
@@ -56,11 +59,12 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\"",
             "timeout": 5,
             "statusMessage": "Checking completion evidence"
           }
-        ]
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
       }
     ],
     "SessionEnd": [
@@ -68,10 +72,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "bun \"${PLUGIN_ROOT}/hooks/main.ts\"",
+            "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\"",
             "timeout": 3
           }
-        ]
+        ],
+        "command": "node \"${PLUGIN_ROOT}/hooks/main.mjs\""
       }
     ]
   }

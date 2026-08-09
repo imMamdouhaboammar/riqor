@@ -2,7 +2,7 @@ import { afterEach, describe, expect, test } from "bun:test";
 import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { handleHook } from "../plugins/codex-self-improvement/hooks/main";
+import { handleHook } from "../plugins/riqor/hooks/main";
 
 const roots: string[] = [];
 async function dataDir() {

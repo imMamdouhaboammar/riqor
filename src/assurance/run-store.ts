@@ -10,7 +10,7 @@ import {
   writeFile,
 } from "node:fs/promises";
 import { dirname, join } from "node:path";
-import { harnessPaths, type HarnessPathId } from "../../plugins/codex-self-improvement/hooks/paths";
+import { harnessPaths, type HarnessPathId } from "../../plugins/riqor/hooks/paths";
 import { normalizeRunGoal, type RepositoryIdentity } from "./repository-identity";
 import type {
   ExecutionProfileId,

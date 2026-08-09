@@ -2,7 +2,7 @@ import { afterEach, expect, test } from "bun:test";
 import { mkdir, mkdtemp, rm, symlink } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { initializeActivator } from "../plugins/codex-self-improvement/hooks/activator";
+import { initializeActivator } from "../plugins/riqor/hooks/activator";
 
 const roots: string[] = [];
 afterEach(async () => {

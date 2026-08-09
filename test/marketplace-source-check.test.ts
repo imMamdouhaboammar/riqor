@@ -3,7 +3,7 @@ import { resolve } from "node:path";
 
 const script = resolve(import.meta.dir, "..", "scripts", "check-marketplace-source.py");
 
-function check(payload: unknown, name = "codex-self-improvement-dev", root = "/repo") {
+function check(payload: unknown, name = "riqor", root = "/repo") {
   return Bun.spawnSync(["python3", script, name, root], {
     stdin: Buffer.from(JSON.stringify(payload)),
     stdout: "pipe",
@@ -13,7 +13,7 @@ function check(payload: unknown, name = "codex-self-improvement-dev", root = "/r
 
 test("accepts only an exact local marketplace source", () => {
   const match = check({ marketplaces: [{
-    name: "codex-self-improvement-dev",
+    name: "riqor",
     root: "/repo",
     marketplaceSource: { sourceType: "local", source: "/repo" },
   }] });
@@ -25,7 +25,7 @@ test("accepts only an exact local marketplace source", () => {
   expect(absent.stdout.toString().trim()).toBe("absent");
 
   const mismatch = check({ marketplaces: [{
-    name: "codex-self-improvement-dev",
+    name: "riqor",
     root: "/another-repo",
     marketplaceSource: { sourceType: "local", source: "/another-repo" },
   }] });

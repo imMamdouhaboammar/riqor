@@ -27,8 +27,8 @@ npx riqor@beta install
 You should see output similar to:
 
 ```text
-[riqor] Installing Riqor v0.2.0-beta.2...
-[riqor] Created version payload in ~/.local/share/riqor/0.2.0-beta.2
+[riqor] Installing Riqor v0.2.0-beta.3...
+[riqor] Created version payload in ~/.local/share/riqor/0.2.0-beta.3
 [riqor] Updated current symlink
 [riqor] Created shims: riqor, codex-harness, cxh in ~/.local/bin
 [riqor] Verification checks passed (SHA-256 provenance valid)

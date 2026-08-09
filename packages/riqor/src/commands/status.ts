@@ -16,7 +16,7 @@ export async function status(options: StatusOptions = {}): Promise<StatusReport>
   } catch {}
 
   try {
-    const plugin = JSON.parse(await readFile(join(packageRoot, "runtime", "plugins", "codex-self-improvement", ".codex-plugin", "plugin.json"), "utf8"));
+    const plugin = JSON.parse(await readFile(join(packageRoot, "runtime", "plugins", "riqor", ".codex-plugin", "plugin.json"), "utf8"));
     pluginVersion = plugin.version ?? pluginVersion;
   } catch {}
 

@@ -51,7 +51,8 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
     if (!hookEvents.includes(required)) errors.push(`missing ${required} hook`);
   }
   const serializedHooks = JSON.stringify(hookFile);
-  if (!serializedHooks.includes("${PLUGIN_ROOT}/hooks/main.ts")) errors.push("hook command does not use PLUGIN_ROOT");
+  if (!serializedHooks.includes("${PLUGIN_ROOT}/hooks/main.mjs")) errors.push("hook command does not use the bundled PLUGIN_ROOT entrypoint");
+  if (serializedHooks.includes("bun ")) errors.push("distributed hook config must not require Bun");
   if (/\/(?:Users|home)\//.test(serializedHooks)) errors.push("hook config contains an absolute user path");
 
   const skillRoot = join(root, "skills");
@@ -82,6 +83,7 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
     name === ".DS_Store" || name === "Thumbs.db" || name.startsWith("._")
   ));
   if (unwantedFiles.length > 0) errors.push("operating-system metadata files are present");
+  if (!relativeFiles.includes("hooks/main.mjs")) errors.push("bundled Node hook entrypoint is missing");
   if (relativeFiles.some((path) => path.startsWith("fixtures/") || path.startsWith(".runs/"))) {
     errors.push("development fixtures or runs are present in the plugin package");
   }
@@ -99,7 +101,7 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
 }
 
 if (import.meta.main) {
-  const pluginRoot = resolve(process.argv[2] ?? join(import.meta.dir, "..", "plugins", "codex-self-improvement"));
+  const pluginRoot = resolve(process.argv[2] ?? join(import.meta.dir, "..", "plugins", "riqor"));
   const report = await inspectPlugin(pluginRoot);
   process.stdout.write(`${JSON.stringify(report, null, 2)}\n`);
   if (!report.ok) process.exit(1);

@@ -333,8 +333,8 @@ Riqor does not run inside a hosted ChatGPT conversation. A ChatGPT-controlled lo
 | Run and trace store | `src/assurance/run-store.ts` |
 | Terminal to run mapping | `src/assurance/terminal-trace.ts` |
 | Terminal state | `src/terminal-runtime.ts` |
-| Codex hooks | `plugins/codex-self-improvement/hooks/` |
-| Activator state | `plugins/codex-self-improvement/hooks/activator.ts` |
-| Workflow paths | `plugins/codex-self-improvement/hooks/paths.ts` |
+| Codex hooks | `plugins/riqor/hooks/` |
+| Activator state | `plugins/riqor/hooks/activator.ts` |
+| Workflow paths | `plugins/riqor/hooks/paths.ts` |
 | Package tests | `packages/riqor/test/` |
 | Integration tests | `test/` |

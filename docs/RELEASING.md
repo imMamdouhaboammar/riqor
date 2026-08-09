@@ -2,9 +2,20 @@
 
 Use an isolated clean worktree for releases. Do not tag a tree that contains unrelated changes or generated files that have not been inspected.
 
-## Release gate
+---
 
-Run these checks before creating a version tag:
+## 🛑 Security Invariant: Local Terminal Publishing Only
+
+> [!IMPORTANT]
+> **Publishing to npm via GitHub Actions is strictly prohibited**.
+> GitHub Actions workflows (`release.yml`) build tarball artifacts, run verification suites, and attach assets to GitHub Releases, but **NEVER** execute `npm publish`.
+> All npm releases MUST be published manually from an authenticated local terminal.
+
+---
+
+## Release Gate Checks
+
+Run these checks locally before creating a version tag or publishing:
 
 ```bash
 bun install --frozen-lockfile
@@ -22,47 +33,41 @@ bun run release:preflight
 
 Inspect the generated npm tarball and confirm the root package version, npm package version, release notes, and tag are aligned.
 
-## Release channels
+---
 
-Stable versions such as `0.2.0` publish to the npm `latest` dist-tag. Prerelease versions such as `0.2.0-beta.1` publish to a dist-tag derived from the prerelease identifier, so this example publishes to `beta`. The GitHub Release workflow marks prerelease tags as prereleases.
+## Release Channels
 
-Before pushing a tag, confirm the tag without its leading `v` exactly matches both package versions. The workflow repeats this check and stops before publishing on any mismatch.
+- **Stable versions** (e.g. `0.2.0`) publish to the npm `latest` dist-tag.
+- **Prerelease versions** (e.g. `0.2.0-beta.1`) publish to a dist-tag derived from the prerelease identifier (e.g. `beta`).
 
-A beta must not move npm `latest`. Verify both `latest` and the prerelease tag after publishing.
-
-## npm Trusted Publishing
-
-The release workflow uses npm Trusted Publishing through GitHub Actions OIDC. It does not store a long-lived npm publish token in the workflow.
-Configure the `riqor` package on npm with this trusted publisher:
-
-- Provider: GitHub Actions
-- Organization or user: `imMamdouhaboammar`
-- Repository: `riqor`
-- Workflow filename: `release.yml`
-- Environment: `npm`
-- Allowed action: `npm publish`
-
-The workflow requires `id-token: write` and a GitHub-hosted runner. The repository uses Node.js 22 and pins npm 11.18.0 for release jobs. npm Trusted Publishing requires npm 11.5.1+ and Node.js 22.14.0+. The `npm trust` administration command requires npm 11.15.0+.
-
-With an npm CLI authenticated for account administration, the equivalent setup is:
+Before pushing a tag, confirm the tag without its leading `v` exactly matches both package versions.
 
 ```bash
-npm trust github riqor \
-  --file release.yml \
-  --repo imMamdouhaboammar/riqor \
-  --env npm \
-  --allow-publish
+# Example local terminal publish for prerelease (beta channel):
+cd packages/riqor
+npm publish riqor-0.2.0-beta.3.tgz --access public --tag beta
+
+# Example local terminal publish for stable release:
+cd packages/riqor
+npm publish riqor-0.2.0.tgz --access public --tag latest
 ```
 
-Trusted Publisher configuration is account-side state. Repository tests can verify the workflow shape but cannot prove that the npm account mapping exists until a publish is attempted.
 
-Do not use a granular access token that bypasses two-factor authentication to manage the trust relationship. npm rejects that credential class for account-level trust changes. Configure the mapping in npm package settings or authenticate the npm CLI with an account method that is permitted to manage trusted publishers. Do not work around a failed mapping by adding a long-lived npm token to the GitHub release workflow.
+Do not set `publishConfig.provenance=true` for this terminal-only path. npm provenance generation requires a supported cloud CI runner. Riqor instead records its own packaged file hashes and release evidence, then verifies the registry artifact after publication.
 
-Before promoting a beta to stable, require one prerelease to complete the OIDC publish step successfully and confirm that the registry publication includes its provenance attestation.
+A beta version must not move the npm `latest` dist-tag. Verify both `latest` and the prerelease tag after publishing:
 
-## Post-publish verification
+```bash
+npm view riqor dist-tags
+```
 
-After npm accepts the version:
+---
+
+## Post-Publish Verification
+
+After publishing via your local terminal, push the release commit and tag only after the registry version is visible. The tag workflow rebuilds the package, downloads `riqor@<version>` from npm, requires byte-for-byte equality, and attaches the registry tarball to the GitHub Release. If npm has not been published first, the GitHub release job fails.
+
+After publishing via your local terminal:
 
 ```bash
 npm view riqor version dist-tags dist.shasum dist.integrity --json
@@ -70,7 +75,14 @@ npm view riqor@<version> version dist.shasum dist.integrity --json
 npm pack riqor@<version> --pack-destination <clean-directory> --json
 ```
 
-Install the registry version into a temporary prefix and run `riqor install`, `riqor version --json`, `riqor doctor --package-only --json`, and `riqor uninstall --json` with a clean HOME. Verify the CLI still works when Bun and Codex are absent from PATH.
+Install the registry version into a temporary prefix and run:
+```bash
+riqor install
+riqor version --json
+riqor doctor --package-only --json
+riqor uninstall --json
+```
+with a clean `HOME`. Verify the CLI still works when Bun and Codex are absent from `PATH`.
 
 Download the GitHub Release tarball and compare its SHA-256 digest with the registry tarball. The two release channels must carry identical npm tarball bytes.
 

@@ -2,7 +2,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PLUGIN="$ROOT/plugins/codex-self-improvement"
+PLUGIN="$ROOT/plugins/riqor"
 MARKETPLACE_FILE="$ROOT/.agents/plugins/marketplace.json"
 MARKETPLACE_NAME="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["name"])' "$MARKETPLACE_FILE")"
 PLUGIN_NAME="$(python3 -c 'import json,sys; print(json.load(open(sys.argv[1]))["name"])' "$PLUGIN/.codex-plugin/plugin.json")"

@@ -7,7 +7,7 @@ const smokeRoot = join(repositoryRoot, "work", "plugin-smoke");
 const codexHome = join(smokeRoot, "codex-home");
 const directData = join(smokeRoot, "direct-data");
 const repo = join(smokeRoot, "repo");
-const pluginSelector = "codex-self-improvement@codex-self-improvement-dev";
+const pluginSelector = "riqor@riqor";
 
 function spawnCommand(command: string[], cwd = repositoryRoot, environment: NodeJS.ProcessEnv = {}) {
   return Bun.spawnSync(command, {

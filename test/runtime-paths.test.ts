@@ -5,7 +5,7 @@ describe("runtime layout", () => {
   test("uses repository layout during development", () => {
     const layout = resolveRuntimeLayout({ moduleDirectory: `${process.cwd()}/src`, env: {} });
     expect(layout.distribution).toBe("repository");
-    expect(layout.pluginRoot).toEndWith("plugins/codex-self-improvement");
+    expect(layout.pluginRoot).toEndWith("plugins/riqor");
   });
 
   test("uses an explicit packaged payload", () => {
@@ -18,6 +18,6 @@ describe("runtime layout", () => {
     });
     expect(layout.distribution).toBe("package");
     expect(layout.packageJsonPath).toBe("/package/package.json");
-    expect(layout.pluginRoot).toBe("/package/runtime/plugins/codex-self-improvement");
+    expect(layout.pluginRoot).toBe("/package/runtime/plugins/riqor");
   });
 });

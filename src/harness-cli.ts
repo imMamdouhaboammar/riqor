@@ -4,7 +4,7 @@ import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { homedir } from "node:os";
 import { join, resolve } from "node:path";
-import { harnessPaths } from "../plugins/codex-self-improvement/hooks/paths";
+import { harnessPaths } from "../plugins/riqor/hooks/paths";
 import { assuranceCommand } from "./assurance/cli";
 import { resolveRiqorStateRoot } from "./assurance/repository-identity";
 import { recordActiveRunTerminalTransition } from "./assurance/terminal-trace";
@@ -31,7 +31,7 @@ import { AutoResearchEngine } from "./assurance/auto-research";
 const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
 const pluginRoot = layout.pluginRoot;
-const pluginId = "codex-self-improvement@codex-self-improvement-dev";
+const pluginId = "riqor@riqor";
 const usage = "usage: codex-harness <version|status|doctor|paths list|evidence|loop|verify|telemetry|rules|delta|deliberate|conventions|scratchpad|heartbeat|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|spec|grill|goal|fuzz|repowise|autoresearch|codex|agy> [options]; activator: --activator [--actions-first] [--activator-interval 15m] [--activator-watchdog 3m]";
 
 const defaultActivatorIntervalMs = 15 * 60_000;

@@ -17,7 +17,7 @@ describe("plugin build", () => {
   test("default release archive path matches the GitHub release workflow", () => {
     const repositoryRoot = resolve(import.meta.dir, "..");
     expect(defaultPluginArchivePath(repositoryRoot, "1.2.3")).toBe(
-      join(repositoryRoot, "dist", "plugins", "codex-self-improvement-1.2.3.zip"),
+      join(repositoryRoot, "dist", "plugins", "riqor-1.2.3.zip"),
     );
   });
 
@@ -29,11 +29,11 @@ describe("plugin build", () => {
   });
 
   test("health inspection covers the manifest, hooks, skills, and privacy boundary", async () => {
-    const report = await inspectPlugin(resolve(import.meta.dir, "..", "plugins", "codex-self-improvement"));
+    const report = await inspectPlugin(resolve(import.meta.dir, "..", "plugins", "riqor"));
     expect(report.ok).toBe(true);
-    expect(report.pluginName).toBe("codex-self-improvement");
+    expect(report.pluginName).toBe("riqor");
     expect(report.hookEvents).toEqual(expect.arrayContaining(["SessionStart", "UserPromptSubmit", "PostToolUse", "Stop"]));
-    expect(report.skills).toEqual(["evidence-engineering", "harness-paths", "self-improvement-loop", "universal-session-runtime"]);
+    expect(report.skills).toEqual(["evidence-engineering", "harness-paths", "riqor-core", "riqor-diagnostics", "riqor-evidence", "riqor-managed-codex", "riqor-release", "riqor-security", "riqor-setup", "self-improvement-loop", "universal-session-runtime"]);
     expect(report.credentialShapedFiles).toEqual([]);
     expect(report.unwantedFiles).toEqual([]);
   });
@@ -41,7 +41,7 @@ describe("plugin build", () => {
   test("health inspection rejects common operating-system metadata", async () => {
     const root = await mkdtemp(join(tmpdir(), "codex-self-improvement-metadata-"));
     roots.push(root);
-    const source = resolve(import.meta.dir, "..", "plugins", "codex-self-improvement");
+    const source = resolve(import.meta.dir, "..", "plugins", "riqor");
     const plugin = join(root, "codex-self-improvement");
     await cp(source, plugin, { recursive: true });
     await writeFile(join(plugin, "Thumbs.db"), "metadata");
@@ -54,7 +54,7 @@ describe("plugin build", () => {
   test("builds a deterministic minimal archive", async () => {
     const root = await mkdtemp(join(tmpdir(), "codex-self-improvement-build-"));
     roots.push(root);
-    const plugin = resolve(import.meta.dir, "..", "plugins", "codex-self-improvement");
+    const plugin = resolve(import.meta.dir, "..", "plugins", "riqor");
     const first = join(root, "first.zip");
     const second = join(root, "second.zip");
     await buildPluginArchive(plugin, first);

@@ -6,6 +6,16 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.0-beta.3] - 2026-08-09
+
+### Changed
+
+- Published the Codex plugin under the public `riqor` identity and `riqor` repository marketplace
+- Added the complete Riqor skill pack plus explicit package setup/upgrade guidance
+- Switched distributed plugin hooks to Node 22 and removed the installed-plugin Bun dependency
+- Enforced terminal-only npm publication and removed CI-only npm provenance configuration
+- Made the tag workflow fetch the already-published npm tarball, compare it byte-for-byte with the release build, and attach the registry artifact to GitHub Release
+
 ## [0.2.0-beta.2] - 2026-08-09
 
 ### Added

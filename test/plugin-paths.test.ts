@@ -1,7 +1,7 @@
 import { describe, expect, test } from "bun:test";
 import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
-import { harnessPaths, harnessPathForProfile } from "../plugins/codex-self-improvement/hooks/paths";
+import { harnessPaths, harnessPathForProfile } from "../plugins/riqor/hooks/paths";
 
 const root = resolve(import.meta.dir, "..");
 const approved = new Set([
@@ -62,7 +62,7 @@ describe("curated harness paths", () => {
 
   test("ships the same paths as a Codex skill", async () => {
     const definition = await readFile(
-      join(root, "plugins", "codex-self-improvement", "skills", "harness-paths", "SKILL.md"),
+      join(root, "plugins", "riqor", "skills", "harness-paths", "SKILL.md"),
       "utf8",
     );
     for (const path of harnessPaths) expect(definition).toContain(path.id);

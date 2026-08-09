@@ -8,8 +8,8 @@ import {
   observeActivatorStop,
   readActivatorConfig,
   touchActivator,
-} from "../plugins/codex-self-improvement/hooks/activator";
-import { handleHook } from "../plugins/codex-self-improvement/hooks/main";
+} from "../plugins/riqor/hooks/activator";
+import { handleHook } from "../plugins/riqor/hooks/main";
 
 const roots: string[] = [];
 async function dataDir() {

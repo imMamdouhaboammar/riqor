@@ -5,7 +5,7 @@ import { basename, join, resolve } from "node:path";
 import { canonicalDigest, deriveScenarioResult, validateScenarioSet } from "./harness";
 import { runSandboxedCheck } from "./checks";
 import { createCapsule, destroyCapsule, selectedCapabilities } from "./capsule";
-import { harnessPathById } from "../plugins/codex-self-improvement/hooks/paths";
+import { harnessPathById } from "../plugins/riqor/hooks/paths";
 import { holdouts } from "./holdouts";
 import {
   buildCodexCommand,
