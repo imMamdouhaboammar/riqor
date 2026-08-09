@@ -21,14 +21,14 @@
 First, install Riqor using `npx`. This downloads the payload, creates local executable shims in `~/.local/bin`, and sets up local configuration manifests.
 
 ```bash
-npx riqor@beta install
+npx riqor install
 ```
 
 You should see output similar to:
 
 ```text
-[riqor] Installing Riqor v0.2.0-beta.3...
-[riqor] Created version payload in ~/.local/share/riqor/0.2.0-beta.3
+[riqor] Installing Riqor v0.2.0...
+[riqor] Created version payload in ~/.local/share/riqor/0.2.0
 [riqor] Updated current symlink
 [riqor] Created shims: riqor, codex-harness, cxh in ~/.local/bin
 [riqor] Verification checks passed (SHA-256 provenance valid)

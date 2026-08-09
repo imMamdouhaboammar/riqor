@@ -6,6 +6,19 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.0] - 2026-08-09
+
+### Added
+
+- Stable npm release with the Riqor Codex plugin and focused skill pack
+- New Riqor brand mark and plugin artwork built around the verification check
+
+### Changed
+
+- Reworked the public and npm README around the product problem, quick start, Codex plugin, evidence flow, and local privacy boundary
+- Promoted the tested `0.2.0` feature line to npm `latest` so `npm install riqor` resolves to the current release
+- Kept npm publication terminal-only while GitHub verifies and attaches the registry artifact
+
 ## [0.2.0-beta.3] - 2026-08-09
 
 ### Changed

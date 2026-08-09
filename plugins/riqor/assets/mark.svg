@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-labelledby="title desc">
+  <title id="title">Riqor mark</title>
+  <desc id="desc">A geometric R monogram with a verification check</desc>
+  <defs>
+    <mask id="r-cut">
+      <rect width="128" height="128" fill="white"/>
+      <path d="M43 39h20c14 0 22 6 22 17s-8 17-22 17H43z" fill="black"/>
+    </mask>
+  </defs>
+  <path d="M22 112V16h42c28 0 44 14 44 39 0 20-10 32-29 37l31 20H82L56 94H44v18z" fill="#111318" mask="url(#r-cut)"/>
+  <path d="M55 61l11 11 25-27" fill="none" stroke="#E85D3F" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

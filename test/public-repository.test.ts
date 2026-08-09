@@ -12,8 +12,8 @@ describe("public repository surface", () => {
     expect(readme).toContain("Proof before done");
     expect(readme).toContain("Evidence gate");
     expect(readme).toContain("Session activator");
-    expect(readme).toContain("npx riqor@beta install");
-    expect(readme).toContain("Homebrew formula tracks the stable channel");
+    expect(readme).toContain("npx riqor install");
+    expect(readme).toContain("codex plugin marketplace add imMamdouhaboammar/riqor --ref main");
     expect(readme).toContain("Hosted ChatGPT conversations do not execute local Riqor code");
     expect(readme).toContain("docs/CLI_REFERENCE.md");
     expect(readme).not.toMatch(/^#{1,6}[ \t]+repository[ \t]+automation\b/im);

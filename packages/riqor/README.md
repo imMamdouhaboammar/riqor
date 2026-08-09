@@ -1,89 +1,46 @@
 <div align="center">
 
+<img src="https://raw.githubusercontent.com/imMamdouhaboammar/riqor/main/docs/assets/logo.svg" alt="Riqor" width="360" />
+
 # riqor
 
 **Proof before done**
 
-Evidence gates, repository run traces, and managed Codex or AGY checkpoints for local coding sessions
+Evidence gates, managed checkpoints, and repository-scoped traces for local AI coding sessions
 
 </div>
 
-`riqor` is the official npm distribution of [Riqor](https://github.com/imMamdouhaboammar/riqor).
-
-It installs a versioned local runtime, ownership-checked command shims, shell integration, and the bundled Codex plugin when Codex CLI is available. The CLI can track verification state, maintain a repository-scoped run trace, and start Codex or AGY sessions with an optional periodic task checkpoint.
-
-## Requirements
-
-- macOS or Linux
-- Node.js 22 or newer
-- Python 3 for managed shell integration
-- Codex CLI for Codex features or Google Antigravity for AGY features; installation can complete without either CLI
+`riqor` is the official npm package for [Riqor](https://github.com/imMamdouhaboammar/riqor)
 
 ## Install
 
 ```bash
-npx riqor@beta install
+npx riqor install
 ```
 
-For this prerelease, `@beta` selects the beta dist-tag without moving npm `latest`. Bun is not required for the published package install path. When Codex CLI is present, the installer registers the bundled plugin automatically.
-
-Confirm the installation:
+Or install globally
 
 ```bash
-riqor version --json
-riqor status --json
-riqor doctor --json
+npm install -g riqor
+riqor install
 ```
 
-## Record a Repository Run
+Requirements
 
-Start one active run for the current repository:
+- macOS or Linux
+- Node.js 22+
+- Python 3 for managed shell integration
+- Codex CLI for Codex features or Google Antigravity for AGY features
 
-```bash
-riqor run start \
-  --goal "Repair the parser and verify the regression" \
-  --path evidence-loop \
-  --profile assured
-```
+The published package has zero runtime dependencies. Bun is not required for installation or normal use
 
-Inspect the run and its ordered trace:
-
-```bash
-riqor run status --json
-riqor trace show <run-id> --json
-```
-
-A successful mutation recorded by the shell integration moves the run to `verification-pending`. A successful recognized verification returns it to `active`.
-
-Complete only after verification is clear:
-
-```bash
-riqor run complete --json
-```
-
-Export trace events as JSON Lines:
-
-```bash
-riqor trace export <run-id> --format jsonl
-```
-
-Run state stores bounded metadata and digests. It does not store raw command text, command output, prompts, source contents, environment values, credentials, cookies, or tokens.
-
-## Start a Managed Agent
-
-Standard managed environment:
-
-```bash
-riqor codex
-```
-
-Periodic task checkpoints:
+## Start a managed Codex session
 
 ```bash
 riqor codex --activator
 ```
 
-Custom timing:
+The default checkpoint interval is 15 minutes with a 3 minute watchdog. Custom timing is available when needed
 
 ```bash
 riqor codex --activator \
@@ -91,75 +48,99 @@ riqor codex --activator \
   --activator-watchdog 2m
 ```
 
-The default interval is `15m` and the default watchdog is `3m`. The interval accepts `1m` to `24h`; the watchdog accepts `10s` to `30m`.
+The activator applies only to the Codex child process launched by Riqor and waits for a safe lifecycle Stop boundary
 
-The activator applies only to the child process started by that command. It waits for the next safe lifecycle `Stop` event and does not interrupt an active turn.
-
-Google Antigravity uses the equivalent commands:
+Google Antigravity uses the same pattern
 
 ```bash
-riqor agy
 riqor agy --activator
 ```
 
-## Core Commands
+## Track evidence for one repository task
+
+```bash
+riqor run start \
+  --goal "Repair the parser and verify the regression" \
+  --path evidence-loop \
+  --profile assured
+
+riqor run status --json
+riqor trace show <run-id> --json
+riqor run complete --json
+```
+
+A successful workspace mutation makes verification pending. A recognized passing check after the latest mutation clears that state
+
+## Diagnose the local runtime
+
+```bash
+riqor version --json
+riqor status --json
+riqor doctor --json
+```
+
+For package-only verification without Codex
+
+```bash
+riqor doctor --package-only --json
+```
+
+## Codex Plugin
+
+The repository also publishes a Codex Git marketplace
+
+```bash
+codex plugin marketplace add imMamdouhaboammar/riqor --ref main
+codex plugin add riqor@riqor
+```
+
+The plugin ships lifecycle hooks plus focused Riqor skills for setup, evidence, diagnostics, managed sessions, security, and release work
+
+## Core commands
 
 | Command | Purpose |
 | --- | --- |
-| `riqor install` | Install the runtime payload and local shims |
+| `riqor install` | Install the versioned runtime and managed integrations |
 | `riqor uninstall` | Remove Riqor-managed local changes |
-| `riqor status` | Report versions and integration surfaces |
-| `riqor doctor` | Check package and local environment health |
-| `riqor version` | Report package and plugin versions |
-| `riqor run start` | Start a repository-scoped run |
-| `riqor run status` | Inspect the active or selected run |
-| `riqor run complete` | Complete a verified active run |
-| `riqor trace show` | Show ordered trace events |
-| `riqor trace export` | Export trace events as JSONL |
-| `riqor codex` | Start Codex with the Riqor environment |
-| `riqor codex --activator` | Start Codex with periodic task checkpoints |
-| `riqor agy` | Start Google Antigravity with the Riqor environment |
-| `riqor agy --activator` | Start AGY with periodic task checkpoints |
-| `riqor terminal status` | Show local verification state |
+| `riqor doctor` | Check package integrity and environment health |
+| `riqor status` | Report versions and active surfaces |
+| `riqor run start` | Start a repository-scoped evidence run |
+| `riqor run status` | Inspect run and verification state |
+| `riqor trace show` | Read ordered evidence events |
+| `riqor trace export` | Export evidence events as JSONL |
+| `riqor codex --activator` | Start Codex with managed checkpoints |
+| `riqor agy --activator` | Start Antigravity with managed checkpoints |
+| `riqor terminal status` | Show local evidence status |
 | `riqor plugin status` | Show Codex plugin state |
-| `riqor shell status` | Show shell integration state |
-| `riqor paths list` | List reviewed workflow paths |
 
-Compatibility aliases are included as `codex-harness` and `cxh`.
+Compatibility aliases remain available as `codex-harness` and `cxh`
 
-## Local Files
+## Privacy boundary
 
-The installer uses XDG paths when configured. Default locations include:
+Riqor runs locally and does not install a network listener. Persisted run and activator state excludes prompts, transcripts, source contents, raw commands, command output, environment values, credentials, cookies, and tokens
+
+The activator does not discover or attach to unrelated Codex or AGY sessions
+
+## Local files
+
+The installer follows XDG locations when configured. Common defaults include
 
 ```text
 ~/.local/share/riqor/
 ~/.config/riqor/
-~/.config/codex-self-improvement/
 ~/.local/state/riqor/
 ~/.local/bin/riqor
 ```
 
-Set `RIQOR_STATE_HOME` to override the run state root. Terminal verification metadata continues to use `CODEX_SELF_IMPROVEMENT_DATA` when that variable is set.
-
-Run `riqor uninstall` for managed package rollback. Uninstall removes only recognized Riqor or legacy-managed installation paths and reports foreign paths instead of deleting them. Existing repository run records are not silently removed.
-
-## Privacy and Scope
-
-Riqor runs locally and does not install a network listener. Run and activator state do not retain prompts, transcripts, raw commands, command output, source contents, environment values, or credentials. The activator does not discover or attach to external Codex or AGY sessions.
-
-Riqor does not provide a model runtime, durable user memory, delegated-agent routing, or Playbook execution.
-
-## Agent Skills Pack
-
-The npm payload includes Riqor's canonical agent guidance under `runtime/skills/riqor-pack/`. It contains focused skills for core operation, evidence runs, managed Codex sessions, diagnostics, security, and release work. The active versioned package path is recorded in the Riqor install manifest.
+Legacy compatibility state may still use `~/.config/codex-self-improvement/` and `CODEX_SELF_IMPROVEMENT_DATA`
 
 ## Documentation
 
-- [Agent Skills Pack](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/AGENT_SKILLS.md)
-- [Getting started](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/GETTING_STARTED.md)
-- [CLI reference](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/CLI_REFERENCE.md)
+- [Getting Started](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/GETTING_STARTED.md)
+- [CLI Reference](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/CLI_REFERENCE.md)
 - [Architecture](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/ARCHITECTURE.md)
-- [Security model](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/SECURITY_MODEL.md)
+- [Agent Skills](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/AGENT_SKILLS.md)
+- [Security Model](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/SECURITY_MODEL.md)
 - [Troubleshooting](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/TROUBLESHOOTING.md)
 
 ## License

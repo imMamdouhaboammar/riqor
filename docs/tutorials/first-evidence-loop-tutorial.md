@@ -9,7 +9,7 @@
 - How to inspect trace logs and complete a verified run
 
 **Prerequisites**:
-- [ ] Riqor installed (`npx riqor@beta install`)
+- [ ] Riqor installed (`npx riqor install`)
 - [ ] A Git repository directory with a test runner (e.g. `bun test`, `npm test`, or `pytest`)
 
 ---

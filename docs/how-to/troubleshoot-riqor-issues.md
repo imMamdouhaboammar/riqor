@@ -70,7 +70,7 @@ Upgrade Node.js via your package manager or `nvm` (`nvm use 22`).
 Reinstall the clean versioned package payload:
 ```bash
 riqor uninstall
-npx riqor@beta install
+npx riqor install
 ```
 
 ---

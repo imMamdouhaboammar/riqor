@@ -24,6 +24,7 @@ export function isPortableRuntimePath(path: string) {
 const staticRuntimeFiles = [
   "plugins/riqor/.codex-plugin/plugin.json",
   "plugins/riqor/package.json",
+  "plugins/riqor/assets",
   "plugins/riqor/skills",
   "config/shell",
   ".agents/plugins/marketplace.json",

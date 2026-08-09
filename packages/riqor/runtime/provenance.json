@@ -1,7 +1,7 @@
 {
-  "version": "0.2.0-beta.3",
-  "sourceCommit": "28c26de49a2dad09481fc67354a959836e3c331f",
-  "sourceDateEpoch": 1786263902,
+  "version": "0.2.0",
+  "sourceCommit": "32ef7d027659de9dfd71692962dc69c43b78db09",
+  "sourceDateEpoch": 1786266760,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -25,8 +25,18 @@
     },
     {
       "path": "plugins/riqor/.codex-plugin/plugin.json",
-      "sha256": "bb4a5591af132c09e86e072dabc4010ef4aee46ae934f86837feb6c39f21cd14",
-      "bytes": 1473
+      "sha256": "1be4e24fb4b59ea9e439cacbb21cf8362e0f6d6906401e945c337b3dbde8034c",
+      "bytes": 1569
+    },
+    {
+      "path": "plugins/riqor/assets/logo.svg",
+      "sha256": "fcc2101aef4e9c8a8feae3c116f279e02b80ef662a98647f5234ebe22fdfc534",
+      "bytes": 1276
+    },
+    {
+      "path": "plugins/riqor/assets/mark.svg",
+      "sha256": "f86274581105556fbed51f00f5f6c44b4df669edd9a832b24deab99505bd6108",
+      "bytes": 645
     },
     {
       "path": "plugins/riqor/hooks/hooks.json",
@@ -40,8 +50,8 @@
     },
     {
       "path": "plugins/riqor/package.json",
-      "sha256": "42629c1beebb9f03fc5d685f028e00eb7084597fceb9118945bab42ec3bcf15b",
-      "bytes": 103
+      "sha256": "c5a0aec335cd1c6e2c20ec207507c45b312c231f2da45e67d002f28a74532012",
+      "bytes": 96
     },
     {
       "path": "plugins/riqor/skills/evidence-engineering/SKILL.md",

@@ -32,12 +32,12 @@ agy --version || antigravity --version
 ### npx
 
 ```bash
-npx riqor@beta install
+npx riqor install
 ```
 
 ### Stable channel
 
-The stable `0.1.x` line remains available through `npx riqor install` and Homebrew. The `0.2.0-beta.3` feature set is published through npm under the `beta` dist-tag.
+`0.2.0` is the current stable npm release. `npx riqor install` and `npm install -g riqor` resolve through the npm `latest` dist-tag.
 
 The installer copies a versioned payload, updates the `current` symlink, creates ownership-checked command shims, installs managed shell integration, registers the bundled Codex plugin when Codex CLI is available, writes an install manifest, and runs package integrity diagnostics. It returns a non-zero result when a required managed step fails.
 
