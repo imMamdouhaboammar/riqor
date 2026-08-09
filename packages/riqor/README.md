@@ -96,7 +96,7 @@ codex plugin marketplace add imMamdouhaboammar/riqor --ref main
 codex plugin add riqor@riqor
 ```
 
-The plugin ships 100 generated specialist Skills plus 11 Riqor workflow Skills for setup, evidence, diagnostics, managed sessions, security, and release work. The specialist Skills are directly usable in ChatGPT and Codex after the plugin is installed
+The plugin ships 100 generated specialist Skills plus 12 Riqor workflow Skills for setup, evidence, diagnostics, managed sessions, security, release work, and generic ChatGPT/Codex plugin engineering. `chatgpt-codex-plugin-autopilot` can inspect an arbitrary repository, apply public-distribution safety gates, validate/package deterministically, diagnose submission failures, and run a gated publish/post-publish workflow. The specialist Skills are directly usable in ChatGPT and Codex after the plugin is installed
 
 ## Core commands
 

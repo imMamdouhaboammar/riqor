@@ -61,6 +61,8 @@ The npm package provides the local CLI and runtime used by commands such as `riq
 
 The public specialist catalog is generated deterministically from the canonical agent definitions after applying the explicit public-plugin safety exclusion list. `riqor-core` includes a generated specialist index so a general Riqor request can route to the closest Skill instead of loading the whole catalog at once
 
+The plugin also includes `chatgpt-codex-plugin-autopilot`, a repo-agnostic operational Skill for current-contract inspection, public-distribution safety review, deterministic validation/packaging, submission diagnosis, and gated release publication
+
 ## What Riqor watches
 
 | During a coding session | Riqor response |

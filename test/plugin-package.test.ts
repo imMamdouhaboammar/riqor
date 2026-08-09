@@ -31,6 +31,9 @@ describe("plugin package", () => {
     expect(manifest.skills).toBe("./skills/");
     expect(manifest.hooks).toBeUndefined();
     expect(manifest.interface?.category).toBe("Developer Tools");
+    expect(manifest.interface?.displayName.length).toBeLessThanOrEqual(30);
+    expect(manifest.interface?.shortDescription.length).toBeLessThanOrEqual(30);
+    expect(manifest.interface?.developerName.length).toBeLessThanOrEqual(80);
     expect(manifest.interface?.defaultPrompt).toHaveLength(3);
     expect(manifest.interface?.logo).toBe("./assets/mark.svg");
     expect(manifest.interface?.composerIcon).toBe("./assets/mark.svg");

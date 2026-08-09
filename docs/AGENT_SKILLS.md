@@ -2,7 +2,7 @@
 
 Riqor ships a canonical set of operational skills for AI coding agents that work with Riqor itself or use Riqor to manage coding sessions
 
-The public Riqor plugin exposes **100 generated specialist Skills** paired one-to-one with 100 distributed native Codex agents. Together with the 11 plugin workflow Skills, the Plugin Directory artifact contains 111 Skills
+The public Riqor plugin exposes **100 generated specialist Skills** paired one-to-one with 100 distributed native Codex agents. Together with the 12 plugin workflow Skills, the Plugin Directory artifact contains 112 Skills
 
 The repository source is `skills/riqor-pack/`. The npm package includes the same files under `runtime/skills/riqor-pack/`, so the guidance travels with the installed version
 
@@ -18,6 +18,8 @@ The repository source is `skills/riqor-pack/`. The npm package includes the same
 | `riqor-release` | Version alignment, release gates, npm publishing, GitHub Releases, and post-publish verification |
 
 Each skill has bounded scope and can be loaded independently. Agents should select the narrowest applicable skill rather than injecting the whole pack into every task
+
+The public plugin also carries `chatgpt-codex-plugin-autopilot`, a generic repo-agnostic workflow Skill that refreshes the current OpenAI contract, classifies Skills-only/MCP/hybrid packaging, checks moderation-safe public exclusions, validates final-directory metadata, builds deterministic ZIPs, and applies fail-closed publish/post-publish verification
 
 ## Marketplace specialist catalog
 

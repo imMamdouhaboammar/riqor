@@ -19,14 +19,15 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Riqor",
-    "shortDescription": "100 specialist Skills with evidence-aware workflows",
-    "longDescription": "Installs 100 specialist Skills for ChatGPT and Codex, paired with 100 native Codex agents for managed multi-agent execution. Riqor also adds bounded lifecycle hooks, evidence gates, session continuity, diagnostics, and release guidance without adding MCP servers, apps, or hidden telemetry.",
+    "shortDescription": "100 specialist Skills",
+    "longDescription": "Installs 100 specialist Skills for ChatGPT and Codex, paired with 100 distributed native Codex agents, plus a generic plugin engineering autopilot for validation, packaging, submission, and release work. Riqor also adds bounded lifecycle hooks, evidence gates, session continuity, and diagnostics without adding MCP servers, apps, or hidden telemetry.",
     "developerName": "Mamdouh Aboammar",
     "category": "Developer Tools",
     "capabilities": [
       "100 specialist Skills",
       "Lifecycle hooks",
-      "Local developer tooling"
+      "Local developer tooling",
+      "Plugin release autopilot"
     ],
     "websiteURL": "https://github.com/imMamdouhaboammar/riqor",
     "defaultPrompt": [

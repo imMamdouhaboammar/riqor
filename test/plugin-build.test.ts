@@ -33,9 +33,10 @@ describe("plugin build", () => {
     expect(report.ok).toBe(true);
     expect(report.pluginName).toBe("riqor");
     expect(report.hookEvents).toEqual(expect.arrayContaining(["SessionStart", "UserPromptSubmit", "PostToolUse", "Stop"]));
-    expect(report.skills).toHaveLength(111);
+    expect(report.skills).toHaveLength(112);
     expect(report.skills).not.toContain("security-penetration-tester");
     expect(report.skills).toEqual(expect.arrayContaining([
+      "chatgpt-codex-plugin-autopilot",
       "evidence-engineering",
       "riqor-core",
       "engineering-senior-developer",
@@ -110,6 +111,9 @@ describe("plugin build", () => {
     expect(entries.filter((entry) => /^\.codex\/agents\/[^/]+\.toml$/.test(entry))).toHaveLength(100);
     expect(entries).not.toContain(".codex/agents/security-penetration-tester.toml");
     expect(entries).toContain("hooks/main.ts");
+    expect(entries).toContain("skills/chatgpt-codex-plugin-autopilot/SKILL.md");
+    expect(entries).toContain("skills/chatgpt-codex-plugin-autopilot/scripts/validate_plugin.py");
+    expect(entries).toContain("skills/chatgpt-codex-plugin-autopilot/scripts/package_plugin.py");
     expect(entries).toContain("skills/evidence-engineering/SKILL.md");
     expect(entries).toContain("skills/harness-paths/SKILL.md");
     expect(entries).toContain("skills/self-improvement-loop/SKILL.md");
@@ -117,7 +121,7 @@ describe("plugin build", () => {
     expect(entries).toContain("agent-skill-map.json");
     expect(entries).toContain("skills/engineering-senior-developer/SKILL.md");
     expect(entries).toContain("skills/engineering-senior-developer/references/agent-instructions.md");
-    expect(entries.filter((entry) => /^skills\/[^/]+\/SKILL\.md$/.test(entry))).toHaveLength(111);
+    expect(entries.filter((entry) => /^skills\/[^/]+\/SKILL\.md$/.test(entry))).toHaveLength(112);
     expect(entries.filter((entry) => /^skills\/(?:agents-|design-|docs-|engineering-|explorer\/|product-|project-|reviewer\/|security-|support-|testing-)/.test(entry) && entry.endsWith("/SKILL.md"))).toHaveLength(100);
     expect(entries).not.toContain("skills/security-penetration-tester/SKILL.md");
     expect(entries).not.toContain("skills/security-penetration-tester/references/agent-instructions.md");

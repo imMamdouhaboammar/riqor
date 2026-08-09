@@ -21,7 +21,7 @@ describe("agent skill pairing", () => {
     const bundledAgents = (await tomls(pluginAgents)).map((name) => name.slice(0, -5));
     expect(sources).toHaveLength(101);
     expect(publicSlugs).toHaveLength(100);
-    expect(skillDirs).toHaveLength(111);
+    expect(skillDirs).toHaveLength(112);
     expect(bundledAgents).toHaveLength(100);
     for (const slug of publicSlugs) {
       expect(skillDirs).toContain(slug);
