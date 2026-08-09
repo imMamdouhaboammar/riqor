@@ -12,6 +12,7 @@ describe("GitHub Action pins", () => {
       ".github/workflows/ci.yml",
       ".github/workflows/dynamic-badges.yml",
       ".github/workflows/release.yml",
+    ".github/workflows/reproducibility.yml",
       ".github/workflows/secureai.yml",
     ]);
     await expect(verifyActionPins(paths)).resolves.toBeUndefined();
