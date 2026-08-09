@@ -1,7 +1,7 @@
 {
   "name": "codex-self-improvement-harness",
   "private": true,
-  "version": "0.2.0-beta.1",
+  "version": "0.2.0-beta.2",
   "type": "module",
   "scripts": {
     "test": "bun test test",
@@ -25,7 +25,7 @@
     "universal:install": "bash scripts/install-universal.sh",
     "universal:uninstall": "bash scripts/uninstall-universal.sh",
     "riqor:build": "bun run scripts/build-riqor-package.ts",
-    "riqor:pack": "bun run riqor:build && cd packages/riqor && npm pack --json",
+    "riqor:pack": "bun run riqor:build && cd packages/riqor && bun pm pack --quiet",
     "riqor:inspect": "bun run scripts/inspect-riqor-tarball.ts",
     "riqor:test": "bun test ./test/riqor-*.test.ts && bun test ./packages/riqor/test",
     "actions:verify": "bun run scripts/verify-action-pins.ts",

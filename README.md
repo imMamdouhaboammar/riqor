@@ -1,199 +1,176 @@
 <div align="center">
 
+<img src="docs/assets/logo.svg" alt="Riqor Logo" width="420" />
+
 # Riqor
 
-**Proof before done**
-
-Local evidence gates and managed checkpoints for Codex and AGY sessions
+> **Proof before done** — Local evidence gates and managed task checkpoints for AI coding sessions.
 
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
+[![npm version](https://img.shields.io/badge/npm-v0.2.0--beta.2-red.svg)](https://www.npmjs.com/package/riqor)
 [![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)](#requirements)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
-[Quick start](#quick-start) · [How it works](#how-riqor-works) · [Commands](#command-overview) · [Documentation](docs/README.md) · [Security](SECURITY.md)
+[Quick Start](#quick-start) · [Why Riqor](#why-riqor) · [Divio Docs](docs/README.md) · [CLI Reference](docs/CLI_REFERENCE.md) · [Security](docs/SECURITY_MODEL.md)
 
 </div>
 
-Riqor wraps local AI coding sessions with checks that keep completion claims tied to observable evidence. It records when a successful command changed the workspace, asks for focused verification before completion, and can run periodic task checkpoints inside Codex or AGY sessions launched through Riqor.
+---
 
-Riqor does not modify the model, read hosted ChatGPT conversations, or attach to unrelated agent processes.
+## What is Riqor?
 
-## Why Riqor
+AI coding agents often lose track of goals, repeat work, skip final test suites, or report completion from stale evidence. **Riqor** wraps local AI coding sessions (Codex and Google Antigravity) with local controls that keep completion claims tied to observable repository evidence.
 
-Coding agents can lose the task goal, repeat work, skip a final test, or report completion from stale evidence. Riqor adds three local controls around that workflow:
+Riqor runs entirely locally — no background daemons, no network listeners, and no modifications to model weights or remote conversation infrastructure. Hosted ChatGPT conversations do not execute local Riqor code.
 
-| Control | What it does |
-| --- | --- |
-| Evidence gate | Tracks successful workspace mutations and keeps verification pending until relevant checks are run |
-| Session activator | Reviews the task, progress, evidence, and scope at a safe Codex lifecycle point after a chosen interval |
-| Install and rollback | Installs versioned local payloads and shell shims, then removes managed changes with `riqor uninstall` |
+---
+
+## Why Riqor Exists
+
+When an AI agent modifies your codebase, how do you verify that its completion claim is true?
+
+| Control | What It Solves | How Riqor Does It |
+| --- | --- | --- |
+| **Evidence gate** | Agent claims task is "done" without running tests | Tracks workspace mutations and forces pending verification checks before completing |
+| **Session activator** | Agent drifts from the goal or gets stuck in loops | Reviews task progress at safe lifecycle boundaries without interrupting active turns |
+| **Install and rollback** | Clean install/uninstall without breaking user environment | Uses versioned payload directories, ownership checks, and clean `riqor uninstall` |
+
+---
 
 ## Quick Start
 
-### 1. Install
+### 1. Install Riqor
 
 ```bash
 npx riqor@beta install
 ```
 
-The Homebrew formula tracks the stable channel. During this beta, use npm for `0.2.0-beta.1`. The stable `0.1.x` line remains available through Homebrew and `npx riqor install`.
+The Homebrew formula tracks the stable channel (`0.1.x`). The `0.2.0-beta.2` feature set is published through npm under the `beta` dist-tag.
 
-### 2. Check the environment
+### 2. Verify Your Environment
 
 ```bash
-riqor status --json
 riqor doctor --json
 ```
 
-### 3. Start a managed Codex or AGY session
+### 3. Start a Managed Agent Session
 
+For **Codex**:
 ```bash
 riqor codex --activator
 ```
 
-Or for Google Antigravity (AGY):
-
+For **Google Antigravity (AGY)**:
 ```bash
 riqor agy --activator
 ```
 
-The default activator interval is 15 minutes with a 3-minute watchdog window.
+> **Tip**: Custom activator timing can be specified via duration flags (e.g., `--activator-interval 15m --activator-watchdog 3m`).
 
-```bash
-riqor codex --activator \
-  --activator-interval 15m \
-  --activator-watchdog 3m
+---
+
+## Documentation (Divio System)
+
+Our documentation is structured according to the **Divio Documentation System**:
+
+```text
+                                DOCUMENTATION MATRIX
+
+                 Learning-Oriented            Task-Oriented
+             ┌────────────────────────┐  ┌────────────────────────┐
+             │       TUTORIALS        │  │      HOW-TO GUIDES     │
+   Practical │  Hands-on 0-to-1 steps │  │   Real-world recipes   │
+             │  for new developers    │  │   & problem solving    │
+             └────────────────────────┘  └────────────────────────┘
+             ┌────────────────────────┐  ┌────────────────────────┐
+             │       REFERENCE        │  │      EXPLANATION       │
+ Theoretical │  Complete CLI, schema  │  │ Architecture, security │
+             │  & skills specs        │  │ & evidence theory      │
+             └────────────────────────┘  └────────────────────────┘
+                 Information-Oriented        Understanding-Oriented
 ```
 
-Codex or AGY arguments can follow the Riqor options:
+### 📘 [Tutorials (Learning)](docs/README.md#tutorials-learning-oriented)
+- [Quick Start Tutorial](docs/tutorials/quick-start-tutorial.md) — Get up and running with Riqor in 10 minutes.
+- [First Evidence Loop Tutorial](docs/tutorials/first-evidence-loop-tutorial.md) — Guided tour of workspace mutations and verification gates.
 
-```bash
-riqor codex --activator --help
-riqor agy --activator --help
-```
+### 🛠️ [How-To Guides (Tasks)](docs/README.md#how-to-guides-task-oriented)
+- [Set Up Activator Checkpoints](docs/how-to/setup-activator-checkpoints.md) — Configure periodic session checkpoints.
+- [Configure Evidence Gates](docs/how-to/configure-evidence-gates.md) — Customize test tracking and mutation rules.
+- [CI/CD & Automation Integration](docs/how-to/integrate-ci-cd-and-automation.md) — Workflows for GitHub Actions and security scanning.
+- [Troubleshooting & Recovery Recipes](docs/how-to/troubleshoot-riqor-issues.md) — Diagnose and resolve local environment issues.
+
+### 📑 [Reference (Information)](docs/README.md#reference-information-oriented)
+- [CLI Reference](docs/CLI_REFERENCE.md) (or [Detailed Spec](docs/reference/cli-reference.md)) — Detailed spec of all `riqor` commands, options, and JSON outputs.
+- [Agent Skills Pack Catalog](docs/reference/skills-pack-reference.md) — Complete inventory of canonical agent skills.
+- [Schema & State Reference](docs/reference/schema-and-state-reference.md) — XDG directories, JSON file formats, and trace events.
+
+### 💡 [Explanation (Understanding)](docs/README.md#explanation-understanding-oriented)
+- [Architecture Overview](docs/explanation/architecture-overview.md) — Deep dive into system design and process boundaries.
+- [Security & Trust Model](docs/SECURITY_MODEL.md) (or [Conceptual Deep Dive](docs/explanation/security-and-trust-model.md)) — Data boundary, zero-credential retention, and safety controls.
+- [Evidence Gate Lifecycle](docs/explanation/evidence-gate-lifecycle.md) — The theoretical foundation behind evidence-based completion claims.
+
+---
 
 ## Requirements
 
-- macOS or Linux
-- Node.js 22 or newer
-- Codex CLI or Google Antigravity (`agy` or `antigravity`) CLI installed and authenticated for managed agent sessions
-- Python 3 for managed shell integration
-- Bun 1.3.14 for repository development and verification
-- Kaku is optional; Riqor reports it when available but does not require it for managed Codex or AGY sessions
+- **OS**: macOS or Linux
+- **Node.js**: `22.x` or newer
+- **Agent CLIs**: Codex CLI (`codex`) or Google Antigravity CLI (`agy` / `antigravity`)
+- **Shell**: Python 3 (for managed shell integration) and `zsh` or `bash`
+- **Development**: Bun `1.3.14` (required for repository building and testing)
 
-## What a Managed Checkpoint Reviews
+---
 
-When the interval is due, Riqor waits for the next safe Codex or AGY `Stop` event. It does not interrupt an active turn. The checkpoint asks the agent to:
-
-1. Restate the current task and observable success criteria
-2. Inspect relevant status, diffs, tests, and recent results
-3. Summarize completed work without claiming unfinished work
-4. Detect scope drift, repeated work, stale assumptions, and missing checks
-5. Continue with the smallest relevant correction
-
-The watchdog limits one checkpoint cycle and prevents repeated Stop loops. It does not terminate the main agent process.
-
-## How Riqor Works
+## How It Works
 
 ```mermaid
 flowchart LR
     U[Developer] --> R[riqor codex / riqor agy]
-    R --> C[Managed Agent child process]
-    C --> H[Agent lifecycle hooks]
-    T[Local shell hooks] --> S[Local verification state]
+    R --> C[Managed Agent Process]
+    C --> H[Lifecycle Hooks]
+    T[Shell Hooks] --> S[Verification State]
     S --> H
-    H --> E{Safe Stop event}
-    E -->|Verification pending| V[Request focused verification]
-    E -->|Activator due| A[Run task checkpoint]
-    E -->|Clear| D[Continue or finish]
+    H --> E{Safe Stop Event}
+    E -->|Pending Evidence| V[Request Verification]
+    E -->|Activator Interval Due| A[Run Task Checkpoint]
+    E -->|Clear & Verified| D[Allow Completion]
 ```
 
-Riqor uses local lifecycle hooks and local state. Activator state is scoped to a random token created for the current `riqor codex` or `riqor agy` child process. Closing that process ends the activator. No daemon or network listener is installed.
+---
 
-## Command Overview
+## Command Summary
 
-| Command | Purpose |
-| --- | --- |
-| `riqor install` | Install the versioned runtime, safe shims, shell integration, bundled Codex plugin when available, and AGY shell integration |
-| `riqor uninstall` | Remove Riqor-owned files while preserving unrelated local paths |
-| `riqor status` | Show the installed version and detected integrations |
-| `riqor doctor` | Check package health, platform support, Codex, AGY CLI, and current Kaku integration |
-| `riqor version` | Print Riqor and plugin versions |
-| `riqor codex [args]` | Start Codex with the Riqor environment |
-| `riqor codex --activator` | Start a managed Codex session with periodic checkpoints |
-| `riqor agy [args]` | Start Google Antigravity (`agy`) with the Riqor environment |
-| `riqor agy --activator` | Start a managed AGY session with periodic checkpoints |
-| `riqor terminal status` | Show `clear` or `verification-pending` for the current terminal session |
-| `riqor paths list` | List available reviewed workflow paths |
-| `riqor plugin status` | Show plugin installation state |
-| `riqor shell status` | Show local shell integration state |
+| Command | Category | Purpose |
+| --- | --- | --- |
+| `riqor install` | Setup | Install versioned binary payload and local shell hooks |
+| `riqor doctor` | Diagnostics | Run integrity, provenance, and environment health checks |
+| `riqor status` | Diagnostics | Display version and active integration surfaces |
+| `riqor codex --activator` | Execution | Launch a managed Codex session with periodic checkpoints |
+| `riqor agy --activator` | Execution | Launch a managed Antigravity (AGY) session with periodic checkpoints |
+| `riqor run start` | Assurance | Create a repository-scoped run bound to a goal |
+| `riqor run complete` | Assurance | Complete an active run if verification is clear |
+| `riqor terminal status` | Evidence | Inspect evidence status (`clear` or `verification-pending`) |
+| `riqor uninstall` | Cleanup | Safely remove managed shims and version directories |
 
-Use `--json` with status and diagnostic commands when machine-readable output is needed. See the [CLI reference](docs/CLI_REFERENCE.md) for every command, option, bound, and exit behavior.
+---
 
-## What Riqor Changes Locally
+## Contributing & Development
 
-The package installer uses XDG paths when configured and otherwise writes to these locations:
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for contribution rules and development setup.
 
-```text
-~/.local/share/riqor/       versioned package payloads and current symlink
-~/.config/riqor/            install manifest and managed configuration
-~/.local/state/riqor/       installer state
-~/.local/bin/riqor          executable shim
-~/.local/bin/codex-harness  compatibility alias
-~/.local/bin/cxh            compatibility alias
-```
-
-Shell integration may also create managed Kaku and zsh files with backups. The installer refuses unrelated executable paths instead of overwriting them, and uninstall preserves any path that does not carry a Riqor or recognized legacy ownership marker. Run `riqor uninstall` to remove Riqor-managed changes.
-
-## Security Boundaries
-
-- Riqor runs locally and does not expose a network service
-- Packaged runtime files are checked against SHA-256 provenance before package diagnostics pass
-- Installer and uninstaller ownership checks preserve unrelated command paths
-- Activator values are bounded before use
-- Managed Codex and AGY child processes are launched with argument arrays and `shell: false`
-- Managed activator sessions use random tokens and hashed state filenames
-- Activator state does not retain prompts, transcripts, commands, source contents, or credentials
-- The activator never discovers or attaches to external Codex or AGY sessions
-- Hosted ChatGPT conversations do not execute local Riqor code
-- High-risk or durable learning actions remain subject to explicit approval
-
-Read the [security model](docs/SECURITY_MODEL.md) for trust boundaries and state handling. Report vulnerabilities through [GitHub Private Vulnerability Reporting](https://github.com/imMamdouhaboammar/riqor/security/advisories/new).
-
-## Agent Skills Pack
-
-Riqor includes a canonical Skills Pack for agents that operate, diagnose, secure, or release Riqor. The source lives under `skills/riqor-pack/` and the npm build copies the same pack into `runtime/skills/riqor-pack/` with provenance coverage.
-
-The pack contains focused skills for core operation, evidence runs, managed Codex sessions, diagnostics, security, and release maintenance. See [Agent Skills Pack](docs/AGENT_SKILLS.md).
-
-## Documentation
-
-- [Documentation index](docs/README.md)
-- [Getting started](docs/GETTING_STARTED.md)
-- [CLI reference](docs/CLI_REFERENCE.md)
-- [Agent Skills Pack](docs/AGENT_SKILLS.md)
-- [Architecture](docs/ARCHITECTURE.md)
-- [Security model](docs/SECURITY_MODEL.md)
-- [Troubleshooting](docs/TROUBLESHOOTING.md)
-- [Releasing](docs/RELEASING.md)
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
-
-## Development
-
+To run the repository verification suite:
 ```bash
 bun install --frozen-lockfile
 bun test
 bun run plugin:health
 bun run skills:health
 bun run riqor:pack
-bun run riqor:inspect -- packages/riqor/riqor-*.tgz
 bun run riqor:test
-bun run actions:verify
 ```
 
-Run the complete command set before submitting repository changes.
+---
 
 ## License
 
-Riqor is released under the [MIT License](LICENSE).
+Riqor is open-source software licensed under the [MIT License](LICENSE).

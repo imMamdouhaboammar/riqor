@@ -23,7 +23,7 @@ Snapshot updated: 2026-08-04
 
 Name: `codex-self-improvement`
 Marketplace: `codex-self-improvement-dev`
-Installed version: `0.2.0+codex.20260804101214`
+Installed version: `0.2.0+codex.20260809081834`
 
 Plugin skills
 

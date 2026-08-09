@@ -1,72 +1,88 @@
-# Riqor Documentation
+<div align="center">
+  <img src="assets/logo.svg" alt="Riqor Logo" width="340" />
+</div>
 
-Use this page to move from installation to implementation details without searching through source files.
+# Riqor Documentation Hub
 
-## Start Here
+Welcome to the **Riqor Documentation Hub**. This site is organized using the **Divio Documentation System**, separating content into four distinct quadrants based on reader intent:
 
-| Goal | Guide |
-| --- | --- |
-| Install and run Riqor | [Getting Started](GETTING_STARTED.md) |
-| Find a command or flag | [CLI Reference](CLI_REFERENCE.md) |
-| Understand components and data flow | [Architecture](ARCHITECTURE.md) |
-| Review trust boundaries and local state | [Security Model](SECURITY_MODEL.md) |
-| Diagnose an installation or session problem | [Troubleshooting](TROUBLESHOOTING.md) |
-| Use Riqor with AI coding agents | [Agent Skills Pack](AGENT_SKILLS.md) |
-| Operate the development backlog | [Backlog guide](backlog/README.md) |
-| Configure security scans, badges, and demo captures | [Automation](AUTOMATION.md) |
-| Publish and verify a release | [Releasing](RELEASING.md) |
-| Review the visual product preview | [Preview source](preview/index.html) |
-| Contribute code or documentation | [Contributing](../CONTRIBUTING.md) |
-| Review release history | [Changelog](../CHANGELOG.md) |
+- **Tutorials**: Guided 0-to-1 learning for getting started.
+- **How-To Guides**: Practical step-by-step recipes for specific tasks.
+- **Reference**: Exact specifications, CLI options, and technical details.
+- **Explanation**: Architectural concepts, security boundaries, and design choices.
 
-## Product Map
+---
+
+## Documentation Matrix
+
+| Quadrant | Purpose | Target Audience | Key Documents |
+| --- | --- | --- | --- |
+| 🎓 **[Tutorials](tutorials/quick-start-tutorial.md)** | Learning-oriented step-by-step guides | New users & developers onboarding to Riqor | • [Quick Start (10 Min)](tutorials/quick-start-tutorial.md)<br>• [First Evidence Loop](tutorials/first-evidence-loop-tutorial.md) |
+| 🛠️ **[How-To Guides](how-to/setup-activator-checkpoints.md)** | Task-oriented problem solving | Developers configuring sessions, CI, or troubleshooting | • [Activator Checkpoints](how-to/setup-activator-checkpoints.md)<br>• [Evidence Gates](how-to/configure-evidence-gates.md)<br>• [CI/CD & Automation](how-to/integrate-ci-cd-and-automation.md)<br>• [Troubleshooting Recipes](how-to/troubleshoot-riqor-issues.md) |
+| 📑 **[Reference](reference/cli-reference.md)** | Information-oriented technical specs | Engineers looking up flags, schemas, or APIs | • [CLI Reference](reference/cli-reference.md)<br>• [Agent Skills Pack](reference/skills-pack-reference.md)<br>• [Schema & State Spec](reference/schema-and-state-reference.md) |
+| 💡 **[Explanation](explanation/architecture-overview.md)** | Understanding-oriented conceptual depth | Architects, security reviewers, and maintainers | • [Architecture Overview](explanation/architecture-overview.md)<br>• [Security & Trust Model](explanation/security-and-trust-model.md)<br>• [Evidence Gate Lifecycle](explanation/evidence-gate-lifecycle.md) |
+
+---
+
+## System Architecture at a Glance
 
 ```mermaid
 flowchart TD
-    I[Install Riqor] --> D[Run riqor doctor]
-    D --> S[Start riqor codex]
-    S --> G[Evidence gate]
-    S --> A[Optional session activator]
-    G --> V[Focused verification]
-    A --> C[Periodic task checkpoint]
-    V --> F[Supported completion claim]
-    C --> F
+    SubGraph1[User Interface]
+        CLI[riqor CLI]
+        Aliases[codex-harness / cxh]
+    end
+
+    SubGraph2[Execution Layer]
+        AgentSession[Managed Codex / AGY Process]
+        ShellHooks[Local Shell Integration / zsh / bash]
+    end
+
+    SubGraph3[Core Engine]
+        EvidenceEngine[Evidence Gate]
+        ActivatorEngine[Session Activator & Watchdog]
+        RunEngine[Run Store & Trace Logger]
+    end
+
+    SubGraph4[Storage Layer]
+        XDG_Data[(~/.local/share/riqor)]
+        XDG_State[(~/.local/state/riqor)]
+    end
+
+    CLI --> AgentSession
+    Aliases --> CLI
+    ShellHooks --> EvidenceEngine
+    AgentSession --> ActivatorEngine
+    EvidenceEngine --> RunEngine
+    ActivatorEngine --> RunEngine
+    RunEngine --> XDG_State
+    CLI --> XDG_Data
 ```
 
-## Core Concepts
+---
 
-### Evidence pending
+## Key Core Concepts
 
-A terminal session becomes `verification-pending` after a successful command classified as a workspace mutation. The state is a reminder that a relevant check should run before completion is claimed.
+### 1. Evidence Pending State
+When a developer or agent executes a command that modifies the workspace (e.g., `git checkout`, `touch`, `edit`), Riqor marks the session state as `verification-pending`. The state remains pending until a recognized test or verification command (e.g., `bun test`, `pytest`, `cargo test`) runs successfully.
 
-### Managed Codex session
+### 2. Managed Agent Sessions
+Sessions launched via `riqor codex` or `riqor agy` run in a controlled child process environment with lifecycle hooks attached. This allows Riqor to enforce evidence gates and trigger task activator reviews without modifying the underlying agent binary.
 
-A managed session is a Codex child process started through `riqor codex`. Riqor sets the local environment required by its Codex hooks for that child.
+### 3. Session Activator & Watchdog
+Activated with `--activator`, the activator triggers periodic task reviews at safe agent `Stop` boundaries. The review phase is guarded by a watchdog bound (default 3 minutes) to ensure that the agent does not get stuck in recursive review loops.
 
-### Session activator
+### 4. Repository Runs & Traces
+A **Run** binds an explicit goal to a repository identity. Traces store append-only JSON Lines events (`events.jsonl`) recording state changes, command hashes, and verification milestones while strictly filtering out sensitive source code, prompts, and credentials.
 
-The activator is opt-in through `riqor codex --activator`. It waits until a configured interval has passed, then uses the next safe Codex `Stop` event for one bounded task checkpoint.
+---
 
-### Watchdog
+## Directory Navigation
 
-The activator watchdog limits a checkpoint cycle. If the review phase exceeds the deadline, Riqor resets the cycle and allows the session to continue. It is not a process timeout.
-
-### Reviewed workflow paths
-
-Riqor includes curated workflow paths with objectives, evidence requirements, guardrails, relevant skills, and approval requirements. List them with `riqor paths list`.
-
-### Development backlog
-
-Versioned YAML records under `backlog/` define initiatives, independently reviewable items, dependencies, acceptance commands, evidence requirements, ownership boundaries, and release targets. `BACKLOG.md` and `docs/backlog/CURRENT.md` are generated views. GitHub Issues and pull requests are execution mirrors rather than the source of truth.
-
-### Repository automation
-
-SecureAI-Scan checks AI, MCP, and Agent Skill surfaces. Dynamic Badges publishes Gist-backed endpoints after credentials are configured. AutoDemo records the static product preview as versioned workflow artifacts.
-
-## Scope Notes
-
-Riqor is local software. It can affect Codex App, Codex CLI, Kaku, and terminal sessions only through installed local hooks, shims, and inherited environment values. Hosted ChatGPT conversations do not run Riqor inside the remote conversation runtime.
-
-## Documentation Boundary
-
-The guides linked above are the supported public operating documentation. Temporary planning, evaluation, graph, and agent-session artifacts are intentionally excluded from version control. Maintainer backlog records remain versioned because they define release and contribution work.
+- 📁 **[`tutorials/`](tutorials/quick-start-tutorial.md)** — Step-by-step tutorials
+- 📁 **[`how-to/`](how-to/setup-activator-checkpoints.md)** — Operational recipes
+- 📁 **[`reference/`](reference/cli-reference.md)** — Complete reference manuals
+- 📁 **[`explanation/`](explanation/architecture-overview.md)** — Theoretical deep dives
+- 📄 **[`SECURITY.md`](../SECURITY.md)** — Private vulnerability disclosure policy
+- 📄 **[`CONTRIBUTING.md`](../CONTRIBUTING.md)** — Development and contribution guidelines
+- 📄 **[`CHANGELOG.md`](../CHANGELOG.md)** — Release history and migration notes

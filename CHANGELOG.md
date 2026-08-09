@@ -6,6 +6,18 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.0-beta.2] - 2026-08-09
+
+### Added
+
+- Divio-structured tutorials, how-to guides, reference pages, and explanation pages for the public documentation hub
+- A refreshed public README and documentation index with explicit local-runtime and hosted-ChatGPT boundaries
+
+### Changed
+
+- Refreshed the Codex plugin distribution metadata and marketplace-backed release surface
+- Kept the beta release on npm's `beta` dist-tag without moving the stable `latest` channel or Homebrew formula
+
 ## [0.2.0-beta.1] - 2026-08-09
 
 ### Added

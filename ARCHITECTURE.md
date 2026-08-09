@@ -2,7 +2,7 @@
 
 Version: 0.6.0
 Plugin: `codex-self-improvement`
-Installed plugin version: `0.2.0+codex.20260804101214`
+Installed plugin version: `0.2.0+codex.20260809081834`
 
 ## Boundary
 
