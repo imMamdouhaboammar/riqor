@@ -6,6 +6,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.6] - 2026-08-09
+
 ### Added
 
 - Add `chatgpt-codex-plugin-autopilot`, a repo-agnostic operational Skill for end-to-end ChatGPT/Codex plugin inspection, repair, validation, packaging, submission diagnosis, publication, and post-publish verification
@@ -15,6 +17,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 - Expand the public plugin from 111 to 112 Skills while keeping 100 public-safe generated specialist pairs
 - Tighten Riqor listing metadata to the current public-directory short-description limit
+- Increase integration-test timeout budgets for registry/network preflight and tarball inspection so release verification remains stable under concurrent full-suite load
 
 ### Security
 

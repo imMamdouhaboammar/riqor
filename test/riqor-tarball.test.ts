@@ -30,5 +30,5 @@ describe("riqor tarball inspection", () => {
     expect(report.entries).toContain("runtime/scripts/install-plugin.sh");
 
     await rm(tarballPath, { force: true });
-  });
+  }, 15000);
 });

@@ -27,5 +27,5 @@ describe("release preflight resource classification", () => {
     const json = JSON.stringify(report);
     expect(json).not.toMatch(/ghp_[a-zA-Z0-9]+/);
     expect(json).not.toMatch(/npm_[a-zA-Z0-9]+/);
-  }, 15000);
+  }, 30000);
 });
