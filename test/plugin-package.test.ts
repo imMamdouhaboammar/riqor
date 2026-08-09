@@ -32,6 +32,8 @@ describe("plugin package", () => {
     expect(manifest.hooks).toBeUndefined();
     expect(manifest.interface?.category).toBe("Developer Tools");
     expect(manifest.interface?.defaultPrompt).toHaveLength(3);
+    expect(manifest.interface?.logo).toBe("./assets/mark.svg");
+    expect(manifest.interface?.composerIcon).toBe("./assets/mark.svg");
   });
 
   test("discovers lifecycle hooks from the default plugin path", async () => {

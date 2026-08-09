@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-08-09
+
+### Fixed
+
+- Use the square `assets/mark.svg` for the plugin `logo` and `composerIcon` manifest fields
+- Validate manifest-referenced SVG assets are square before packaging
+- Prevent uploader rejection caused by the 640×160 horizontal wordmark
+
 ## [0.2.2] - 2026-08-09
 
 ### Fixed

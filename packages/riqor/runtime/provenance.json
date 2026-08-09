@@ -1,7 +1,7 @@
 {
-  "version": "0.2.1",
-  "sourceCommit": "bcf52e4484eb28c708c51df99c9540e2cf0735e6",
-  "sourceDateEpoch": 1786277696,
+  "version": "0.2.3",
+  "sourceCommit": "5baf30add59620dba3740bf429f12115deade14b",
+  "sourceDateEpoch": 1786281929,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -25,7 +25,7 @@
     },
     {
       "path": "plugins/riqor/.codex-plugin/plugin.json",
-      "sha256": "ebe8c31c9a688ce76b2fd55853474737ddcc9cc4783b2006f564f64a12e41eea",
+      "sha256": "914906c11d7c8938913e475e87f1cb33ea0491fb34bf8ba5eb59edee9dfbeac3",
       "bytes": 1569
     },
     {
@@ -560,7 +560,7 @@
     },
     {
       "path": "plugins/riqor/package.json",
-      "sha256": "5d38df110516d5f243d302a41566ef7c422922559d9552da563caa359471d4f7",
+      "sha256": "c9c5f9af98607c23dfdfbc56d3490994499a4986ef38941a8000c34d4810db4d",
       "bytes": 96
     },
     {

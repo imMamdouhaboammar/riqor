@@ -38,6 +38,21 @@ describe("plugin build", () => {
     expect(report.unwantedFiles).toEqual([]);
   });
 
+  test("health inspection rejects non-square manifest SVG assets", async () => {
+    const root = await mkdtemp(join(tmpdir(), "riqor-nonsquare-logo-"));
+    roots.push(root);
+    const source = resolve(import.meta.dir, "..", "plugins", "riqor");
+    const plugin = join(root, "riqor");
+    await cp(source, plugin, { recursive: true });
+    const manifestPath = join(plugin, ".codex-plugin", "plugin.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.interface.logo = "./assets/logo.svg";
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    const report = await inspectPlugin(plugin);
+    expect(report.ok).toBe(false);
+    expect(report.errors).toContain("manifest interface.logo SVG must be square: ./assets/logo.svg");
+  });
+
   test("health inspection rejects common operating-system metadata", async () => {
     const root = await mkdtemp(join(tmpdir(), "codex-self-improvement-metadata-"));
     roots.push(root);

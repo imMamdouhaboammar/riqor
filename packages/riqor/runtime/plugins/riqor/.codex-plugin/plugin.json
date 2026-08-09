@@ -1,6 +1,6 @@
 {
   "name": "riqor",
-  "version": "0.2.2+codex.20260809132311",
+  "version": "0.2.3+codex.20260809163234",
   "description": "Evidence gates, session continuity, managed Codex workflows, and release checks for AI coding agents",
   "author": {
     "name": "Mamdouh Aboammar",
@@ -36,7 +36,7 @@
     ],
     "brandColor": "#E85D3F",
     "composerIcon": "./assets/mark.svg",
-    "logo": "./assets/logo.svg"
+    "logo": "./assets/mark.svg"
   },
   "homepage": "https://github.com/imMamdouhaboammar/riqor",
   "repository": "https://github.com/imMamdouhaboammar/riqor"

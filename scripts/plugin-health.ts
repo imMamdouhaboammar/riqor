@@ -35,6 +35,32 @@ async function readJson(path: string) {
   return JSON.parse(await readFile(path, "utf8")) as Record<string, any>;
 }
 
+async function validateSquareSvgAsset(root: string, field: string, assetPath: unknown, errors: string[]) {
+  if (typeof assetPath !== "string" || !assetPath.endsWith(".svg")) return;
+  const relative = assetPath.replace(/^\.\//, "");
+  const absolute = resolve(root, relative);
+  if (!absolute.startsWith(`${root}/`)) {
+    errors.push(`manifest ${field} asset escapes plugin root: ${assetPath}`);
+    return;
+  }
+  try {
+    const svg = await readFile(absolute, "utf8");
+    const match = svg.match(/<svg\b[^>]*\bviewBox=["']([^"']+)["']/i);
+    if (!match) {
+      errors.push(`manifest ${field} SVG must declare a viewBox: ${assetPath}`);
+      return;
+    }
+    const values = match[1].trim().split(/[\s,]+/).map(Number);
+    if (values.length !== 4 || values.some((value) => !Number.isFinite(value)) || values[2] <= 0 || values[3] <= 0) {
+      errors.push(`manifest ${field} SVG has an invalid viewBox: ${assetPath}`);
+      return;
+    }
+    if (values[2] !== values[3]) errors.push(`manifest ${field} SVG must be square: ${assetPath}`);
+  } catch (error) {
+    errors.push(`manifest ${field} SVG unreadable: ${assetPath}: ${String(error)}`);
+  }
+}
+
 export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthReport> {
   const root = resolve(pluginRoot);
   const errors: string[] = [];
@@ -52,6 +78,8 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
   if (manifest.skills !== "./skills/") errors.push("manifest must expose ./skills/");
   if (manifest.hooks !== undefined) errors.push("manifest must rely on default hooks/hooks.json discovery");
   if (manifest.interface?.category !== "Developer Tools") errors.push("plugin category must be Developer Tools");
+  await validateSquareSvgAsset(root, "interface.logo", manifest.interface?.logo, errors);
+  await validateSquareSvgAsset(root, "interface.composerIcon", manifest.interface?.composerIcon, errors);
 
   const hooks = hookFile.hooks && typeof hookFile.hooks === "object" ? hookFile.hooks as Record<string, unknown> : {};
   const hookEvents = Object.keys(hooks).sort();
