@@ -35,7 +35,13 @@ describe("curated external skills", () => {
     const installed = await installedSkillDirectories();
     const actual = installed.filter((name) => !repositorySkills.includes(name));
 
-    expect(repositorySkills).toEqual(["riqor"]);
+    expect(repositorySkills).toEqual([
+      "riqor",
+      "riqor-agent-orchestrator",
+      "riqor-code-intelligence",
+      "riqor-session-continuity",
+      "riqor-verification-gate",
+    ]);
     expect(installed).toContain("riqor");
     expect(actual).toEqual(expected);
     expect(Object.keys(lock.skills).sort()).toEqual(expected);

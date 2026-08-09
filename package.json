@@ -18,6 +18,7 @@
     "harness:doctor": "bun run src/harness-cli.ts doctor",
     "skills:health": "bun run scripts/skill-curation-health.ts",
     "skills:install": "bash scripts/install-curated-skills.sh",
+    "skills:pack:install": "bash scripts/install-riqor-skills-pack.sh",
     "shell:test": "bun test test/terminal-runtime.test.ts test/harness-cli.test.ts test/shell-integration.test.ts test/shell-installer.test.ts",
     "shell:install": "bash scripts/install-shell-integration.sh",
     "shell:uninstall": "bash scripts/uninstall-shell-integration.sh",

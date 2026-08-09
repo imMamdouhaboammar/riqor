@@ -9,9 +9,23 @@ __pycache__/
 *.pyc
 .agent-kernel/project.json
 
-# Isolated implementation worktrees
+# Isolated implementation worktrees & state
 .worktrees/
 .riqor/
+
+# Development & evaluation docs / benchmarks
+BASELINE.md
+FINAL_EVALUATION.md
+PLUGIN_EVALUATION.md
+SKILL_CURATION.md
+baseline-results.*
+final-results.*
+docs/preview/
+graphify-out/
+holdouts/
+graders/
+04-projects/
+
 
 # Local planning, evaluation, and generated development artifacts
 docs/superpowers/
