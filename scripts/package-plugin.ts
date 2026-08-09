@@ -25,7 +25,7 @@ function assertSupportedPython() {
 
 const python = String.raw`
 import os, stat, sys, zipfile
-root, output = sys.argv[1], sys.argv[2]
+root, output, wrapper = sys.argv[1], sys.argv[2], sys.argv[3]
 entries = []
 for current, dirs, files in os.walk(root):
     dirs[:] = sorted(d for d in dirs if d not in {"node_modules", ".git"})
@@ -35,9 +35,19 @@ for current, dirs, files in os.walk(root):
             continue
         entries.append(rel)
 with zipfile.ZipFile(output, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
+    directories = {wrapper + "/"}
+    for rel in entries:
+        parts = rel.split("/")[:-1]
+        for index in range(1, len(parts) + 1):
+            directories.add(wrapper + "/" + "/".join(parts[:index]) + "/")
+    for rel in sorted(directories):
+        info = zipfile.ZipInfo(rel, date_time=(1980, 1, 1, 0, 0, 0))
+        info.external_attr = (stat.S_IFDIR | 0o755) << 16
+        archive.writestr(info, b"")
     for rel in sorted(entries):
         path = os.path.join(root, *rel.split("/"))
-        info = zipfile.ZipInfo(rel, date_time=(1980, 1, 1, 0, 0, 0))
+        archive_rel = wrapper + "/" + rel
+        info = zipfile.ZipInfo(archive_rel, date_time=(1980, 1, 1, 0, 0, 0))
         info.compress_type = zipfile.ZIP_DEFLATED
         mode = 0o755 if rel.endswith(".sh") else 0o644
         info.external_attr = (stat.S_IFREG | mode) << 16
@@ -54,7 +64,7 @@ export async function buildPluginArchive(pluginRoot: string, outputPath: string)
   await mkdir(dirname(output), { recursive: true });
   const temporary = `${output}.${randomUUID()}.tmp`;
   try {
-    const execution = Bun.spawnSync(["python3", "-c", python, root, temporary], { stdout: "pipe", stderr: "pipe" });
+    const execution = Bun.spawnSync(["python3", "-c", python, root, temporary, "riqor"], { stdout: "pipe", stderr: "pipe" });
     if (execution.exitCode !== 0) throw new Error(`archive build failed: ${execution.stderr.toString().trim()}`);
     await rename(temporary, output);
   } finally {
