@@ -46,6 +46,13 @@ describe("agent skill pairing", () => {
     }
   });
 
+  test("riqor-core routes general ChatGPT requests into the specialist catalog", async () => {
+    const core = await readFile(join(skillRoot, "riqor-core", "SKILL.md"), "utf8");
+    expect(core).toContain("references/specialists.md");
+    expect(core).toContain("ChatGPT");
+    expect(core).not.toContain("Riqor does not execute inside hosted ChatGPT conversations");
+  });
+
   test("generated catalog is current", () => {
     const run = Bun.spawnSync(["bun", "run", "scripts/generate-agent-skills.ts", "--check"], { cwd: root, stdout: "pipe", stderr: "pipe" });
     expect(run.exitCode, run.stderr.toString()).toBe(0);

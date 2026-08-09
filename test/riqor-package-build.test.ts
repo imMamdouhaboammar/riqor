@@ -46,5 +46,8 @@ describe("riqor package build", () => {
     await access(join(packageRoot, "runtime", "scripts", "check-marketplace-source.py"));
     await access(join(packageRoot, "runtime", "plugins", "riqor", ".codex", "riqor.config.toml"));
     await access(join(packageRoot, "runtime", "plugins", "riqor", ".codex", "agents", "engineering-senior-developer.toml"));
+    await access(join(packageRoot, "runtime", "plugins", "riqor", "agent-skill-map.json"));
+    await access(join(packageRoot, "runtime", "plugins", "riqor", "skills", "engineering-senior-developer", "SKILL.md"));
+    await access(join(packageRoot, "runtime", "plugins", "riqor", "skills", "engineering-senior-developer", "references", "agent-instructions.md"));
   });
 });

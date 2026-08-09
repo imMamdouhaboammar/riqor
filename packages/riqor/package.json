@@ -1,7 +1,7 @@
 {
   "name": "riqor",
-  "version": "0.2.3",
-  "description": "Evidence gates and session continuity for AI coding agents",
+  "version": "0.2.4",
+  "description": "101 specialist Skills, evidence gates, and session continuity for AI-assisted engineering",
   "type": "module",
   "license": "MIT",
   "bin": {
@@ -36,7 +36,10 @@
     "verification",
     "harness",
     "developer-tools",
-    "agent"
+    "agent",
+    "chatgpt",
+    "skills",
+    "multi-agent"
   ],
   "publishConfig": {
     "access": "public"

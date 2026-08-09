@@ -1,7 +1,7 @@
 {
   "name": "riqor",
-  "version": "0.2.3+codex.20260809163234",
-  "description": "Evidence gates, session continuity, managed Codex workflows, and release checks for AI coding agents",
+  "version": "0.2.4+codex.20260809172232",
+  "description": "101 specialist Skills plus evidence gates, session continuity, and managed Codex workflows for AI-assisted engineering",
   "author": {
     "name": "Mamdouh Aboammar",
     "url": "https://github.com/imMamdouhaboammar"
@@ -19,20 +19,20 @@
   "skills": "./skills/",
   "interface": {
     "displayName": "Riqor",
-    "shortDescription": "Evidence gates and continuity for coding agents",
-    "longDescription": "Adds repository-scoped evidence gates, managed Codex session continuity, diagnostics, release checks, and bounded lifecycle guidance. The local npm runtime is installed or upgraded explicitly from a terminal; the plugin never publishes packages or replaces the Codex binary.",
+    "shortDescription": "101 specialist Skills with evidence-aware workflows",
+    "longDescription": "Installs 101 specialist Skills for ChatGPT and Codex, paired with 101 native Codex agents for managed multi-agent execution. Riqor also adds bounded lifecycle hooks, evidence gates, session continuity, diagnostics, and release guidance without adding MCP servers, apps, or hidden telemetry.",
     "developerName": "Mamdouh Aboammar",
     "category": "Developer Tools",
     "capabilities": [
-      "Instructions",
+      "101 specialist Skills",
       "Lifecycle hooks",
       "Local developer tooling"
     ],
     "websiteURL": "https://github.com/imMamdouhaboammar/riqor",
     "defaultPrompt": [
-      "Set up Riqor for this repository and verify it.",
-      "Run this task with Riqor evidence gates.",
-      "Diagnose this Riqor or managed Codex failure."
+      "Use Riqor to choose the best specialist Skill for this task and execute with it.",
+      "Show me the Riqor specialists relevant to this request and use the strongest match.",
+      "Review this work with the appropriate Riqor specialist and require fresh evidence before completion."
     ],
     "brandColor": "#E85D3F",
     "composerIcon": "./assets/mark.svg",

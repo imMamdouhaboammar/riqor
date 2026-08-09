@@ -112,6 +112,11 @@ describe("plugin build", () => {
     expect(entries).toContain("skills/harness-paths/SKILL.md");
     expect(entries).toContain("skills/self-improvement-loop/SKILL.md");
     expect(entries).toContain("skills/universal-session-runtime/SKILL.md");
+    expect(entries).toContain("agent-skill-map.json");
+    expect(entries).toContain("skills/engineering-senior-developer/SKILL.md");
+    expect(entries).toContain("skills/engineering-senior-developer/references/agent-instructions.md");
+    expect(entries.filter((entry) => /^skills\/[^/]+\/SKILL\.md$/.test(entry))).toHaveLength(112);
+    expect(entries.filter((entry) => /^skills\/(?:agents-|design-|docs-|engineering-|explorer\/|product-|project-|reviewer\/|security-|support-|testing-)/.test(entry) && entry.endsWith("/SKILL.md"))).toHaveLength(101);
     expect(entries.some((entry) => entry === "riqor/" || entry.startsWith("riqor/"))).toBe(false);
     expect(entries.some((entry) => entry.endsWith(".test.ts"))).toBe(false);
     expect(entries.some((entry) => isCredentialShapedPluginPath(entry))).toBe(false);

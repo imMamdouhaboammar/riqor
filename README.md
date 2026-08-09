@@ -48,16 +48,18 @@ Node.js 22+ is required. Bun is only used to develop and test this repository, n
 
 ## Codex Plugin
 
-Riqor also ships as an installable Codex plugin with lifecycle hooks and focused skills
+Riqor also ships through the ChatGPT/Codex Plugin Directory as a portable specialist capability pack with lifecycle hooks
 
 ```bash
 codex plugin marketplace add imMamdouhaboammar/riqor --ref main
 codex plugin add riqor@riqor
 ```
 
-The plugin adds Riqor guidance, lifecycle hooks, and a bundled catalog of **101 native Codex subagent roles**. `riqor install` registers them in an isolated `riqor` Codex profile, and `riqor codex` uses that profile automatically unless you select another profile explicitly. The profile adds no apps, MCP servers, or tool configuration
+One plugin installation exposes **101 specialist Skills** to ChatGPT and Codex. The same 101 roles are also bundled as native Codex agents, and every native agent is required to load its paired Skill before task execution. `riqor install` registers the native agents in an isolated `riqor` Codex profile, while the plugin itself remains Skills + lifecycle hooks only: no apps, MCP servers, or tool configuration
 
 The npm package provides the local CLI and runtime used by commands such as `riqor doctor`, `riqor run`, and `riqor codex`
+
+The specialist catalog is generated deterministically from the 101 canonical agent definitions. `riqor-core` includes a generated specialist index so a general Riqor request can route to the closest Skill instead of loading the whole catalog at once
 
 ## What Riqor watches
 
@@ -105,6 +107,15 @@ A run gives one task an explicit goal, ordered evidence events, and a completion
 ## Local by design
 
 Riqor does not install a network listener and does not need a hosted Riqor account
+
+Riqor also keeps an optional offline adoption ledger for the local runtime. It records coarse local counters only, never sends them to a Riqor server, and reports public ChatGPT Marketplace install counts as `unknown` rather than inventing a number
+
+```bash
+riqor adoption
+riqor adoption --json
+riqor adoption --export ./riqor-adoption-receipt.json
+riqor adoption --reset
+```
 
 Persisted run and activator state intentionally excludes
 

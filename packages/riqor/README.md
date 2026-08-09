@@ -48,7 +48,7 @@ riqor codex --activator \
   --activator-watchdog 2m
 ```
 
-Riqor also installs its bundled native Codex agent catalog into a managed `riqor` profile under `CODEX_HOME`. The current package contains **101 role configs**. `riqor codex` selects that profile automatically unless you pass `-p` or `--profile` yourself. Riqor does not add apps, MCP servers, or tool configuration to the profile
+Riqor installs **101 native Codex agent configs** into a managed `riqor` profile under `CODEX_HOME`. The bundled plugin also exposes the same 101 specialists as portable Skills for ChatGPT and Codex. Each native agent requires its paired Skill before task execution. `riqor codex` selects the managed profile automatically unless you pass `-p` or `--profile` yourself. Riqor does not add apps, MCP servers, or tool configuration to the profile
 
 The activator applies only to the Codex child process launched by Riqor and waits for a safe lifecycle Stop boundary
 
@@ -96,7 +96,7 @@ codex plugin marketplace add imMamdouhaboammar/riqor --ref main
 codex plugin add riqor@riqor
 ```
 
-The plugin ships lifecycle hooks plus focused Riqor skills for setup, evidence, diagnostics, managed sessions, security, and release work
+The plugin ships 101 generated specialist Skills plus 11 Riqor workflow Skills for setup, evidence, diagnostics, managed sessions, security, and release work. The specialist Skills are directly usable in ChatGPT and Codex after the plugin is installed
 
 ## Core commands
 
@@ -106,6 +106,9 @@ The plugin ships lifecycle hooks plus focused Riqor skills for setup, evidence, 
 | `riqor uninstall` | Remove Riqor-managed local changes |
 | `riqor doctor` | Check package integrity and environment health |
 | `riqor status` | Report versions and active surfaces |
+| `riqor adoption` | Report local-only adoption counters; Marketplace installs remain unknown |
+| `riqor adoption --export <path>` | Export a bucketed receipt without the local installation identifier |
+| `riqor adoption --reset` | Delete only the local adoption ledger |
 | `riqor run start` | Start a repository-scoped evidence run |
 | `riqor run status` | Inspect run and verification state |
 | `riqor trace show` | Read ordered evidence events |
@@ -119,7 +122,7 @@ Compatibility aliases remain available as `codex-harness` and `cxh`
 
 ## Privacy boundary
 
-Riqor runs locally and does not install a network listener. Persisted run and activator state excludes prompts, transcripts, source contents, raw commands, command output, environment values, credentials, cookies, and tokens
+Riqor local tooling does not install a network listener. Persisted run, activator, and adoption state excludes prompts, transcripts, source contents, raw commands, command output, environment values, credentials, cookies, and tokens. The adoption ledger is local-only and contains no remote telemetry path
 
 The activator does not discover or attach to unrelated Codex or AGY sessions
 

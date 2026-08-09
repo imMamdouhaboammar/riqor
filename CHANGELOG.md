@@ -6,6 +6,26 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.4] - 2026-08-09
+
+### Added
+
+- Expose all 101 native specialist roles as portable paired Skills for ChatGPT and Codex, while preserving the native Codex agent catalog
+- Require every generated native agent to load its exact paired Skill before executing a task
+- Add deterministic agent-to-Skill generation, mapping hashes, drift checks, and a generated specialist routing index
+- Add GitHub-hosted Privacy Policy, Terms of Service, and Customer Support URLs to the plugin manifest
+- Add a local-only adoption ledger with report, bucketed receipt export, and reset commands
+
+### Changed
+
+- Reposition the Plugin Directory package as a 101-specialist capability pack with 112 total Skills including the existing Riqor workflow Skills
+- Clarify the hosted ChatGPT boundary: bundled Skills can run in ChatGPT while local CLI and lifecycle runtime features require a compatible local execution surface
+
+### Security
+
+- Keep adoption data content-free and local-only, with no network telemetry primitives or remote aggregation in this release
+- Limit the credential-shaped filename exception to the known generated Security Secrets Credential Engineer artifacts
+
 ## [0.2.3] - 2026-08-09
 
 ### Fixed

@@ -37,6 +37,8 @@ describe("plugin package", () => {
     expect(manifest.interface?.privacyPolicyURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/PRIVACY.md");
     expect(manifest.interface?.termsOfServiceURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/TERMS.md");
     expect(manifest.interface?.supportURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/SUPPORT.md");
+    expect(manifest.description).toContain("101 specialist Skills");
+    expect(manifest.interface?.longDescription).toContain("101 specialist Skills");
   });
 
   test("discovers lifecycle hooks from the default plugin path", async () => {
@@ -49,7 +51,9 @@ describe("plugin package", () => {
     expect(serialized).toContain("${PLUGIN_ROOT}/hooks/main.mjs");
     expect(serialized).not.toContain("bun ");
     expect(serialized).not.toContain("/Users/");
-    expect((await readFile(join(plugin, "hooks", "main.mjs"), "utf8")).length).toBeGreaterThan(1000);
+    const bundledHook = await readFile(join(plugin, "hooks", "main.mjs"), "utf8");
+    expect(bundledHook.length).toBeGreaterThan(1000);
+    expect(bundledHook).toContain("adoption.json");
   });
 
   test("publishes through the repository-local marketplace", async () => {
