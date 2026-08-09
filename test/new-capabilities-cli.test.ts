@@ -3,6 +3,7 @@ import { runSkepticalVerification } from "../src/skeptical-verifier.js";
 import { getSessionTelemetry } from "../src/telemetry-mcp.js";
 import { calculateEnvironmentDelta } from "../src/environment-delta.js";
 import { loadCrystallizedRules } from "../src/crystallized-rules.js";
+import { resolve } from "node:path";
 
 describe("riqor new capabilities CLI integrations", () => {
   it("executes skeptical verification cleanly", () => {
@@ -14,7 +15,7 @@ describe("riqor new capabilities CLI integrations", () => {
 
   it("retrieves session telemetry cleanly", () => {
     const telemetry = getSessionTelemetry(process.cwd());
-    expect(telemetry.repositoryRoot).toContain("keen-brahmagupta");
+    expect(telemetry.repositoryRoot).toBe(resolve(process.cwd()));
   });
 
   it("loads and formats crystallized rules", () => {

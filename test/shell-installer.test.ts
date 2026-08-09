@@ -8,7 +8,14 @@ const root = resolve(import.meta.dir, "..");
 function shell(command: string, home: string) {
   return Bun.spawnSync(["bash", "-lc", command], {
     cwd: root,
-    env: { ...process.env, HOME: home, CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1" },
+    env: {
+      ...process.env,
+      HOME: home,
+      XDG_CONFIG_HOME: join(home, ".config"),
+      XDG_DATA_HOME: join(home, ".local", "share"),
+      XDG_STATE_HOME: join(home, ".local", "state"),
+      CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1",
+    },
     stdout: "pipe",
     stderr: "pipe",
   });
@@ -60,6 +67,9 @@ test("package-mode shell install preserves Riqor shims and loads the managed env
     env: {
       ...process.env,
       HOME: home,
+      XDG_CONFIG_HOME: join(home, ".config"),
+      XDG_DATA_HOME: join(home, ".local", "share"),
+      XDG_STATE_HOME: join(home, ".local", "state"),
       CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1",
       CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1",
     },
@@ -85,6 +95,9 @@ test("shell installer fails closed on malformed managed markers", async () => {
     env: {
       ...process.env,
       HOME: home,
+      XDG_CONFIG_HOME: join(home, ".config"),
+      XDG_DATA_HOME: join(home, ".local", "share"),
+      XDG_STATE_HOME: join(home, ".local", "state"),
       CODEX_SELF_IMPROVEMENT_PACKAGE_MODE: "1",
       CODEX_SELF_IMPROVEMENT_SKIP_KAKU_INIT: "1",
     },
