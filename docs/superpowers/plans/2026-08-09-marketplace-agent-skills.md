@@ -29,7 +29,7 @@
 - Generate: `plugins/riqor/skills/<101 slugs>/...`, `plugins/riqor/.codex/agents/*.toml`, `plugins/riqor/agent-skill-map.json`
 - Modify: `plugins/riqor/skills/riqor-core/references/specialists.md`
 
-- [ ] Write failing tests for 101 source agents, 101 paired Skills, 101 mappings, mandatory pairing text, deterministic regeneration, valid frontmatter/UI metadata, hashes, and 112 total Skills
+- [ ] Write failing tests for 101 source agents, 101 paired Skills, 101 mappings, mandatory pairing text, deterministic regeneration, valid frontmatter/discovery metadata, hashes, and 112 total Skills
 - [ ] Run the focused test and confirm RED because generator/artifacts are absent
 - [ ] Implement deterministic generator using canonical TOML name/description/developer instructions
 - [ ] Generate artifacts and run the focused test to GREEN

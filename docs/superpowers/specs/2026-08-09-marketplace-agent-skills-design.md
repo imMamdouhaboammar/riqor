@@ -36,7 +36,6 @@ Each paired Skill uses progressive disclosure:
 
 - `SKILL.md` contains compact trigger metadata, the mandatory operating contract, and instructions to read the specialist reference
 - `references/agent-instructions.md` carries the detailed instructions extracted from the canonical source agent
-- `agents/openai.yaml` provides human-facing display metadata and permits implicit invocation
 
 Descriptions must remain compact because large Skill catalogs compete for the initial discovery budget. The generated `riqor-core` specialist index provides a complete catalog for routing when a user invokes Riqor generally.
 
@@ -70,7 +69,7 @@ Health and release checks enforce these invariants:
 - exactly 101 paired plugin Skills
 - exactly 101 mapping records
 - exactly 101 generated native plugin agents
-- every paired Skill has valid frontmatter and OpenAI UI metadata
+- every paired Skill has valid OpenAI `SKILL.md` frontmatter
 - every native agent contains the correct mandatory pairing contract
 - no orphan agent or paired Skill
 - no stale generated content or hash mismatch
@@ -139,7 +138,7 @@ TDD coverage must include:
 - stale output detection
 - one-to-one count and mapping invariants
 - mandatory contract validation
-- valid Skill frontmatter and `agents/openai.yaml`
+- valid Skill frontmatter and concise discovery descriptions
 - specialist index coverage
 - Marketplace ZIP contains 101 paired Skills and 101 native agents
 - npm runtime contains the same catalog
