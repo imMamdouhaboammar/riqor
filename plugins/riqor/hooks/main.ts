@@ -7,6 +7,7 @@ import {
   type ActivatorStopResult,
 } from "./activator";
 import { routingContext } from "./router";
+import { recordPluginAdoption } from "./adoption";
 import {
   clearTurn,
   consumeEvidenceGate,
@@ -161,6 +162,7 @@ export async function handleHook(
     : "";
 
   if (event === "SessionStart") {
+    await boundedActivatorOperation(() => recordPluginAdoption(dataDir, "session", now));
     await pruneState(dataDir);
     await markRuntimeSeen(dataDir, now);
     if (activator) await boundedActivatorOperation(() => initializeActivator(dataDir, activator, now));
@@ -178,6 +180,7 @@ export async function handleHook(
   }
 
   if (event === "SubagentStart") {
+    await boundedActivatorOperation(() => recordPluginAdoption(dataDir, "agentStart", now));
     return {
       hookSpecificOutput: {
         hookEventName: "SubagentStart",

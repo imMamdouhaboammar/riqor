@@ -44,6 +44,19 @@ describe("plugin lifecycle hook", () => {
     expect(contents.join("\n")).not.toContain("CUSTOMER_XYZZY");
   });
 
+  test("records only coarse local session and subagent adoption counters", async () => {
+    const root = await dataDir();
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root, {}, Date.parse("2026-08-09T10:00:00Z"));
+    await handleHook({ ...common, hook_event_name: "SubagentStart", agent_type: "reviewer", prompt: "SENSITIVE_MARKER" }, root, {}, Date.parse("2026-08-09T10:01:00Z"));
+    const names = await readdir(root);
+    expect(names).toContain("adoption.json");
+    if (!names.includes("adoption.json")) return;
+    const ledger = JSON.parse(await readFile(join(root, "adoption.json"), "utf8"));
+    expect(ledger).toMatchObject({ schemaVersion: 1, sessions: 1, agentStarts: 1, activeDayCount: 1 });
+    expect(JSON.stringify(ledger)).not.toContain("SENSITIVE_MARKER");
+    expect(JSON.stringify(ledger)).not.toContain("reviewer");
+  });
+
   test("blocks completion after a code mutation until a later successful check", async () => {
     const root = await dataDir();
     await handleHook({

@@ -16,7 +16,7 @@ Riqor 0.2.4 does not send the offline adoption ledger to a Riqor analytics serve
 
 ## Local storage and deletion
 
-Local state is stored under Riqor-managed user data or state directories, or under the host-provided `PLUGIN_DATA` directory when a plugin hook is allowed to persist bounded local state. File permissions and ownership checks are used where applicable. You can remove Riqor-managed files with the documented uninstall/reset commands or by deleting the corresponding local Riqor data after the process is stopped.
+Local state is stored under Riqor-managed user data or state directories, or under the host-provided `PLUGIN_DATA` directory when a plugin hook is allowed to persist bounded local state. File permissions and ownership checks are used where applicable. You can remove the offline adoption ledger with `riqor adoption --reset`. Other Riqor-managed installation files can be removed with the documented uninstall command or by deleting the corresponding local Riqor data after the process is stopped.
 
 ## Third-party services
 

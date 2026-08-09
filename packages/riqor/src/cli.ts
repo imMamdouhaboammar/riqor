@@ -3,6 +3,8 @@ import { install } from "./commands/install";
 import { status } from "./commands/status";
 import { uninstall } from "./commands/uninstall";
 import { main as harnessMain } from "../../../src/harness-cli";
+import { adoptionReport, exportAdoptionReceipt, formatAdoptionReport, resetAdoption } from "./adoption";
+import { resolveUserPaths } from "./paths";
 
 function print(value: unknown, json: boolean) {
   process.stdout.write(json ? `${JSON.stringify(value, null, 2)}\n` : `${String(value)}\n`);
@@ -42,6 +44,24 @@ export async function main(args = process.argv.slice(2)): Promise<void> {
     print(report, json);
     if (!report.ok) process.exitCode = 1;
     return;
+  }
+
+  if (command === "adoption") {
+    const stateDir = resolveUserPaths().riqorStateDir;
+    if (args.includes("--reset")) {
+      await resetAdoption(stateDir);
+      return print(json ? { ok: true, reset: true } : "Riqor local adoption ledger reset", json);
+    }
+    const exportIndex = args.indexOf("--export");
+    const exportValue = args.find((arg) => arg.startsWith("--export="))?.slice("--export=".length);
+    const outputPath = exportValue ?? (exportIndex >= 0 ? args[exportIndex + 1] : undefined);
+    if (exportIndex >= 0 && !outputPath) throw new Error("adoption --export requires a path");
+    if (outputPath) {
+      const receipt = await exportAdoptionReceipt({ stateDir, outputPath });
+      return print(json ? receipt : `Riqor adoption receipt written to ${outputPath}`, json);
+    }
+    const report = await adoptionReport(stateDir);
+    return print(json ? report : formatAdoptionReport(report), json);
   }
 
   try {

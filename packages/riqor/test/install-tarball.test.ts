@@ -22,6 +22,9 @@ describe("tarball installation and uninstallation", () => {
     expect(profile).toStartWith("# Managed by Riqor\n");
     expect(profile).toContain("[agents.engineering-senior-developer]");
     await access(join(tempHome, ".codex", "riqor-agents", "engineering-senior-developer.toml"));
+    const adoption = JSON.parse(await readFile(join(tempHome, ".local", "state", "riqor", "adoption.json"), "utf8"));
+    expect(adoption.firstSeenVersion).toBe(packageVersion);
+    expect(adoption.currentVersion).toBe(packageVersion);
 
     const uninstallReport = await uninstall({ home: tempHome });
     expect(uninstallReport.ok).toBe(true);

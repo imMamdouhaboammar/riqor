@@ -1,6 +1,8 @@
 import { describe, expect, test } from "bun:test";
-import { readFile } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
+import { recordAdoptionEvent } from "../src/adoption";
 import { main } from "../src/cli";
 import { doctor } from "../src/commands/doctor";
 import { status } from "../src/commands/status";
@@ -36,6 +38,33 @@ describe("packages/riqor CLI", () => {
     expect(report.checks).toBeArray();
     expect(report.checks.some((c) => c.id === "package-version")).toBe(true);
     expect(report.checks.some((c) => c.id === "payload-provenance")).toBe(true);
+  });
+
+  test("adoption --json reports the local ledger without claiming Marketplace installs", async () => {
+    const root = await mkdtemp(join(tmpdir(), "riqor-cli-adoption-"));
+    const previousState = process.env.XDG_STATE_HOME;
+    const previousExitCode = process.exitCode;
+    const originalStdout = process.stdout.write;
+    const originalStderr = process.stderr.write;
+    let stdout = "";
+    process.env.XDG_STATE_HOME = root;
+    process.exitCode = undefined;
+    await recordAdoptionEvent({ stateDir: join(root, "riqor"), version: "0.2.4", kind: "session", now: Date.parse("2026-08-09T10:00:00Z") });
+    process.stdout.write = ((chunk: string | Uint8Array) => { stdout += String(chunk); return true; }) as typeof process.stdout.write;
+    process.stderr.write = (() => true) as typeof process.stderr.write;
+    try {
+      await main(["adoption", "--json"]);
+      expect(process.exitCode).not.toBe(64);
+      const report = JSON.parse(stdout);
+      expect(report.marketplaceInstalls).toBe("unknown");
+      expect(report.sessions).toBe(1);
+    } finally {
+      process.stdout.write = originalStdout;
+      process.stderr.write = originalStderr;
+      process.exitCode = previousExitCode ?? 0;
+      if (previousState === undefined) delete process.env.XDG_STATE_HOME; else process.env.XDG_STATE_HOME = previousState;
+      await rm(root, { recursive: true, force: true });
+    }
   });
 
   test("rejects invalid activator options before launching Codex", async () => {

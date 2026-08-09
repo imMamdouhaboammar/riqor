@@ -7,6 +7,7 @@ import { resolveUserPaths } from "../paths";
 import { runCommand } from "../process";
 import { CheckRecord, InstallOptions, InstallReport } from "../types";
 import { installRiqorAgentProfile } from "../codex-agents";
+import { recordAdoptionEvent } from "../adoption";
 import { doctor } from "./doctor";
 
 function modulePackageRoot() {
@@ -90,6 +91,13 @@ export async function install(options: InstallOptions = {}): Promise<InstallRepo
     surfaces.push(aliasPath);
   }
   checks.push({ id: "executable-shims", ok: true, detail: paths.binDir });
+
+  try {
+    await recordAdoptionEvent({ stateDir: paths.riqorStateDir, version, kind: "install" });
+    checks.push({ id: "adoption-ledger", ok: true, detail: "local-only" });
+  } catch (error) {
+    checks.push({ id: "adoption-ledger", ok: true, detail: `skipped: ${error instanceof Error ? error.message : "unavailable"}` });
+  }
 
   const shellInstaller = join(versionedDataDir, "runtime", "scripts", "install-shell-integration.sh");
   const shellResult = await runCommand(["bash", shellInstaller], {
