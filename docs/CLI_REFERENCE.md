@@ -54,7 +54,7 @@ Options:
 | Option | Meaning |
 | --- | --- |
 | `--json` | Print a structured report |
-| `--package-only` | Skip installed shims, Codex, and Kaku checks |
+| `--package-only` | Validate only the packaged payload and supported platform, without local agent or shell integrations |
 
 Exit status is non-zero when required checks fail.
 
@@ -202,6 +202,23 @@ Options:
 | `--activator-interval <duration>` | `15m` | `1m` to `24h` | Time between eligible checkpoint cycles |
 | `--activator-watchdog <duration>` | `3m` | `10s` to `30m` | Maximum duration of one review phase |
 
+### `riqor agy`
+
+Starts Google Antigravity (`agy` or `antigravity`) as a direct child process with the Riqor environment enabled.
+
+```bash
+riqor agy
+riqor agy [agy arguments]
+```
+
+### `riqor agy --activator`
+
+Starts a managed Google Antigravity session with periodic task checkpoints.
+
+```bash
+riqor agy --activator
+```
+
 Duration suffixes:
 
 ```text
@@ -217,15 +234,18 @@ Both timing options also accept inline values:
 riqor codex --activator \
   --activator-interval=20m \
   --activator-watchdog=2m
+riqor agy --activator \
+  --activator-interval=20m \
+  --activator-watchdog=2m
 ```
 
 Rules:
 
 - Timing options require `--activator`
-- Invalid or missing durations are rejected before Codex starts
+- Invalid or missing durations are rejected before Codex or AGY starts
 - Riqor removes its activator options before forwarding the remaining arguments
 - Inherited activator environment values are cleared unless the current command opts in
-- Activator state applies only to the current managed Codex child process
+- Activator state applies only to the current managed child process
 - Closing the child process ends the activator
 
 Invalid command usage exits with status `64`.
@@ -343,6 +363,67 @@ riqor paths list --json
 ```
 
 JSON output includes each path identifier, objective, curated skills, required evidence, guardrails, and whether explicit approval is required.
+
+## Harness Analysis and Continuity Commands
+
+These commands operate on the current repository or Riqor local state. They are part of the `0.2.0-beta.1` CLI surface and return structured JSON when `--json` is supported.
+
+### `riqor evidence`
+
+Reads the local evidence ledger. Add an explicit entry with one of `mutation`, `verification`, `checkpoint`, or `audit`:
+
+```bash
+riqor evidence
+riqor evidence add verification "Focused package checks passed" --json
+```
+
+### `riqor loop`
+
+Shows current loop state. `loop cost` returns bounded session telemetry and `loop audit` returns the current terminal evidence state.
+
+```bash
+riqor loop --json
+riqor loop cost --json
+riqor loop audit --json
+```
+
+### `riqor verify`
+
+Runs skeptical repository verification. `--sdlc` combines convention checks, verification, and bounded telemetry into one report.
+
+```bash
+riqor verify --json
+riqor verify --sdlc --json
+```
+
+### Repository context helpers
+
+```bash
+riqor telemetry --json
+riqor rules --json
+riqor rules add "<rule text>" --json
+riqor delta
+riqor deliberate --json
+riqor conventions --json
+riqor scratchpad write <session-id> <key> <value> --json
+riqor scratchpad read <session-id> --json
+riqor heartbeat [session-id] --json
+```
+
+Scratchpad and heartbeat data are local session aids. Do not write credentials, private source, raw prompts, or command output into them.
+
+### Beta synthesis helpers
+
+```bash
+riqor spec [topic] --json
+riqor grill --json
+riqor goal [goal text] --json
+riqor fuzz --json
+riqor repowise --json
+riqor autoresearch [hypothesis] --json
+```
+
+`spec` emits a bounded design template, `grill` combines convention and skeptical-verification checks, `goal` initializes a bounded goal-loop record, `fuzz` emits deterministic schema-fuzz samples for the built-in contract, `repowise` reports repository structure while excluding internal/generated paths and symlinks, and `autoresearch` initializes a bounded metric experiment record. These helpers do not make completion claims on their own.
 
 ## Compatibility Aliases
 

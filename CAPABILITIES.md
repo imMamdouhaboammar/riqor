@@ -71,7 +71,7 @@ The well-known installation endpoint later returned HTTP 429 after its hourly re
 
 The selected skills were therefore installed from their primary GitHub repositories with the same `npx skills add` CLI and recorded in `skills-lock.json`
 
-Source revisions and rejection reasons are recorded in `config/skill-curation.json` and `SKILL_CURATION.md`
+Source revisions and curation decisions are recorded in `config/skill-curation.json`
 
 ## Unproven or unavailable
 

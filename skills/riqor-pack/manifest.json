@@ -1,0 +1,13 @@
+{
+  "name": "riqor-skills-pack",
+  "schemaVersion": 1,
+  "description": "Operational skills for AI coding agents that install, run, diagnose, secure, or release Riqor",
+  "skills": [
+    "core",
+    "evidence",
+    "managed-codex",
+    "diagnostics",
+    "security",
+    "release"
+  ]
+}

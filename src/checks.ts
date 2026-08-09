@@ -107,3 +107,5 @@ export async function runSandboxedCheck(
     await rm(checkRoot, { recursive: true, force: true });
   }
 }
+
+export { autoHealEnvironment } from "./doctor-auto-healer.js";

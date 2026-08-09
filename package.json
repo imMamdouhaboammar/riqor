@@ -1,13 +1,14 @@
 {
   "name": "codex-self-improvement-harness",
   "private": true,
-  "version": "0.1.1",
+  "version": "0.2.0-beta.1",
   "type": "module",
   "scripts": {
     "test": "bun test test",
     "baseline": "bun run src/cli.ts baseline",
     "compare": "bun run src/cli.ts compare",
-    "plugin:test": "bun test test/plugin-router.test.ts test/plugin-paths.test.ts test/plugin-state.test.ts test/plugin-hooks.test.ts test/plugin-package.test.ts test/plugin-build.test.ts test/plugin-scripts.test.ts test/skill-curation.test.ts test/curated-skill-hardening.test.ts test/terminal-runtime.test.ts test/harness-cli.test.ts test/shell-integration.test.ts test/shell-installer.test.ts test/marketplace-source-check.test.ts test/capsule.test.ts test/harness.test.ts test/runner.test.ts",
+    "plugin:test": "bun test test/plugin-router.test.ts test/plugin-paths.test.ts test/plugin-state.test.ts test/plugin-hooks.test.ts test/plugin-package.test.ts test/plugin-build.test.ts test/plugin-scripts.test.ts test/skill-curation.test.ts test/curated-skill-hardening.test.ts test/terminal-runtime.test.ts test/harness-cli.test.ts test/agy-activator-cli.test.ts test/shell-integration.test.ts test/shell-installer.test.ts test/marketplace-source-check.test.ts test/capsule.test.ts test/harness.test.ts test/runner.test.ts",
+    "synthesis:test": "bun test test/goal-orchestrator.test.ts test/schema-fuzzer.test.ts test/repo-intelligence.test.ts test/auto-research.test.ts test/synthesis-cli.test.ts",
     "plugin:health": "bun run scripts/plugin-health.ts",
     "plugin:package": "bun run scripts/package-plugin.ts",
     "plugin:smoke": "bun run scripts/smoke-plugin.ts",

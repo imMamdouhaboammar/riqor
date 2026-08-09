@@ -6,5 +6,6 @@ const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 process.env.RIQOR_PACKAGE_ROOT ??= packageRoot;
 process.env.RIQOR_RUNTIME_ROOT ??= resolve(packageRoot, "runtime");
 process.env.RIQOR_EXECUTABLE_NAME ??= "riqor";
+process.env.CODEX_SELF_IMPROVEMENT_PACKAGE_MODE = "1";
 const { main } = await import("../dist/cli.mjs");
 await main(process.argv.slice(2));

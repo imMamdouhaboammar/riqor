@@ -1,5 +1,6 @@
 import { describe, expect, test } from "bun:test";
 import { access, readFile } from "node:fs/promises";
+import { spawnSync } from "node:child_process";
 import { join, resolve } from "node:path";
 
 const ROOT = resolve(import.meta.dir, "..");
@@ -11,8 +12,8 @@ describe("public repository surface", () => {
     expect(readme).toContain("Proof before done");
     expect(readme).toContain("Evidence gate");
     expect(readme).toContain("Session activator");
-    expect(readme).toContain("npx riqor install");
-    expect(readme).toContain("brew install imMamdouhaboammar/tap/riqor");
+    expect(readme).toContain("npx riqor@beta install");
+    expect(readme).toContain("Homebrew formula tracks the stable channel");
     expect(readme).toContain("Hosted ChatGPT conversations do not execute local Riqor code");
     expect(readme).toContain("docs/CLI_REFERENCE.md");
     expect(readme).not.toMatch(/^#{1,6}[ \t]+repository[ \t]+automation\b/im);
@@ -45,6 +46,16 @@ describe("public repository surface", () => {
     ]) {
       await access(join(ROOT, filename));
     }
+  });
+
+  test("internal development artifacts are excluded from the release surface", async () => {
+    const ignored = ["docs/superpowers/", ".planning/", "graphify-out/", "BASELINE.md", "FINAL_EVALUATION.md", "baseline-results.*", "final-results.*"];
+    const gitignore = await readFile(join(ROOT, ".gitignore"), "utf8");
+    for (const entry of ignored) expect(gitignore).toContain(entry);
+
+    const tracked = spawnSync("git", ["ls-files", "docs/superpowers/**", ".planning/**", "graphify-out/**", "BASELINE.md", "FINAL_EVALUATION.md", "EVOLUTION_LOG.md", "PLUGIN_EVALUATION.md", "SKILL_CURATION.md", "baseline-results.*", "final-results.*"], { cwd: ROOT, encoding: "utf8" });
+    expect(tracked.status).toBe(0);
+    expect(tracked.stdout.trim()).toBe("");
   });
 
   test("issue and pull request templates exist", async () => {

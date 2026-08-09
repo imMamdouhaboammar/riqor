@@ -29,6 +29,7 @@ const staticRuntimeFiles = [
   ".agents/plugins/marketplace.json",
   "skills-lock.json",
   "config/skill-curation.json",
+  "skills/riqor-pack",
   "scripts/install-shell-integration.sh",
   "scripts/uninstall-shell-integration.sh",
   "scripts/install-shell-integration.py",

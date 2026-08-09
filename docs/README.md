@@ -11,7 +11,7 @@ Use this page to move from installation to implementation details without search
 | Understand components and data flow | [Architecture](ARCHITECTURE.md) |
 | Review trust boundaries and local state | [Security Model](SECURITY_MODEL.md) |
 | Diagnose an installation or session problem | [Troubleshooting](TROUBLESHOOTING.md) |
-| Review current development priorities | [Backlog](../BACKLOG.md) |
+| Use Riqor with AI coding agents | [Agent Skills Pack](AGENT_SKILLS.md) |
 | Operate the development backlog | [Backlog guide](backlog/README.md) |
 | Configure security scans, badges, and demo captures | [Automation](AUTOMATION.md) |
 | Publish and verify a release | [Releasing](RELEASING.md) |
@@ -67,6 +67,6 @@ SecureAI-Scan checks AI, MCP, and Agent Skill surfaces. Dynamic Badges publishes
 
 Riqor is local software. It can affect Codex App, Codex CLI, Kaku, and terminal sessions only through installed local hooks, shims, and inherited environment values. Hosted ChatGPT conversations do not run Riqor inside the remote conversation runtime.
 
-## Repository Documents
+## Documentation Boundary
 
-The `docs/superpowers/` directory contains implementation specifications and plans used during feature development. Those files record design decisions and implementation history. The `backlog/` directory contains the authoritative development queue. The guides linked above are the public operating documentation.
+The guides linked above are the supported public operating documentation. Temporary planning, evaluation, graph, and agent-session artifacts are intentionally excluded from version control. Maintainer backlog records remain versioned because they define release and contribution work.

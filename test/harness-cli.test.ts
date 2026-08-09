@@ -5,7 +5,7 @@ import { join, resolve } from "node:path";
 
 const root = resolve(import.meta.dir, "..");
 const cli = join(root, "src", "harness-cli.ts");
-import { assessCodexDoctor } from "../src/harness-cli";
+import { assessAgentCliAvailability, assessCodexDoctor, normalizeSpawnSyncExitCode } from "../src/harness-cli";
 
 function run(args: string[], env: Record<string, string> = {}) {
   return Bun.spawnSync(["bun", "run", cli, ...args], {
@@ -71,4 +71,33 @@ test("Codex doctor assessment separates core health from installation warnings",
     "installation: duplicate npm install",
     "updates.status: new version",
   ]);
+});
+
+
+test("usage lists synthesis commands exposed by the harness", () => {
+  const result = run(["unknown-command"]);
+  const usage = result.stderr.toString();
+  for (const command of ["evidence", "loop", "verify", "telemetry", "rules", "delta", "deliberate", "conventions", "scratchpad", "heartbeat", "spec", "grill", "goal", "fuzz", "repowise", "autoresearch", "codex", "agy"]) {
+    expect(usage).toContain(command);
+  }
+});
+
+test("agent CLI assessment treats Codex and AGY as alternatives", () => {
+  expect(assessAgentCliAvailability({ codex: { available: true, version: "codex 1" }, agy: { available: false, version: null } }).ok).toBe(true);
+  expect(assessAgentCliAvailability({ codex: { available: false, version: null }, agy: { available: true, version: "agy 1" } }).ok).toBe(true);
+  expect(assessAgentCliAvailability({ codex: { available: false, version: null }, agy: { available: false, version: null } }).ok).toBe(false);
+});
+
+
+test("spec --json keeps the default topic instead of treating the flag as content", () => {
+  const result = run(["spec", "--json"]);
+  expect(result.exitCode).toBe(0);
+  expect(JSON.parse(result.stdout.toString()).topic).toBe("feature-spec");
+});
+
+
+test("normalizes signal-style null spawn statuses as failures", () => {
+  expect(normalizeSpawnSyncExitCode(null)).toBe(1);
+  expect(normalizeSpawnSyncExitCode(0)).toBe(0);
+  expect(normalizeSpawnSyncExitCode(7)).toBe(7);
 });

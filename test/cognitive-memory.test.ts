@@ -83,4 +83,17 @@ describe("Cognitive Memory Ledger (COG-second-brain integration)", () => {
     const mode = fileStats.mode & 0o777;
     expect(mode).toBe(0o600);
   });
+
+  test("exports session events into ShareGPT trajectory JSON format", () => {
+    const { exportShareGPTTrajectories } = require("../src/cognitive-memory");
+    const events = [
+      { type: "user", content: "Build feature X" },
+      { type: "assistant", content: "I will implement feature X following TDD" },
+    ];
+    const trajectory = exportShareGPTTrajectories(events, "traj-100");
+    expect(trajectory.id).toBe("traj-100");
+    expect(trajectory.conversations.length).toBe(2);
+    expect(trajectory.conversations[0]).toEqual({ from: "human", value: "Build feature X" });
+    expect(trajectory.conversations[1]).toEqual({ from: "gpt", value: "I will implement feature X following TDD" });
+  });
 });

@@ -37,15 +37,54 @@ jobs:
       - name: Install dependencies
         run: bun install --frozen-lockfile
 
+      - name: Resolve release channel
+        id: release-channel
+        shell: bash
+        run: |
+          set -euo pipefail
+          version="${GITHUB_REF_NAME#v}"
+          if [[ "$version" == *-* ]]; then
+            prerelease="true"
+            npm_tag="${version#*-}"
+            npm_tag="${npm_tag%%.*}"
+          else
+            prerelease="false"
+            npm_tag="latest"
+          fi
+          if [[ ! "$npm_tag" =~ ^[a-zA-Z][a-zA-Z0-9._-]*$ ]]; then
+            echo "Invalid npm dist-tag derived from $GITHUB_REF_NAME: $npm_tag" >&2
+            exit 1
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "npm-tag=$npm_tag" >> "$GITHUB_OUTPUT"
+          echo "prerelease=$prerelease" >> "$GITHUB_OUTPUT"
+
+      - name: Verify tag matches package version
+        env:
+          RELEASE_VERSION: ${{ steps.release-channel.outputs.version }}
+        run: |
+          node --input-type=module <<'NODE'
+          import fs from "node:fs";
+          const root = JSON.parse(fs.readFileSync("package.json", "utf8"));
+          const pkg = JSON.parse(fs.readFileSync("packages/riqor/package.json", "utf8"));
+          const version = process.env.RELEASE_VERSION;
+          if (!version || root.version !== version || pkg.version !== version) {
+            console.error(`Release version mismatch: tag=${version} root=${root.version} npm=${pkg.version}`);
+            process.exit(1);
+          }
+          NODE
+
       - name: Build Riqor runtime for package tests
         run: bun run riqor:build
 
-      - name: Run CI test suite
+      - name: Run release verification suite
         run: |
           bun test
           bun run plugin:health
           bun run skills:health
+          bun run riqor:test
           bun run actions:verify
+          bun run backlog:check
 
       - name: Build Riqor package tarball and plugin ZIP
         run: |
@@ -56,7 +95,7 @@ jobs:
         run: bun run riqor:inspect -- packages/riqor/riqor-*.tgz
 
       - name: Publish to npm with trusted publishing
-        run: npm publish packages/riqor/riqor-*.tgz --access public
+        run: npm publish packages/riqor/riqor-*.tgz --access public --tag "${{ steps.release-channel.outputs.npm-tag }}"
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@01570a1f39cb168c169c802c3bceb9e93fb10974 # v2.1.0
@@ -65,4 +104,5 @@ jobs:
             packages/riqor/riqor-*.tgz
             dist/plugins/*.zip
           draft: false
-          prerelease: false
+          prerelease: ${{ steps.release-channel.outputs.prerelease == 'true' }}
+          generate_release_notes: true

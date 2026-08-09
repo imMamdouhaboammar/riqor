@@ -1,6 +1,6 @@
 {
   "name": "riqor",
-  "version": "0.1.1",
+  "version": "0.2.0-beta.1",
   "description": "Evidence gates and session continuity for AI coding agents",
   "type": "module",
   "license": "MIT",

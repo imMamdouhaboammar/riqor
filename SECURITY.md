@@ -8,7 +8,8 @@ For implementation details, read the [Security Model](docs/SECURITY_MODEL.md).
 
 | Version | Security support |
 | --- | --- |
-| `0.1.x` | Supported |
+| `0.2.0-beta.x` | Beta security support |
+| `0.1.x` | Supported stable |
 | Older or unreleased builds | Best effort only |
 
 Security fixes are prepared for the latest supported release line. Report the exact version or commit you tested.

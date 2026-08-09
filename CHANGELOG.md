@@ -6,6 +6,31 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.0-beta.1] - 2026-08-09
+
+### Added
+
+- Managed Google Antigravity (`agy` or `antigravity`) session launch with the same bounded activator timing model used by managed Codex sessions
+- Canonical Riqor Skills Pack for core operation, evidence runs, managed Codex, diagnostics, security, and release work, bundled into the npm runtime and covered by package provenance
+- Repository analysis, goal-loop, schema fuzzing, incremental review, evidence-pack, task-plan, and convergence helpers with focused regression coverage
+- Explicit ShareGPT trajectory export from caller-provided recorded events instead of synthetic sample data
+
+### Changed
+
+- Full doctor now requires at least one supported managed-agent CLI instead of requiring Codex and AGY simultaneously; Kaku is optional
+- Package security diagnostics scan the installed Riqor package instead of the caller's current working directory
+- Repository analysis skips internal worktrees, generated planning data, and symlinked files
+- Internal planning, evaluation, and generated graph artifacts are excluded from version control and public release documentation
+- Release automation derives npm dist-tags from prerelease identifiers and marks GitHub prerelease tags correctly
+
+### Fixed
+
+- Made swarm locks atomic under concurrent acquisition and bound release to a per-acquisition token
+- Prevented task-ledger mutations when another owner holds its lock
+- Hardened destructive-command detection against equivalent `rm` flag orders, `--` path separators, and destructive `git reset --hard` target variants
+- Validated harness-config targets and removed a release-facing hard-coded harness version
+- Exposed supported synthesis commands in CLI usage and removed misleading synthetic trajectory exports
+
 ## [0.1.1] - 2026-08-08
 
 ### Added

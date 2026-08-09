@@ -81,6 +81,19 @@ if manage_wrappers:
         alias.unlink()
     alias.symlink_to(wrapper.name)
 
+    agy_wrapper = bin_dir / "agy-harness"
+    agy_wrapper.write_text(
+        "#!/usr/bin/env bash\n"
+        "# Managed by Riqor AGY Harness\n"
+        "set -euo pipefail\n"
+        f"exec bun run {json.dumps(str(root / 'src/harness-cli.ts'))} agy \"$@\"\n"
+    )
+    agy_wrapper.chmod(0o755)
+    agy_alias = bin_dir / "riqor-agy"
+    if agy_alias.exists() or agy_alias.is_symlink():
+        agy_alias.unlink()
+    agy_alias.symlink_to(agy_wrapper.name)
+
 if zshenv.exists():
     shutil.copy2(zshenv, backup_dir / "zshenv.backup")
 zshenv.write_text(rendered_zshenv)

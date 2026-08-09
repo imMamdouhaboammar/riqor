@@ -4,7 +4,7 @@
 
 **Proof before done**
 
-Local evidence gates and managed checkpoints for Codex sessions
+Local evidence gates and managed checkpoints for Codex and AGY sessions
 
 [![Node.js](https://img.shields.io/badge/Node.js-%3E%3D22-339933?logo=node.js&logoColor=white)](https://nodejs.org/)
 [![Platforms](https://img.shields.io/badge/platform-macOS%20%7C%20Linux-lightgrey)](#requirements)
@@ -14,9 +14,9 @@ Local evidence gates and managed checkpoints for Codex sessions
 
 </div>
 
-Riqor wraps local AI coding sessions with checks that keep completion claims tied to observable evidence. It records when a successful command changed the workspace, asks for focused verification before completion, and can run periodic task checkpoints inside Codex sessions launched through Riqor.
+Riqor wraps local AI coding sessions with checks that keep completion claims tied to observable evidence. It records when a successful command changed the workspace, asks for focused verification before completion, and can run periodic task checkpoints inside Codex or AGY sessions launched through Riqor.
 
-Riqor does not modify the model, read hosted ChatGPT conversations, or attach to unrelated Codex processes.
+Riqor does not modify the model, read hosted ChatGPT conversations, or attach to unrelated agent processes.
 
 ## Why Riqor
 
@@ -33,15 +33,10 @@ Coding agents can lose the task goal, repeat work, skip a final test, or report 
 ### 1. Install
 
 ```bash
-npx riqor install
+npx riqor@beta install
 ```
 
-Homebrew is also supported:
-
-```bash
-brew install imMamdouhaboammar/tap/riqor
-riqor install
-```
+The Homebrew formula tracks the stable channel. During this beta, use npm for `0.2.0-beta.1`. The stable `0.1.x` line remains available through Homebrew and `npx riqor install`.
 
 ### 2. Check the environment
 
@@ -50,10 +45,16 @@ riqor status --json
 riqor doctor --json
 ```
 
-### 3. Start a managed Codex session
+### 3. Start a managed Codex or AGY session
 
 ```bash
 riqor codex --activator
+```
+
+Or for Google Antigravity (AGY):
+
+```bash
+riqor agy --activator
 ```
 
 The default activator interval is 15 minutes with a 3-minute watchdog window.
@@ -64,24 +65,25 @@ riqor codex --activator \
   --activator-watchdog 3m
 ```
 
-Codex arguments can follow the Riqor options:
+Codex or AGY arguments can follow the Riqor options:
 
 ```bash
 riqor codex --activator --help
+riqor agy --activator --help
 ```
 
 ## Requirements
 
 - macOS or Linux
 - Node.js 22 or newer
-- Codex CLI installed and authenticated for Codex features
+- Codex CLI or Google Antigravity (`agy` or `antigravity`) CLI installed and authenticated for managed agent sessions
 - Python 3 for managed shell integration
 - Bun 1.3.14 for repository development and verification
-- Kaku for a fully green current full-doctor report; direct `riqor codex` use does not require launching Kaku
+- Kaku is optional; Riqor reports it when available but does not require it for managed Codex or AGY sessions
 
 ## What a Managed Checkpoint Reviews
 
-When the interval is due, Riqor waits for the next safe Codex `Stop` event. It does not interrupt an active turn. The checkpoint asks Codex to:
+When the interval is due, Riqor waits for the next safe Codex or AGY `Stop` event. It does not interrupt an active turn. The checkpoint asks the agent to:
 
 1. Restate the current task and observable success criteria
 2. Inspect relevant status, diffs, tests, and recent results
@@ -89,15 +91,15 @@ When the interval is due, Riqor waits for the next safe Codex `Stop` event. It d
 4. Detect scope drift, repeated work, stale assumptions, and missing checks
 5. Continue with the smallest relevant correction
 
-The watchdog limits one checkpoint cycle and prevents repeated Stop loops. It does not terminate the main Codex process.
+The watchdog limits one checkpoint cycle and prevents repeated Stop loops. It does not terminate the main agent process.
 
 ## How Riqor Works
 
 ```mermaid
 flowchart LR
-    U[Developer] --> R[riqor codex]
-    R --> C[Managed Codex child process]
-    C --> H[Codex lifecycle hooks]
+    U[Developer] --> R[riqor codex / riqor agy]
+    R --> C[Managed Agent child process]
+    C --> H[Agent lifecycle hooks]
     T[Local shell hooks] --> S[Local verification state]
     S --> H
     H --> E{Safe Stop event}
@@ -106,22 +108,24 @@ flowchart LR
     E -->|Clear| D[Continue or finish]
 ```
 
-Riqor uses local lifecycle hooks and local state. Activator state is scoped to a random token created for the current `riqor codex` child process. Closing that process ends the activator. No daemon or network listener is installed.
+Riqor uses local lifecycle hooks and local state. Activator state is scoped to a random token created for the current `riqor codex` or `riqor agy` child process. Closing that process ends the activator. No daemon or network listener is installed.
 
 ## Command Overview
 
 | Command | Purpose |
 | --- | --- |
-| `riqor install` | Install the versioned runtime, safe shims, shell integration, and bundled Codex plugin when Codex is available |
+| `riqor install` | Install the versioned runtime, safe shims, shell integration, bundled Codex plugin when available, and AGY shell integration |
 | `riqor uninstall` | Remove Riqor-owned files while preserving unrelated local paths |
 | `riqor status` | Show the installed version and detected integrations |
-| `riqor doctor` | Check package health, platform support, Codex, and current Kaku integration |
+| `riqor doctor` | Check package health, platform support, Codex, AGY CLI, and current Kaku integration |
 | `riqor version` | Print Riqor and plugin versions |
 | `riqor codex [args]` | Start Codex with the Riqor environment |
 | `riqor codex --activator` | Start a managed Codex session with periodic checkpoints |
+| `riqor agy [args]` | Start Google Antigravity (`agy`) with the Riqor environment |
+| `riqor agy --activator` | Start a managed AGY session with periodic checkpoints |
 | `riqor terminal status` | Show `clear` or `verification-pending` for the current terminal session |
 | `riqor paths list` | List available reviewed workflow paths |
-| `riqor plugin status` | Show Codex plugin installation state |
+| `riqor plugin status` | Show plugin installation state |
 | `riqor shell status` | Show local shell integration state |
 
 Use `--json` with status and diagnostic commands when machine-readable output is needed. See the [CLI reference](docs/CLI_REFERENCE.md) for every command, option, bound, and exit behavior.
@@ -147,20 +151,27 @@ Shell integration may also create managed Kaku and zsh files with backups. The i
 - Packaged runtime files are checked against SHA-256 provenance before package diagnostics pass
 - Installer and uninstaller ownership checks preserve unrelated command paths
 - Activator values are bounded before use
-- Codex is launched with argument arrays and `shell: false`
+- Managed Codex and AGY child processes are launched with argument arrays and `shell: false`
 - Managed activator sessions use random tokens and hashed state filenames
 - Activator state does not retain prompts, transcripts, commands, source contents, or credentials
-- The activator never discovers or attaches to external Codex sessions
+- The activator never discovers or attaches to external Codex or AGY sessions
 - Hosted ChatGPT conversations do not execute local Riqor code
 - High-risk or durable learning actions remain subject to explicit approval
 
 Read the [security model](docs/SECURITY_MODEL.md) for trust boundaries and state handling. Report vulnerabilities through [GitHub Private Vulnerability Reporting](https://github.com/imMamdouhaboammar/riqor/security/advisories/new).
+
+## Agent Skills Pack
+
+Riqor includes a canonical Skills Pack for agents that operate, diagnose, secure, or release Riqor. The source lives under `skills/riqor-pack/` and the npm build copies the same pack into `runtime/skills/riqor-pack/` with provenance coverage.
+
+The pack contains focused skills for core operation, evidence runs, managed Codex sessions, diagnostics, security, and release maintenance. See [Agent Skills Pack](docs/AGENT_SKILLS.md).
 
 ## Documentation
 
 - [Documentation index](docs/README.md)
 - [Getting started](docs/GETTING_STARTED.md)
 - [CLI reference](docs/CLI_REFERENCE.md)
+- [Agent Skills Pack](docs/AGENT_SKILLS.md)
 - [Architecture](docs/ARCHITECTURE.md)
 - [Security model](docs/SECURITY_MODEL.md)
 - [Troubleshooting](docs/TROUBLESHOOTING.md)

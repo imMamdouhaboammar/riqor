@@ -13,4 +13,9 @@ describe("bun execution kernel", () => {
     const result = executeKernelCommand(["false"], process.cwd());
     expect(result.exitCode).not.toBe(0);
   });
+  it("reports a signal-terminated command as failure", () => {
+    const result = executeKernelCommand(["sh", "-c", "kill -TERM $$"], process.cwd());
+    expect(result.exitCode).not.toBe(0);
+  });
+
 });

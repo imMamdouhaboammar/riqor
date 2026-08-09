@@ -95,3 +95,110 @@ export function runOfflineSecurityScan(filePaths: string[], repoRoot: string = p
     timestamp: new Date().toISOString(),
   };
 }
+
+// AgentShield Real-Time Security Inspection (Inspired by ECC AgentShield)
+
+const PROMPT_INJECTION_PATTERNS = [
+  /ignore\s+all\s+(?:previous\s+)?instructions/i,
+  /system\s+override\s*:/i,
+  /bypass\s+security\s+(?:checks|rules|policies)/i,
+  /reveal\s+(?:secret|auth|api_key|password|token)/i,
+  /you\s+are\s+now\s+in\s+dan\s+mode/i,
+];
+
+const DESTRUCTIVE_TEXT_PATTERNS = [
+  /\bdrop\s+database\b/i,
+  /\bdrop\s+table\b/i,
+  /(?:^|\s)mkfs(?:\.[^\s]+)?(?:\s|$)/i,
+  /(?:^|\s)dd\s+[^\n]*\bof=\/dev\//i,
+];
+
+function shellTokens(segment: string): string[] {
+  const tokens: string[] = [];
+  const matcher = /"([^"\\]*(?:\\.[^"\\]*)*)"|'([^']*)'|([^\s]+)/g;
+  for (const match of segment.matchAll(matcher)) {
+    tokens.push((match[1] ?? match[2] ?? match[3] ?? "").replace(/\\([\\"'])/g, "$1"));
+  }
+  return tokens;
+}
+
+function isCommandToken(token: string, command: string): boolean {
+  return token === command || token.endsWith(`/${command}`);
+}
+
+function isDangerousRm(tokens: readonly string[]): boolean {
+  const rmIndex = tokens.findIndex((token) => isCommandToken(token, "rm"));
+  if (rmIndex < 0) return false;
+
+  let recursive = false;
+  let force = false;
+  let optionsEnded = false;
+  const targets: string[] = [];
+  for (const token of tokens.slice(rmIndex + 1)) {
+    if (!optionsEnded && token === "--") {
+      optionsEnded = true;
+      continue;
+    }
+    if (!optionsEnded && token.startsWith("--")) {
+      if (token === "--recursive") recursive = true;
+      if (token === "--force") force = true;
+      continue;
+    }
+    if (!optionsEnded && /^-[^-]/.test(token)) {
+      const flags = token.slice(1);
+      if (/[rR]/.test(flags)) recursive = true;
+      if (/f/.test(flags)) force = true;
+      continue;
+    }
+    targets.push(token);
+  }
+  if (!recursive || !force) return false;
+  return targets.some((target) => target === "~" || target.startsWith("~/") || target.startsWith("/"));
+}
+
+function isDangerousGitReset(tokens: readonly string[]): boolean {
+  const gitIndex = tokens.findIndex((token) => isCommandToken(token, "git"));
+  if (gitIndex < 0) return false;
+  const resetIndex = tokens.findIndex((token, index) => index > gitIndex && token === "reset");
+  if (resetIndex < 0) return false;
+  return tokens.slice(resetIndex + 1).some((token) => token === "--hard" || token.startsWith("--hard="));
+}
+
+export function detectPromptInjection(input: string): { blocked: boolean; reason?: string } {
+  for (const pattern of PROMPT_INJECTION_PATTERNS) {
+    if (pattern.test(input)) {
+      return { blocked: true, reason: `AgentShield: Prompt injection pattern detected (${pattern.source})` };
+    }
+  }
+  return { blocked: false };
+}
+
+export function detectDestructiveMutation(command: string): { blocked: boolean; reason?: string } {
+  const segments = command.split(/(?:&&|\|\||;|\n)/).map((segment) => segment.trim()).filter(Boolean);
+  for (const segment of segments) {
+    const tokens = shellTokens(segment);
+    if (isDangerousRm(tokens)) return { blocked: true, reason: "AgentShield: Destructive command blocked: recursive forced removal" };
+    if (isDangerousGitReset(tokens)) return { blocked: true, reason: "AgentShield: Destructive command blocked: git hard reset" };
+  }
+  for (const pattern of DESTRUCTIVE_TEXT_PATTERNS) {
+    if (pattern.test(command)) return { blocked: true, reason: `AgentShield: destructive command blocked (${pattern.source})` };
+  }
+  return { blocked: false };
+}
+
+export type HarnessTarget = "codex" | "claude" | "cursor" | "gemini";
+
+export function isHarnessTarget(value: string): value is HarnessTarget {
+  return value === "codex" || value === "claude" || value === "cursor" || value === "gemini";
+}
+
+export function exportHarnessConfig(targetFormat: HarnessTarget, harnessVersion = "development"): string {
+  const config = {
+    harnessVersion,
+    target: targetFormat,
+    security: "AgentShield-enabled",
+    processGates: ["TDD-Enforced", "Skeptical-Verification", "Karpathy-Unslop-Grader"],
+    createdAt: new Date().toISOString(),
+  };
+  return JSON.stringify(config, null, 2);
+}

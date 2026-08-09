@@ -3,7 +3,7 @@ import { createHash } from "node:crypto";
 import { mkdir, mkdtemp, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { assessCodexDoctorOutput, verifyPayloadProvenance } from "../src/commands/doctor";
+import { assessCodexDoctorOutput, assessPackageAgentAvailability, runPackageSecurityAudit, verifyPayloadProvenance } from "../src/commands/doctor";
 
 const roots: string[] = [];
 afterEach(async () => {
@@ -27,6 +27,7 @@ async function fixture() {
   }));
   return runtime;
 }
+
 describe("package integrity diagnostics", () => {
   test("accepts an intact provenance manifest and rejects payload tampering", async () => {
     const runtime = await fixture();
@@ -63,5 +64,31 @@ describe("package integrity diagnostics", () => {
     }));
     expect(report.coreOk).toBe(true);
     expect(report.externalIssues).toContain("installation: different install");
+  });
+
+  test("treats Codex and AGY as alternative agent CLIs and Kaku as optional", () => {
+    expect(assessPackageAgentAvailability({ codexAvailable: true, agyAvailable: false }).ok).toBe(true);
+    expect(assessPackageAgentAvailability({ codexAvailable: false, agyAvailable: true }).ok).toBe(true);
+    expect(assessPackageAgentAvailability({ codexAvailable: false, agyAvailable: false }).ok).toBe(false);
+  });
+
+  test("runs package security audit against the Riqor payload instead of caller cwd", async () => {
+    const packageRoot = await mkdtemp(join(tmpdir(), "riqor-package-security-"));
+    const callerRoot = await mkdtemp(join(tmpdir(), "riqor-caller-security-"));
+    roots.push(packageRoot, callerRoot);
+    const fakePat = ["ghp_", "123456789012345678901234567890123456"].join("");
+    await writeFile(join(packageRoot, "package.json"), '{"name":"riqor"}\n');
+    await writeFile(join(packageRoot, "README.md"), "clean package readme\n");
+    await writeFile(join(callerRoot, "package.json"), `${JSON.stringify({ token: fakePat })}\n`);
+    await writeFile(join(callerRoot, "README.md"), "eval(user_prompt)\n");
+    const original = process.cwd();
+    try {
+      process.chdir(callerRoot);
+      const report = runPackageSecurityAudit(packageRoot);
+      expect(report.passed).toBe(true);
+      expect(report.scannedFilesCount).toBe(2);
+    } finally {
+      process.chdir(original);
+    }
   });
 });

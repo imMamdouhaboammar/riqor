@@ -16,6 +16,18 @@ async function exists(path: string) {
   }
 }
 
+export function assessPackageAgentAvailability(input: { codexAvailable: boolean; agyAvailable: boolean }) {
+  const ok = input.codexAvailable || input.agyAvailable;
+  return {
+    ok,
+    detail: ok ? "at least one supported agent CLI is available" : "Codex and AGY are unavailable",
+  };
+}
+
+export function runPackageSecurityAudit(packageRoot: string) {
+  return runOfflineSecurityScan(["package.json", "README.md"], packageRoot);
+}
+
 export function assessCodexDoctorOutput(output: string) {
   try {
     const parsed = JSON.parse(output) as {
@@ -130,23 +142,35 @@ export async function doctor(options: DoctorOptions = {}): Promise<DoctorReport>
   checks.push({ id: "executable-shim", ok: hasBinShim, detail: hasBinShim ? "installed" : "missing" });
 
   const codex = await runCommand(["codex", "--version"]);
-  checks.push({ id: "codex-cli", ok: codex.exitCode === 0, detail: codex.exitCode === 0 ? codex.stdout : "missing" });
+  const codexAvailable = codex.exitCode === 0;
 
-  const codexDoctor = await runCommand(["codex", "doctor", "--json"]);
-  const assessment = codexDoctor.stdout
-    ? assessCodexDoctorOutput(codexDoctor.stdout)
-    : { coreOk: false, overallStatus: "unavailable", externalIssues: [codexDoctor.stderr || "Codex doctor produced no JSON"] };
-  checks.push({
-    id: "codex-core",
-    ok: assessment.coreOk,
-    detail: assessment.coreOk ? `core passed; overall ${assessment.overallStatus}` : `core failed; overall ${assessment.overallStatus}`,
-  });
-  externalIssues.push(...assessment.externalIssues);
+  const agy = await runCommand(["agy", "--version"]);
+  const antigravity = agy.exitCode === 0 ? agy : await runCommand(["antigravity", "--version"]);
+  const agyAvailable = antigravity.exitCode === 0;
+  const agentAvailability = assessPackageAgentAvailability({ codexAvailable, agyAvailable });
+  checks.push({ id: "agent-cli", ok: agentAvailability.ok, detail: agentAvailability.detail });
+  checks.push({ id: "codex-cli", ok: true, detail: codexAvailable ? codex.stdout : "optional: unavailable" });
+  checks.push({ id: "agy-cli", ok: true, detail: agyAvailable ? antigravity.stdout : "optional: unavailable" });
+
+  if (codexAvailable) {
+    const codexDoctor = await runCommand(["codex", "doctor", "--json"]);
+    const assessment = codexDoctor.stdout
+      ? assessCodexDoctorOutput(codexDoctor.stdout)
+      : { coreOk: false, overallStatus: "unavailable", externalIssues: [codexDoctor.stderr || "Codex doctor produced no JSON"] };
+    checks.push({
+      id: "codex-core",
+      ok: assessment.coreOk,
+      detail: assessment.coreOk ? `core passed; overall ${assessment.overallStatus}` : `core failed; overall ${assessment.overallStatus}`,
+    });
+    externalIssues.push(...assessment.externalIssues);
+  } else {
+    checks.push({ id: "codex-core", ok: true, detail: "optional: Codex CLI unavailable" });
+  }
 
   const kaku = await runCommand(["kaku", "--version"]);
-  checks.push({ id: "kaku-cli", ok: kaku.exitCode === 0, detail: kaku.exitCode === 0 ? kaku.stdout : "missing" });
+  checks.push({ id: "kaku-cli", ok: true, detail: kaku.exitCode === 0 ? kaku.stdout : "optional: unavailable" });
 
-  const securityResult = runOfflineSecurityScan(["package.json", "README.md"]);
+  const securityResult = runPackageSecurityAudit(packageRoot);
   checks.push({
     id: "security-audit",
     ok: securityResult.passed,

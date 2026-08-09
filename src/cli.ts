@@ -1,7 +1,7 @@
 import { chmod, cp, mkdir, readFile, readdir, rename, rm, stat, writeFile } from "node:fs/promises";
 import { createHash } from "node:crypto";
 import { homedir, tmpdir } from "node:os";
-import { join, resolve } from "node:path";
+import { basename, join, resolve } from "node:path";
 import { canonicalDigest, deriveScenarioResult, validateScenarioSet } from "./harness";
 import { runSandboxedCheck } from "./checks";
 import { createCapsule, destroyCapsule, selectedCapabilities } from "./capsule";
@@ -309,7 +309,23 @@ async function compare() {
 }
 
 if (import.meta.main) {
-  if (process.argv[2] === "baseline") await baseline();
-  else if (process.argv[2] === "compare") await compare();
-  else throw new Error("usage: bun run src/cli.ts <baseline|compare>");
+  const modeArg = process.argv[2];
+  if (modeArg === "baseline") await baseline();
+  else if (modeArg === "compare") await compare();
+  else if (modeArg === "export-trajectories") {
+    const inputPath = process.argv[3];
+    if (!inputPath) throw new Error("export-trajectories requires an events JSON file");
+    const { exportShareGPTTrajectories, parseShareGPTEvents } = await import("./cognitive-memory");
+    const events = parseShareGPTEvents(JSON.parse(await readFile(resolve(inputPath), "utf8")));
+    const trajectoryId = (process.argv[4] ?? basename(inputPath).replace(/\.[^.]+$/, "")) || "riqor-session";
+    const traj = exportShareGPTTrajectories(events, trajectoryId);
+    process.stdout.write(`${JSON.stringify(traj, null, 2)}\n`);
+  } else if (modeArg === "export-harness-config") {
+    const { exportHarnessConfig, isHarnessTarget } = await import("./security-scan");
+    const target = process.argv[3] ?? "codex";
+    if (!isHarnessTarget(target)) throw new Error(`unsupported harness target: ${target}`);
+    const pkg = JSON.parse(await readFile(join(harnessRoot, "package.json"), "utf8")) as { version?: unknown };
+    if (typeof pkg.version !== "string" || !pkg.version) throw new Error("repository package version is unavailable");
+    process.stdout.write(`${exportHarnessConfig(target, pkg.version)}\n`);
+  } else throw new Error("usage: bun run src/cli.ts <baseline|compare|export-trajectories <events.json> [trajectory-id]|export-harness-config [codex|claude|cursor|gemini]>");
 }

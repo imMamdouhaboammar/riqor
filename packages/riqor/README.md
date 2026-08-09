@@ -4,28 +4,28 @@
 
 **Proof before done**
 
-Evidence gates, repository run traces, and managed Codex checkpoints for local coding sessions
+Evidence gates, repository run traces, and managed Codex or AGY checkpoints for local coding sessions
 
 </div>
 
 `riqor` is the official npm distribution of [Riqor](https://github.com/imMamdouhaboammar/riqor).
 
-It installs a versioned local runtime, ownership-checked command shims, shell integration, and the bundled Codex plugin when Codex CLI is available. The CLI can track verification state, maintain a repository-scoped run trace, and start Codex sessions with an optional periodic task checkpoint.
+It installs a versioned local runtime, ownership-checked command shims, shell integration, and the bundled Codex plugin when Codex CLI is available. The CLI can track verification state, maintain a repository-scoped run trace, and start Codex or AGY sessions with an optional periodic task checkpoint.
 
 ## Requirements
 
 - macOS or Linux
 - Node.js 22 or newer
 - Python 3 for managed shell integration
-- Codex CLI for Codex features; installation can complete without Codex and plugin setup can be run later
+- Codex CLI for Codex features or Google Antigravity for AGY features; installation can complete without either CLI
 
 ## Install
 
 ```bash
-npx riqor install
+npx riqor@beta install
 ```
 
-Bun is not required for the published package install path. When Codex CLI is present, the installer registers the bundled plugin automatically.
+For this prerelease, `@beta` selects the beta dist-tag without moving npm `latest`. Bun is not required for the published package install path. When Codex CLI is present, the installer registers the bundled plugin automatically.
 
 Confirm the installation:
 
@@ -69,7 +69,7 @@ riqor trace export <run-id> --format jsonl
 
 Run state stores bounded metadata and digests. It does not store raw command text, command output, prompts, source contents, environment values, credentials, cookies, or tokens.
 
-## Start Codex
+## Start a Managed Agent
 
 Standard managed environment:
 
@@ -93,7 +93,14 @@ riqor codex --activator \
 
 The default interval is `15m` and the default watchdog is `3m`. The interval accepts `1m` to `24h`; the watchdog accepts `10s` to `30m`.
 
-The activator applies only to the Codex child process started by that command. It waits for the next safe Codex `Stop` event and does not interrupt an active turn.
+The activator applies only to the child process started by that command. It waits for the next safe lifecycle `Stop` event and does not interrupt an active turn.
+
+Google Antigravity uses the equivalent commands:
+
+```bash
+riqor agy
+riqor agy --activator
+```
 
 ## Core Commands
 
@@ -111,6 +118,8 @@ The activator applies only to the Codex child process started by that command. I
 | `riqor trace export` | Export trace events as JSONL |
 | `riqor codex` | Start Codex with the Riqor environment |
 | `riqor codex --activator` | Start Codex with periodic task checkpoints |
+| `riqor agy` | Start Google Antigravity with the Riqor environment |
+| `riqor agy --activator` | Start AGY with periodic task checkpoints |
 | `riqor terminal status` | Show local verification state |
 | `riqor plugin status` | Show Codex plugin state |
 | `riqor shell status` | Show shell integration state |
@@ -136,12 +145,17 @@ Run `riqor uninstall` for managed package rollback. Uninstall removes only recog
 
 ## Privacy and Scope
 
-Riqor runs locally and does not install a network listener. Run and activator state do not retain prompts, transcripts, raw commands, command output, source contents, environment values, or credentials. The activator does not discover or attach to external Codex sessions.
+Riqor runs locally and does not install a network listener. Run and activator state do not retain prompts, transcripts, raw commands, command output, source contents, environment values, or credentials. The activator does not discover or attach to external Codex or AGY sessions.
 
 Riqor does not provide a model runtime, durable user memory, delegated-agent routing, or Playbook execution.
 
+## Agent Skills Pack
+
+The npm payload includes Riqor's canonical agent guidance under `runtime/skills/riqor-pack/`. It contains focused skills for core operation, evidence runs, managed Codex sessions, diagnostics, security, and release work. The active versioned package path is recorded in the Riqor install manifest.
+
 ## Documentation
 
+- [Agent Skills Pack](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/AGENT_SKILLS.md)
 - [Getting started](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/GETTING_STARTED.md)
 - [CLI reference](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/CLI_REFERENCE.md)
 - [Architecture](https://github.com/imMamdouhaboammar/riqor/blob/main/docs/ARCHITECTURE.md)

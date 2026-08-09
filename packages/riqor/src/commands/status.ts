@@ -26,6 +26,10 @@ export async function status(options: StatusOptions = {}): Promise<StatusReport>
     surfaces: {
       codexApp: "native-plugin-shared-CODEX_HOME",
       codexCli: "native-plugin-shared-CODEX_HOME",
+      agyCli: "native-cli-or-ide-integration",
+      agyIde: "sidebar-and-inline-lenses",
+      agyApp: "antigravity-2.0-chat-canvas-and-auxiliary-pane",
+      agySdk: "python-agent-leasing-and-orchestration",
       kaku: "interactive-shell-hooks",
       chatgptTerminalControl: "inherits-kaku-or-zsh-environment",
       chatgptConversation: "no-native-local-plugin-runtime",

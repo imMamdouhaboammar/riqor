@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { spawn } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { access, readFile } from "node:fs/promises";
 import { constants } from "node:fs";
 import { homedir } from "node:os";
@@ -23,12 +23,16 @@ import { runDeliberationGate } from "./deliberation-gate";
 import { auditRepositoryConventions } from "./convention-auditor";
 import { recordHeartbeat, listActiveSessions, writeScratchpadEntry, readScratchpad } from "./scratchpad-isolation";
 import { executeKernelCommand } from "./bun-kernel";
+import { GoalLoopOrchestrator } from "./goal-orchestrator";
+import { SchemaContractFuzzer } from "./assurance/schema-fuzzer";
+import { RepoIntelligenceAnalyzer } from "./diagnostics/repo-intelligence";
+import { AutoResearchEngine } from "./assurance/auto-research";
 
 const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
 const pluginRoot = layout.pluginRoot;
 const pluginId = "codex-self-improvement@codex-self-improvement-dev";
-const usage = "usage: codex-harness <version|status|doctor|paths list|evidence|loop|verify [--sdlc]|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--actions-first] [--activator-interval 15m] [--activator-watchdog 3m]";
+const usage = "usage: codex-harness <version|status|doctor|paths list|evidence|loop|verify|telemetry|rules|delta|deliberate|conventions|scratchpad|heartbeat|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|spec|grill|goal|fuzz|repowise|autoresearch|codex|agy> [options]; activator: --activator [--actions-first] [--activator-interval 15m] [--activator-watchdog 3m]";
 
 const defaultActivatorIntervalMs = 15 * 60_000;
 const defaultActivatorWatchdogMs = 3 * 60_000;
@@ -54,6 +58,11 @@ export type CodexActivatorOptions = Readonly<{
 }>;
 export type ParsedCodexActivatorArgs = Readonly<{
   codexArgs: string[];
+  actionsFirst?: boolean;
+  activator?: CodexActivatorOptions;
+}>;
+export type ParsedAgyActivatorArgs = Readonly<{
+  agyArgs: string[];
   actionsFirst?: boolean;
   activator?: CodexActivatorOptions;
 }>;
@@ -144,6 +153,61 @@ export function parseCodexActivatorArgs(args: string[]): ParsedCodexActivatorArg
   };
 }
 
+export function parseAgyActivatorArgs(args: string[]): ParsedAgyActivatorArgs {
+  const agyArgs: string[] = [];
+  let enabled = false;
+  let actionsFirst = false;
+  let timingConfigured = false;
+  let intervalMs = defaultActivatorIntervalMs;
+  let watchdogMs = defaultActivatorWatchdogMs;
+
+  for (let index = 0; index < args.length; index += 1) {
+    const argument = args[index]!;
+    if (argument === "--") {
+      agyArgs.push(...args.slice(index));
+      break;
+    }
+    if (argument === "--activator") {
+      enabled = true;
+      continue;
+    }
+    if (argument === "--actions-first") {
+      actionsFirst = true;
+      continue;
+    }
+
+    const intervalInline = flagValue(argument, "--activator-interval");
+    if (argument === "--activator-interval" || intervalInline !== undefined) {
+      timingConfigured = true;
+      const duration = intervalInline ?? args[++index];
+      if (!duration) throw new Error("--activator-interval requires a duration");
+      intervalMs = parseActivatorDuration(duration, minimumActivatorIntervalMs, maximumActivatorIntervalMs, "activator interval");
+      continue;
+    }
+
+    const watchdogInline = flagValue(argument, "--activator-watchdog");
+    if (argument === "--activator-watchdog" || watchdogInline !== undefined) {
+      timingConfigured = true;
+      const duration = watchdogInline ?? args[++index];
+      if (!duration) throw new Error("--activator-watchdog requires a duration");
+      watchdogMs = parseActivatorDuration(duration, minimumActivatorWatchdogMs, maximumActivatorWatchdogMs, "activator watchdog");
+      continue;
+    }
+
+    agyArgs.push(argument);
+  }
+
+  if (!enabled && timingConfigured) throw new Error("activator timing flags require --activator");
+  const activator: CodexActivatorOptions | undefined = enabled
+    ? { enabled: true, ...(actionsFirst ? { actionsFirst: true } : {}), intervalMs, watchdogMs }
+    : undefined;
+  return {
+    agyArgs,
+    ...(actionsFirst ? { actionsFirst: true } : {}),
+    ...(activator ? { activator } : {}),
+  };
+}
+
 export function buildActivatorEnvironment(options: CodexActivatorOptions, session = randomUUID()) {
   return {
     RIQOR_ACTIVATOR_ENABLED: "1",
@@ -172,26 +236,66 @@ export function buildCodexEnvironment(
   return environment;
 }
 
+export function buildAgyEnvironment(
+  baseEnvironment: NodeJS.ProcessEnv,
+  activator?: CodexActivatorOptions,
+  session?: string,
+  actionsFirst = false,
+): NodeJS.ProcessEnv {
+  const environment: NodeJS.ProcessEnv = {
+    ...baseEnvironment,
+    AGY_SELF_IMPROVEMENT_ENABLED: "1",
+    ANTIGRAVITY_HARNESS_ENABLED: "1",
+    AGY_HARNESS_SURFACE: baseEnvironment.AGY_HARNESS_SURFACE ?? "agy-harness",
+    ...(actionsFirst || activator?.actionsFirst ? { RIQOR_ACTIONS_FIRST: "1" } : {}),
+  };
+  for (const key of activatorEnvironmentKeys) delete environment[key];
+  if (activator) Object.assign(environment, buildActivatorEnvironment(activator, session));
+  else if (actionsFirst) environment.RIQOR_ACTIONS_FIRST = "1";
+  return environment;
+}
+
 function print(value: unknown, json: boolean) {
   process.stdout.write(json ? `${JSON.stringify(value, null, 2)}\n` : `${String(value)}\n`);
 }
 
+export function normalizeSpawnSyncExitCode(status: number | null): number {
+  return typeof status === "number" ? status : 1;
+}
+
 function run(command: string[], options: { cwd?: string; env?: Record<string, string | undefined> } = {}) {
-  const result = Bun.spawnSync(command, {
+  const [file, ...args] = command;
+  if (!file) return { exitCode: 1, stdout: "", stderr: "No executable specified" };
+  const result = spawnSync(file, args, {
     cwd: options.cwd ?? root,
     env: { ...process.env, ...options.env },
-    stdout: "pipe",
-    stderr: "pipe",
+    encoding: "utf8",
   });
+  const stderr = (result.stderr ?? "").trim();
   return {
-    exitCode: result.exitCode,
-    stdout: result.stdout.toString().trim(),
-    stderr: result.stderr.toString().trim(),
+    exitCode: normalizeSpawnSyncExitCode(result.status),
+    stdout: (result.stdout ?? "").trim(),
+    stderr: stderr || result.error?.message?.trim() || "",
   };
 }
 
 async function exists(path: string) {
   try { await access(path, constants.R_OK); return true; } catch { return false; }
+}
+
+export function assessAgentCliAvailability(status: {
+  codex: { available: boolean; version: string | null };
+  agy: { available: boolean; version: string | null };
+}) {
+  const ok = status.codex.available || status.agy.available;
+  return {
+    ok,
+    checks: [
+      { id: "agent-cli", ok, detail: ok ? "at least one supported agent CLI is available" : "Codex and AGY are unavailable" },
+      { id: "codex-cli", ok: true, detail: status.codex.available ? status.codex.version ?? "available" : "optional: unavailable" },
+      { id: "agy-cli", ok: true, detail: status.agy.available ? status.agy.version ?? "available" : "optional: unavailable" },
+    ] satisfies Check[],
+  };
 }
 
 export function assessCodexDoctor(output: string) {
@@ -254,17 +358,24 @@ async function shellInventory() {
 
 async function statusRecord() {
   const codex = run(["codex", "--version"]);
+  const agyRun = run(["agy", "--version"]);
+  const antigravity = agyRun.exitCode === 0 ? agyRun : run(["antigravity", "--version"]);
   const kaku = run(["kaku", "--version"]);
   return {
     ...(await versionRecord()),
     root,
     codex: { available: codex.exitCode === 0, version: codex.stdout || null },
+    agy: { available: antigravity.exitCode === 0, version: antigravity.stdout || null },
     kaku: { available: kaku.exitCode === 0, version: kaku.stdout || null },
     plugin: pluginInventory(),
     shell: await shellInventory(),
     surfaces: {
       codexApp: "native-plugin-shared-CODEX_HOME",
       codexCli: "native-plugin-shared-CODEX_HOME",
+      agyCli: "native-cli-or-ide-integration",
+      agyIde: "sidebar-and-inline-lenses",
+      agyApp: "antigravity-2.0-chat-canvas-and-auxiliary-pane",
+      agySdk: "python-agent-leasing-and-orchestration",
       kaku: "interactive-shell-hooks",
       chatgptTerminalControl: "inherits-kaku-or-zsh-environment",
       chatgptConversation: "no-native-local-plugin-runtime",
@@ -280,16 +391,22 @@ async function doctorRecord() {
   const codexAssessment = assessCodexDoctor(codexDoctor.stdout);
   const kakuDoctor = run(["kaku", "doctor"]);
   const health = run(["bun", "run", join(layout.scriptsRoot, "plugin-health.ts"), pluginRoot]);
+  const agentCli = assessAgentCliAvailability({
+    codex: status.codex as { available: boolean; version: string | null },
+    agy: status.agy as { available: boolean; version: string | null },
+  });
+  const codexAvailable = (status.codex as { available: boolean }).available;
+  const kakuAvailable = (status.kaku as { available: boolean }).available;
   const checks: Check[] = [
-    { id: "codex-cli", ok: (status.codex as any).available, detail: (status.codex as any).version ?? "missing" },
-    { id: "codex-core", ok: codexAssessment.coreOk, detail: codexAssessment.coreOk ? `core passed; overall ${codexAssessment.overallStatus}` : `core failed; overall ${codexAssessment.overallStatus}` },
-    { id: "plugin-installed", ok: plugin.installed === true, detail: String(plugin.version ?? "missing") },
-    { id: "plugin-enabled", ok: plugin.enabled === true, detail: plugin.enabled === true ? "enabled" : "disabled" },
+    ...agentCli.checks,
+    { id: "codex-core", ok: !codexAvailable || codexAssessment.coreOk, detail: codexAvailable ? (codexAssessment.coreOk ? `core passed; overall ${codexAssessment.overallStatus}` : `core failed; overall ${codexAssessment.overallStatus}`) : "optional: Codex CLI unavailable" },
+    { id: "plugin-installed", ok: !codexAvailable || plugin.installed === true, detail: codexAvailable ? String(plugin.version ?? "missing") : "optional: Codex CLI unavailable" },
+    { id: "plugin-enabled", ok: !codexAvailable || plugin.enabled === true, detail: codexAvailable ? (plugin.enabled === true ? "enabled" : "disabled") : "optional: Codex CLI unavailable" },
     { id: "plugin-health", ok: health.exitCode === 0, detail: health.exitCode === 0 ? "passed" : health.stderr || "failed" },
     { id: "shell-executable", ok: shell.executable === true, detail: shell.executable === true ? "installed" : "missing" },
     { id: "shell-environment", ok: shell.environment === true, detail: shell.environment === true ? "installed" : "missing" },
-    { id: "kaku-plugin", ok: shell.kakuPlugin === true, detail: shell.kakuPlugin === true ? "installed" : "missing" },
-    { id: "kaku-doctor", ok: kakuDoctor.exitCode === 0 && !/\b(?:WARN|FAIL)\b/.test(kakuDoctor.stdout), detail: kakuDoctor.exitCode === 0 ? "completed" : kakuDoctor.stderr || "failed" },
+    { id: "kaku-plugin", ok: !kakuAvailable || shell.kakuPlugin === true, detail: kakuAvailable ? (shell.kakuPlugin === true ? "installed" : "missing") : "optional: Kaku unavailable" },
+    { id: "kaku-doctor", ok: !kakuAvailable || (kakuDoctor.exitCode === 0 && !/\b(?:WARN|FAIL)\b/.test(kakuDoctor.stdout)), detail: kakuAvailable ? (kakuDoctor.exitCode === 0 ? "completed" : kakuDoctor.stderr || "failed") : "optional: Kaku unavailable" },
   ];
   return {
     ok: checks.every((check) => check.ok),
@@ -359,15 +476,36 @@ async function passthroughCodex(args: string[]) {
   });
 }
 
+async function passthroughAgy(args: string[]) {
+  const parsed = parseAgyActivatorArgs(args);
+  const binary = run(["agy", "--version"]).exitCode === 0
+    ? "agy"
+    : run(["antigravity", "--version"]).exitCode === 0
+      ? "antigravity"
+      : "agy";
+  const child = spawn(binary, parsed.agyArgs, {
+    cwd: process.cwd(),
+    env: buildAgyEnvironment(process.env, parsed.activator, undefined, parsed.actionsFirst),
+    stdio: "inherit",
+    shell: false,
+  });
+  process.exitCode = await new Promise<number>((resolvePromise, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code) => resolvePromise(code ?? 1));
+  });
+}
+
 async function lifecycle(script: string) {
-  const child = Bun.spawn(["bash", join(layout.scriptsRoot, script)], {
+  const child = spawn("bash", [join(layout.scriptsRoot, script)], {
     cwd: root,
     env: process.env,
-    stdin: "inherit",
-    stdout: "inherit",
-    stderr: "inherit",
+    stdio: "inherit",
+    shell: false,
   });
-  process.exitCode = await child.exited;
+  process.exitCode = await new Promise<number>((resolvePromise, reject) => {
+    child.once("error", reject);
+    child.once("exit", (code) => resolvePromise(code ?? 1));
+  });
 }
 
 export async function main(args = process.argv.slice(2)) {
@@ -479,8 +617,65 @@ export async function main(args = process.argv.slice(2)) {
     const hb = recordHeartbeat(sessionId, process.cwd());
     return print(hb, json);
   }
+  if (command === "spec") {
+    const topic = [subcommand, ...rest].find((argument) => argument && !argument.startsWith("--")) || "feature-spec";
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const specTemplate = `# Architectural Design Spec: ${topic}\n\nDate: ${dateStr}\n\n## Purpose\nDescribe the objective and problem statement.\n\n## Proposed Architecture\nComponents, data flow, and boundaries.\n\n## Verification Plan\nTDD test cases and skeptical verification checks.\n`;
+    return print({ ok: true, topic, template: specTemplate }, json);
+  }
+  if (command === "grill") {
+    const arch = auditRepositoryConventions(process.cwd());
+    const verifier = runSkepticalVerification(process.cwd());
+    const report = {
+      ok: arch.passed && verifier.passed,
+      verdict: arch.passed && verifier.passed ? "APPROVED" : "REJECTED",
+      archChecks: arch,
+      verificationChecks: verifier,
+    };
+    return print(report, json);
+  }
+  if (command === "goal") {
+    const words = [subcommand, ...rest].filter((a) => a && !a.startsWith("--"));
+    const title = words.join(" ") || "Riqor Goal Task";
+    const orchestrator = new GoalLoopOrchestrator({
+      id: `goal-${Date.now()}`,
+      title,
+      targetScore: 0.9,
+      maxIterations: 5,
+      subgoals: [],
+    });
+    return print({ ok: true, goalStatus: orchestrator.getStatus() }, json);
+  }
+  if (command === "fuzz") {
+    const fuzzer = new SchemaContractFuzzer({
+      type: "object",
+      required: ["id"],
+      properties: { id: { type: "string" }, count: { type: "number", minimum: 0 } },
+    });
+    const samples = fuzzer.generateValidPayloads({ count: 3 });
+    return print({ ok: true, fuzzSamples: samples }, json);
+  }
+  if (command === "repowise") {
+    const analyzer = new RepoIntelligenceAnalyzer(process.cwd());
+    const health = await analyzer.analyzeRepository();
+    return print({ ok: true, repoHealth: health }, json);
+  }
+  if (command === "autoresearch") {
+    const words = [subcommand, ...rest].filter((a) => a && !a.startsWith("--"));
+    const statement = words.join(" ") || "Optimize performance";
+    const engine = new AutoResearchEngine({
+      id: `res-${Date.now()}`,
+      statement,
+      baselineMetricName: "latencyMs",
+      baselineValue: 100,
+      optimizationDirection: "MINIMIZE",
+    });
+    return print({ ok: true, researchSummary: engine.getSummary() }, json);
+  }
   if (command === "terminal") return terminalCommand([subcommand ?? "", ...rest]);
+
   if (command === "codex") return passthroughCodex(args.slice(1));
+  if (command === "agy") return passthroughAgy(args.slice(1));
   process.stderr.write(`${usage}\n`);
   process.exitCode = 64;
 }

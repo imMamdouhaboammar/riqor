@@ -1,10 +1,12 @@
 import { describe, expect, test } from "bun:test";
+import { readFile } from "node:fs/promises";
 import { join, resolve } from "node:path";
 import { main } from "../src/cli";
 import { doctor } from "../src/commands/doctor";
 import { status } from "../src/commands/status";
 
 const packageRoot = resolve(import.meta.dir, "..");
+const packageVersion = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8")).version as string;
 
 async function withPackageRoot<T>(run: () => Promise<T>) {
   const previousPackageRoot = process.env.RIQOR_PACKAGE_ROOT;
@@ -24,7 +26,7 @@ async function withPackageRoot<T>(run: () => Promise<T>) {
 describe("packages/riqor CLI", () => {
   test("status reports package version and plugin version", async () => {
     const report = await withPackageRoot(() => status({}));
-    expect(report.version).toBe("0.1.1");
+    expect(report.version).toBe(packageVersion);
     expect(report.surfaces).toBeObject();
   });
 

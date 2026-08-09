@@ -12,3 +12,16 @@ __pycache__/
 # Isolated implementation worktrees
 .worktrees/
 .riqor/
+
+# Local planning, evaluation, and generated development artifacts
+docs/superpowers/
+.planning/
+graphify-out/
+BASELINE.md
+FINAL_EVALUATION.md
+EVOLUTION_LOG.md
+PLUGIN_EVALUATION.md
+SKILL_CURATION.md
+baseline-results.*
+final-results.*
+packages/riqor/*.tgz

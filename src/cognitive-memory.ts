@@ -99,3 +99,41 @@ export class CognitiveMemoryLedger {
     );
   }
 }
+
+export type ShareGPTTurn = { from: "human" | "gpt" | "system"; value: string };
+export type ShareGPTEvent = { type: "user" | "assistant" | "system"; content: string };
+export type ShareGPTTrajectory = {
+  id: string;
+  conversations: ShareGPTTurn[];
+};
+
+export function parseShareGPTEvents(input: unknown): ShareGPTEvent[] {
+  if (!Array.isArray(input)) throw new Error("trajectory events must be a JSON array");
+  return input.map((event, index) => {
+    if (!event || typeof event !== "object") throw new Error(`trajectory event ${index} must be an object`);
+    const candidate = event as { type?: unknown; content?: unknown };
+    if (!(["user", "assistant", "system"] as const).includes(candidate.type as any)) {
+      throw new Error(`trajectory event ${index} has an unsupported type`);
+    }
+    if (typeof candidate.content !== "string") throw new Error(`trajectory event ${index} content must be a string`);
+    return { type: candidate.type as ShareGPTEvent["type"], content: candidate.content };
+  });
+}
+
+export function exportShareGPTTrajectories(
+  events: readonly ShareGPTEvent[],
+  trajectoryId: string = "riqor-session-1",
+): ShareGPTTrajectory {
+  const conversations: ShareGPTTurn[] = events.map((event) => {
+    const fromMap = { user: "human", assistant: "gpt", system: "system" } as const;
+    return {
+      from: fromMap[event.type] || "human",
+      value: event.content,
+    };
+  });
+
+  return {
+    id: trajectoryId,
+    conversations,
+  };
+}

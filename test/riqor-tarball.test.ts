@@ -1,5 +1,5 @@
 import { describe, expect, test } from "bun:test";
-import { mkdtemp, rm } from "node:fs/promises";
+import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { buildRiqorPackage } from "../scripts/build-riqor-package";
@@ -8,6 +8,7 @@ import { runProcess } from "../src/process";
 
 const repositoryRoot = resolve(import.meta.dir, "..");
 const packageRoot = join(repositoryRoot, "packages", "riqor");
+const packageVersion = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8")).version as string;
 
 describe("riqor tarball inspection", () => {
   test("inspectRiqorTarball verifies compiled tarball entries", async () => {
@@ -16,7 +17,7 @@ describe("riqor tarball inspection", () => {
     expect(packResult.exitCode).toBe(0);
 
     const packInfo = JSON.parse(packResult.stdout) as Array<{ filename: string }>;
-    const tarballName = packInfo[0]?.filename ?? "riqor-0.1.1.tgz";
+    const tarballName = packInfo[0]?.filename ?? `riqor-${packageVersion}.tgz`;
     const tarballPath = join(packageRoot, tarballName);
 
     const report = await inspectRiqorTarball(tarballPath);

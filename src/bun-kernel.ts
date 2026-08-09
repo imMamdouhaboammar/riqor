@@ -1,4 +1,5 @@
 import { resolve } from "node:path";
+import { spawnSync } from "node:child_process";
 import { assertIsolatableRepo } from "./checks.js";
 
 export interface KernelExecutionResult {
@@ -18,17 +19,20 @@ export function executeKernelCommand(
 
   const startTime = Date.now();
   try {
-    const proc = Bun.spawnSync(command, {
+    const [file, ...args] = command;
+    if (!file) throw new Error("No executable specified");
+    const proc = spawnSync(file, args, {
       cwd: resolvedCwd,
-      stdout: "pipe",
-      stderr: "pipe",
+      encoding: "utf8",
+      timeout: timeoutMs,
     });
 
     const durationMs = Date.now() - startTime;
+    const stderr = (proc.stderr ?? "").trim();
     return {
-      exitCode: proc.exitCode ?? 1,
-      stdout: proc.stdout ? proc.stdout.toString().trim() : "",
-      stderr: proc.stderr ? proc.stderr.toString().trim() : "",
+      exitCode: typeof proc.status === "number" ? proc.status : 1,
+      stdout: (proc.stdout ?? "").trim(),
+      stderr: stderr || proc.error?.message?.trim() || "",
       durationMs,
     };
   } catch (error) {

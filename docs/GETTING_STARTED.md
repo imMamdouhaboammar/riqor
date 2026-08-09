@@ -1,6 +1,6 @@
 # Getting Started
 
-This guide installs Riqor, verifies the local environment, starts a managed Codex session, and explains how to remove the installation.
+This guide installs Riqor, verifies the local environment, starts a managed Codex or AGY session, and explains how to remove the installation.
 
 ## 1. Check Requirements
 
@@ -9,7 +9,7 @@ Riqor supports macOS and Linux.
 Required for normal use:
 
 - Node.js 22 or newer
-- Codex CLI installed and authenticated when using Codex integration
+- Codex CLI installed and authenticated for Codex integration, or Google Antigravity (`agy` or `antigravity`) for AGY integration
 - Python 3 for managed shell integration
 - `~/.local/bin` available on `PATH`
 
@@ -24,6 +24,7 @@ Check the main tools:
 node --version
 python3 --version
 codex --version
+agy --version || antigravity --version
 ```
 
 ## 2. Install Riqor
@@ -31,15 +32,12 @@ codex --version
 ### npx
 
 ```bash
-npx riqor install
+npx riqor@beta install
 ```
 
-### Homebrew
+### Stable channel
 
-```bash
-brew install imMamdouhaboammar/tap/riqor
-riqor install
-```
+The stable `0.1.x` line remains available through `npx riqor install` and Homebrew. The `0.2.0-beta.1` feature set is published through npm under the `beta` dist-tag.
 
 The installer copies a versioned payload, updates the `current` symlink, creates ownership-checked command shims, installs managed shell integration, registers the bundled Codex plugin when Codex CLI is available, writes an install manifest, and runs package integrity diagnostics. It returns a non-zero result when a required managed step fails.
 
@@ -89,15 +87,16 @@ A full doctor report checks:
 - SHA-256 payload provenance and exact runtime file set
 - supported platform
 - installed executable shim
-- Codex CLI availability
-- Codex core checks
-- Kaku CLI availability
+- at least one supported managed-agent CLI, Codex or AGY
+- Codex core checks when Codex is installed
+- optional Kaku availability
+- Riqor package security audit against the installed package files
 
-The current full doctor treats a missing Kaku command as a failed check. Direct `riqor codex` use does not require launching Kaku. Use `--package-only` when you need to validate the package without local Codex and Kaku integrations.
+Use `--package-only` when you need to validate the package payload without local agent integrations. Missing optional CLIs are reported as unavailable without turning an otherwise healthy package into a failure.
 
 Some non-core Codex findings appear under `externalIssues`. Review them separately from the core pass or fail result.
 
-## 5. Start Codex Through Riqor
+## 5. Start an Agent Through Riqor
 
 Without periodic checkpoints:
 
@@ -126,7 +125,13 @@ Accepted duration suffixes are `ms`, `s`, `m`, and `h`.
 | `--activator-interval` | `15m` | `1m` | `24h` |
 | `--activator-watchdog` | `3m` | `10s` | `30m` |
 
-Timing options require `--activator`. Invalid values are rejected before Codex starts.
+Timing options require `--activator`. Invalid values are rejected before the child process starts.
+
+For AGY, use the equivalent command:
+
+```bash
+riqor agy --activator
+```
 
 ## 6. Check Verification State
 
@@ -169,7 +174,7 @@ The activator is opt-in. Start Codex without `--activator`:
 riqor codex
 ```
 
-Closing the managed Codex child process ends the activator for that session. Riqor does not install an activator daemon.
+Closing the managed Codex or AGY child process ends the activator for that session. Riqor does not install an activator daemon.
 
 ## 9. Uninstall
 
@@ -190,4 +195,4 @@ The installer state directory may remain when it contains no managed file target
 
 For an affected `0.1.0` npm installation, `npx riqor@0.1.1 install` recognizes the legacy managed wrapper signature and repairs the primary shim without allowing arbitrary executable replacement.
 
-See [Troubleshooting](TROUBLESHOOTING.md) when installation, diagnostics, or shell integration does not behave as expected.
+See [Agent Skills Pack](AGENT_SKILLS.md) for agent-facing operating guidance and [Troubleshooting](TROUBLESHOOTING.md) when installation, diagnostics, or shell integration does not behave as expected.

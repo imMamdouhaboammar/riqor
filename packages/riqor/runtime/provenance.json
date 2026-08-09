@@ -1,7 +1,7 @@
 {
-  "version": "0.1.1",
-  "sourceCommit": "87ad101810d71373acb1713cfb56f20fe1e53eda",
-  "sourceDateEpoch": 1786253931,
+  "version": "0.2.0-beta.1",
+  "sourceCommit": "2342ecdc72420fc2593c4dff24d4d01b8744cc04",
+  "sourceDateEpoch": 1786254500,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -75,8 +75,8 @@
     },
     {
       "path": "scripts/install-shell-integration.py",
-      "sha256": "a32072150545fa72989572ae063aab7adc4fdb48c17a2f7c248ec7414b2eb232",
-      "bytes": 5592
+      "sha256": "dc4716713f69d4b5550ae89cf72c7ac0db149d78816acadb29c07619d83c1249",
+      "bytes": 6048
     },
     {
       "path": "scripts/install-shell-integration.sh",
@@ -102,6 +102,41 @@
       "path": "skills-lock.json",
       "sha256": "d238570ef0e5762387e5d08ddb3c9a0374209ef3db95713f4f04e58e6bd224c1",
       "bytes": 2619
+    },
+    {
+      "path": "skills/riqor-pack/core/SKILL.md",
+      "sha256": "9a7efda8b8e45c956957c4fa6b18d90b4dc7db018064bc6960481b60dc4c3780",
+      "bytes": 1761
+    },
+    {
+      "path": "skills/riqor-pack/diagnostics/SKILL.md",
+      "sha256": "c254eda68cbbd86716432944827488449b8eb0c9b123b3a2c9259f2efb28ed62",
+      "bytes": 1554
+    },
+    {
+      "path": "skills/riqor-pack/evidence/SKILL.md",
+      "sha256": "8481ee91bc671394493dddc24b03d54b1198319a835f9867bf042e0b772f5eaf",
+      "bytes": 1565
+    },
+    {
+      "path": "skills/riqor-pack/managed-codex/SKILL.md",
+      "sha256": "bb04e4a46572f51f43a55e862d203365f162574200646a6e0b176ee7d95d2f64",
+      "bytes": 1295
+    },
+    {
+      "path": "skills/riqor-pack/manifest.json",
+      "sha256": "4470ec7c6a519716d1ec11dd868efe4306c680c835fff2ecc09e91d51430d589",
+      "bytes": 287
+    },
+    {
+      "path": "skills/riqor-pack/release/SKILL.md",
+      "sha256": "ab4a3990b78fd03c7a5e8891c88eb6dcfa0c6509e7fb33e8e4d50f3a5bcf4c66",
+      "bytes": 1564
+    },
+    {
+      "path": "skills/riqor-pack/security/SKILL.md",
+      "sha256": "fb2d09c405c4a14ba1439000e245a2536e9a30fe87e77f32c0d8c7f872edd7a3",
+      "bytes": 1812
     }
   ]
 }

@@ -1,11 +1,12 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdir, mkdtemp, rm, symlink } from "node:fs/promises";
+import { chmod, mkdir, mkdtemp, readFile, rm, symlink, writeFile } from "node:fs/promises";
 import { dirname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
 
 const root = resolve(import.meta.dir, "..");
 const packageRoot = join(root, "packages", "riqor");
 const roots: string[] = [];
+const packageVersion = JSON.parse(await readFile(join(packageRoot, "package.json"), "utf8")).version as string;
 
 afterEach(async () => {
   await Promise.all(roots.splice(0).map((path) => rm(path, { recursive: true, force: true })));
@@ -70,12 +71,35 @@ describe("published package end-to-end", () => {
     const shim = join(home, ".local", "bin", "riqor");
     const version = run([shim, "version", "--json"], { env });
     expect(version.exitCode).toBe(0);
-    expect(JSON.parse(version.stdout.toString()).version).toBe("0.1.1");
+    expect(JSON.parse(version.stdout.toString()).version).toBe(packageVersion);
 
     const doctor = run([shim, "doctor", "--package-only", "--json"], { env });
     expect(doctor.exitCode).toBe(0);
     const doctorReport = JSON.parse(doctor.stdout.toString()) as { ok: boolean };
     expect(doctorReport.ok).toBe(true);
+
+    const paths = run([shim, "paths", "list", "--json"], { env });
+    expect(paths.exitCode).toBe(0);
+    expect(JSON.parse(paths.stdout.toString()).paths.length).toBeGreaterThan(0);
+
+    const pluginStatus = run([shim, "plugin", "status", "--json"], { env });
+    expect(pluginStatus.exitCode).toBe(0);
+    expect(pluginStatus.stderr.toString()).not.toContain("Bun is not defined");
+
+    const conventions = run([shim, "conventions", "--json"], { env });
+    expect(conventions.exitCode).toBe(0);
+    expect(conventions.stderr.toString()).not.toContain("Bun is not defined");
+
+    const shellInstall = run([shim, "shell", "install"], { env });
+    expect(shellInstall.exitCode).toBe(0);
+    expect(shellInstall.stderr.toString()).not.toContain("Bun is not defined");
+
+    const fakeAgy = join(temp, "tool-bin", "agy");
+    await writeFile(fakeAgy, "#!/bin/sh\nexit 0\n");
+    await chmod(fakeAgy, 0o755);
+    const agy = run([shim, "agy", "--version"], { env });
+    expect(agy.exitCode).toBe(0);
+    expect(agy.stderr.toString()).not.toContain("Bun is not defined");
 
     const removed = run([shim, "uninstall", "--json"], { env });
     expect(removed.exitCode).toBe(0);
