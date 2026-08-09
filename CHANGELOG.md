@@ -6,6 +6,14 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-09
+
+### Fixed
+
+- Put `.codex-plugin/plugin.json` directly at the Plugin ZIP root for uploader compatibility
+- Kept all 101 native Codex agent role configs in the root-layout plugin archive
+- Added a regression test that rejects the previously wrapped `riqor/` archive layout
+
 ## [0.2.1] - 2026-08-09
 
 ### Added
