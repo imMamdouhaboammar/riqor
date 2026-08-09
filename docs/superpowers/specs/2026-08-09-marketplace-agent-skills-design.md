@@ -100,7 +100,7 @@ Use these stable URLs:
 - Terms of Service: `https://github.com/imMamdouhaboammar/riqor/blob/main/TERMS.md`
 - Customer Support: `https://github.com/imMamdouhaboammar/riqor/blob/main/SUPPORT.md`
 
-Set the documented plugin manifest fields `interface.privacyPolicyURL` and `interface.termsOfServiceURL`. Customer Support remains a public submission/support URL unless the current official manifest schema documents a support field.
+Set the documented plugin manifest fields `interface.privacyPolicyURL`, `interface.termsOfServiceURL`, and `interface.supportURL`. All three URLs use public HTTPS GitHub pages and are validated before packaging.
 
 The documents must describe the actual open-source developer tool behavior and must not invent SaaS data practices, guarantees, or legal claims.
 
@@ -111,6 +111,25 @@ The generator must not copy credentials, local paths, transcripts, prompts, runt
 The existing credential-shaped filename gate remains strict. Any exception required by the legitimate `security-secrets-credential-engineer` slug must be exact and limited to generated files for that known role.
 
 No generated Skill may add apps, MCP server configuration, authentication secrets, or executable dependencies.
+
+## Offline adoption ledger
+
+Riqor adds a local-only adoption ledger for the npm/local runtime. It never phones home and never attempts to infer public ChatGPT Marketplace install counts.
+
+The ledger records only coarse product events: first-seen version, current version, active UTC days, session count, native-agent starts, paired-Skill activation counters when the runtime can observe them, and versions seen. It must not store prompts, transcripts, source contents, repository names, file paths, command output, environment values, account identifiers, IP addresses, hardware identifiers, credentials, cookies, or tokens.
+
+The installation identifier is random and local. It is not derived from user or hardware identity. The default report labels ChatGPT Marketplace installs as unknown.
+
+CLI surface:
+
+- `riqor adoption` renders a concise local report
+- `riqor adoption --json` emits the local report as JSON
+- `riqor adoption --export <path>` writes a privacy-preserving receipt
+- `riqor adoption --reset` deletes only the local adoption ledger
+
+Receipts use buckets for session and Skill counts rather than exporting sensitive histories. No upload or sharing command is included in 0.2.4. Future remote aggregation requires an explicit opt-in design and separate approval.
+
+The plugin hook may record events only in writable plugin-local data when that surface exposes a safe local data path. Hosted ChatGPT executions that do not expose local writable state remain untracked by Riqor.
 
 ## Verification
 
@@ -125,6 +144,8 @@ TDD coverage must include:
 - Marketplace ZIP contains 101 paired Skills and 101 native agents
 - npm runtime contains the same catalog
 - legal files and manifest URLs
+- local-only adoption ledger schema, privacy denylist, reset, report, and receipt bucketing
+- no network calls or remote telemetry in adoption code
 - credential boundary regression
 - existing native-agent profile behavior
 
