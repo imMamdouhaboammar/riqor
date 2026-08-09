@@ -1,0 +1,101 @@
+{
+  "schemaVersion": 1,
+  "version": "0.2.0-beta.3",
+  "verifiedAt": "2026-08-09T09:12:15Z",
+  "tag": "v0.2.0-beta.3",
+  "tagTarget": "7336672929bba79a9787c1fa41c673dc75670b8e",
+  "npm": {
+    "published": true,
+    "latest": "0.1.1",
+    "beta": "0.2.0-beta.3",
+    "shasum": "bd6d53fc9ef3e38c695d8826ff5a8044d4d12910",
+    "sha256": "0f29689e39d24220110fc228e56f073f1c2af7cbde638523aaa2e7e33279ddb1",
+    "integrity": "sha512-ZarWe9oa62vwd0aEXjKX/60rTnKw94080p0ar5+v6ilvi6CH9B9nQihhOomHIWFERczmirIu7oUWx6aUNI2BHQ==",
+    "fileCount": 43,
+    "unpackedSize": 256133,
+    "publishMethod": "authenticated maintainer terminal",
+    "provenanceAttached": false,
+    "registryTarballMatchesLocal": true
+  },
+  "githubRelease": {
+    "published": true,
+    "prerelease": true,
+    "url": "https://github.com/imMamdouhaboammar/riqor/releases/tag/v0.2.0-beta.3",
+    "npmTarballSha256": "0f29689e39d24220110fc228e56f073f1c2af7cbde638523aaa2e7e33279ddb1",
+    "npmTarballMatchesRegistry": true,
+    "assets": [
+      {
+        "name": "riqor-0.2.0-beta.3.tgz",
+        "sha256": "0f29689e39d24220110fc228e56f073f1c2af7cbde638523aaa2e7e33279ddb1",
+        "size": 70684
+      },
+      {
+        "name": "riqor-0.2.0-beta.3+codex.20260809085156.zip",
+        "sha256": "1a8ea14c25a978ff593903a4a1d551b24d682f7d552f258cbe97ead0b8e58ce6",
+        "size": 40522
+      }
+    ]
+  },
+  "plugin": {
+    "id": "riqor@riqor",
+    "version": "0.2.0-beta.3+codex.20260809085156",
+    "marketplace": "riqor",
+    "marketplaceSource": "https://github.com/imMamdouhaboammar/riqor.git",
+    "publicGitMarketplaceInstall": "passed",
+    "validator": "passed",
+    "health": "passed",
+    "isolatedSmoke": "passed",
+    "hookExecution": "verified",
+    "modelTurn": "SMOKE_OK",
+    "skillCount": 11
+  },
+  "verification": {
+    "fullSuite": {
+      "tests": 418,
+      "failures": 0,
+      "assertions": 1432,
+      "files": 89
+    },
+    "riqorPackageGroups": {
+      "repositoryPackageTests": 7,
+      "packagedRuntimeTests": 22,
+      "failures": 0
+    },
+    "securityRegressionTests": {
+      "tests": 25,
+      "failures": 0
+    },
+    "pluginHealth": "passed",
+    "skillsHealth": "passed",
+    "actionPins": "passed",
+    "backlogCheck": "passed",
+    "tarballInspection": "passed",
+    "releasePreflight": "passed",
+    "registryCleanHomeDoctor": "passed",
+    "registryE2EWithoutBun": true,
+    "registryE2EWithoutCodex": true,
+    "githubCi": {
+      "runId": 31305227664,
+      "status": "passed"
+    },
+    "secureAiScan": {
+      "runId": 31305227679,
+      "status": "passed"
+    }
+  },
+  "releaseWorkflow": {
+    "runId": 31305267475,
+    "status": "passed",
+    "verificationSuite": "passed",
+    "packageBuild": "passed",
+    "tarballInspection": "passed",
+    "registryTarballByteCompare": "passed",
+    "githubReleaseCreation": "passed",
+    "npmPublish": "disabled by policy; publication occurred from the maintainer terminal before tag push"
+  },
+  "homebrew": {
+    "publishedForThisVersion": false,
+    "formulaVersion": "0.1.1"
+  },
+  "knownExternalBlockers": []
+}
