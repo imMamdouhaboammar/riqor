@@ -36,7 +36,10 @@
     ],
     "brandColor": "#E85D3F",
     "composerIcon": "./assets/mark.svg",
-    "logo": "./assets/mark.svg"
+    "logo": "./assets/mark.svg",
+    "privacyPolicyURL": "https://github.com/imMamdouhaboammar/riqor/blob/main/PRIVACY.md",
+    "termsOfServiceURL": "https://github.com/imMamdouhaboammar/riqor/blob/main/TERMS.md",
+    "supportURL": "https://github.com/imMamdouhaboammar/riqor/blob/main/SUPPORT.md"
   },
   "homepage": "https://github.com/imMamdouhaboammar/riqor",
   "repository": "https://github.com/imMamdouhaboammar/riqor"

@@ -60,6 +60,21 @@ describe("plugin build", () => {
     expect(report.errors).toContain("manifest interface.logo SVG must be square: ./assets/logo.svg");
   });
 
+  test("health inspection rejects non-HTTPS public policy URLs", async () => {
+    const root = await mkdtemp(join(tmpdir(), "riqor-policy-url-"));
+    roots.push(root);
+    const source = resolve(import.meta.dir, "..", "plugins", "riqor");
+    const plugin = join(root, "riqor");
+    await cp(source, plugin, { recursive: true });
+    const manifestPath = join(plugin, ".codex-plugin", "plugin.json");
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+    manifest.interface.supportURL = "http://example.com/support";
+    await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+    const report = await inspectPlugin(plugin);
+    expect(report.ok).toBe(false);
+    expect(report.errors).toContain("manifest interface.supportURL must be an HTTPS URL no longer than 1024 characters");
+  });
+
   test("health inspection rejects common operating-system metadata", async () => {
     const root = await mkdtemp(join(tmpdir(), "codex-self-improvement-metadata-"));
     roots.push(root);

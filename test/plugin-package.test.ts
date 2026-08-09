@@ -34,6 +34,9 @@ describe("plugin package", () => {
     expect(manifest.interface?.defaultPrompt).toHaveLength(3);
     expect(manifest.interface?.logo).toBe("./assets/mark.svg");
     expect(manifest.interface?.composerIcon).toBe("./assets/mark.svg");
+    expect(manifest.interface?.privacyPolicyURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/PRIVACY.md");
+    expect(manifest.interface?.termsOfServiceURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/TERMS.md");
+    expect(manifest.interface?.supportURL).toBe("https://github.com/imMamdouhaboammar/riqor/blob/main/SUPPORT.md");
   });
 
   test("discovers lifecycle hooks from the default plugin path", async () => {

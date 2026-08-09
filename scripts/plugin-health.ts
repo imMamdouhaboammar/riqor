@@ -79,6 +79,11 @@ export async function inspectPlugin(pluginRoot: string): Promise<PluginHealthRep
   if (manifest.skills !== "./skills/") errors.push("manifest must expose ./skills/");
   if (manifest.hooks !== undefined) errors.push("manifest must rely on default hooks/hooks.json discovery");
   if (manifest.interface?.category !== "Developer Tools") errors.push("plugin category must be Developer Tools");
+  for (const field of ["privacyPolicyURL", "termsOfServiceURL", "supportURL"] as const) {
+    const value = manifest.interface?.[field];
+    if (typeof value !== "string" || value.length === 0) errors.push(`manifest interface.${field} is required`);
+    else if (!/^https:\/\//i.test(value) || value.length > 1024) errors.push(`manifest interface.${field} must be an HTTPS URL no longer than 1024 characters`);
+  }
   await validateSquareSvgAsset(root, "interface.logo", manifest.interface?.logo, errors);
   await validateSquareSvgAsset(root, "interface.composerIcon", manifest.interface?.composerIcon, errors);
 
