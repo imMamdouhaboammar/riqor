@@ -20,12 +20,20 @@ describe("native Codex agent bundle", () => {
     }
   });
 
-  test("plugin carries every source agent byte-for-byte", async () => {
+  test("plugin preserves native config and injects mandatory paired Skills", async () => {
     const source = await tomlFiles(sourceAgents);
     const bundled = await tomlFiles(join(pluginCodex, "agents"));
     expect(bundled).toEqual(source);
     for (const file of source) {
-      expect(await readFile(join(pluginCodex, "agents", file))).toEqual(await readFile(join(sourceAgents, file)));
+      const slug = file.slice(0, -5);
+      const canonical = Bun.TOML.parse(await readFile(join(sourceAgents, file), "utf8")) as Record<string, unknown>;
+      const packaged = Bun.TOML.parse(await readFile(join(pluginCodex, "agents", file), "utf8")) as Record<string, unknown>;
+      for (const [key, value] of Object.entries(canonical)) {
+        if (key !== "developer_instructions") expect(packaged[key], `${slug}:${key}`).toEqual(value);
+      }
+      expect(String(packaged.developer_instructions)).toStartWith(String(canonical.developer_instructions ?? "").trimEnd());
+      expect(String(packaged.developer_instructions)).toContain(`Mandatory paired Skill: ${slug}`);
+      expect(String(packaged.developer_instructions)).toContain(`$${slug}`);
     }
   });
 

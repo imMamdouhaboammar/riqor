@@ -33,7 +33,14 @@ describe("plugin build", () => {
     expect(report.ok).toBe(true);
     expect(report.pluginName).toBe("riqor");
     expect(report.hookEvents).toEqual(expect.arrayContaining(["SessionStart", "UserPromptSubmit", "PostToolUse", "Stop"]));
-    expect(report.skills).toEqual(["evidence-engineering", "harness-paths", "riqor-core", "riqor-diagnostics", "riqor-evidence", "riqor-managed-codex", "riqor-release", "riqor-security", "riqor-setup", "self-improvement-loop", "universal-session-runtime"]);
+    expect(report.skills).toHaveLength(112);
+    expect(report.skills).toEqual(expect.arrayContaining([
+      "evidence-engineering",
+      "riqor-core",
+      "engineering-senior-developer",
+      "security-appsec-engineer",
+      "security-secrets-credential-engineer",
+    ]));
     expect(report.credentialShapedFiles).toEqual([]);
     expect(report.unwantedFiles).toEqual([]);
   });

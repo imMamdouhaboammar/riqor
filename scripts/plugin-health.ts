@@ -5,6 +5,7 @@ import { basename, join, resolve } from "node:path";
 export function isCredentialShapedPluginPath(path: string) {
   const normalized = path.replaceAll("\\", "/");
   if (/^\.codex\/agents\/[^/]+\.toml$/i.test(normalized)) return false;
+  if (/^skills\/security-secrets-credential-engineer\/(?:$|references\/$|SKILL\.md$|references\/agent-instructions\.md$)/i.test(normalized)) return false;
   return /(?:^|\/)(?:auth\.json|credentials?(?:\.|$)|secrets?(?:\.|$)|\.env(?:\.|$))/i.test(normalized)
     || /(?:credential|secret)/i.test(normalized);
 }

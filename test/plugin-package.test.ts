@@ -65,8 +65,14 @@ describe("plugin package", () => {
     expect(paths.some((path) => path.startsWith(".runs/"))).toBe(false);
   });
 
-  test("credential filename exemption is limited to native agent TOML files", () => {
+  test("credential filename exemptions are limited to the known security specialist artifacts", () => {
     expect(isCredentialShapedPluginPath(".codex/agents/security-secrets-credential-engineer.toml")).toBe(false);
+    expect(isCredentialShapedPluginPath("skills/security-secrets-credential-engineer/")).toBe(false);
+    expect(isCredentialShapedPluginPath("skills/security-secrets-credential-engineer/references/")).toBe(false);
+    expect(isCredentialShapedPluginPath("skills/security-secrets-credential-engineer/SKILL.md")).toBe(false);
+    expect(isCredentialShapedPluginPath("skills/security-secrets-credential-engineer/references/agent-instructions.md")).toBe(false);
+    expect(isCredentialShapedPluginPath("skills/security-secrets-credential-engineer/secret.txt")).toBe(true);
+    expect(isCredentialShapedPluginPath("skills/other/credential.md")).toBe(true);
     expect(isCredentialShapedPluginPath("secrets.txt")).toBe(true);
     expect(isCredentialShapedPluginPath("config/credentials.json")).toBe(true);
     expect(isCredentialShapedPluginPath(".codex/agents/secret.txt")).toBe(true);
