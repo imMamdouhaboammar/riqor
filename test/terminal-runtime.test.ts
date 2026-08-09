@@ -73,4 +73,21 @@ describe("terminal runtime", () => {
     expect(first.transition).toBeDefined();
     expect(repeated.transition).toBeUndefined();
   });
+
+  test("formats visual terminal status badge line", () => {
+    const { formatTerminalStatusLine } = require("../src/terminal-runtime");
+    const formatted = formatTerminalStatusLine({
+      version: 1,
+      sessionDigest: "abc",
+      evidencePending: true,
+      commandDigest: "def",
+      lastKind: "mutation",
+      lastExitCode: 0,
+      route: "focus",
+      updatedAt: 1000,
+    });
+    expect(formatted).toContain("RIQOR STATUS");
+    expect(formatted).toContain("MUTATION PENDING");
+    expect(formatted).toContain("[Path: FOCUS]");
+  });
 });

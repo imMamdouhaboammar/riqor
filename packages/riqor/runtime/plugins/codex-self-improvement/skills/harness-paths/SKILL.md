@@ -62,6 +62,13 @@ Wait on observable conditions rather than fixed sleeps
 Capture traces or screenshots for failures without personal data
 Never run against production or upload artifacts externally without explicit approval
 
+## anti-overwhelm-focus
+
+Break complex tasks into single-action micro-steps to reduce cognitive overhead and eliminate multi-turn drift
+Enforce exactly one atomic action per turn
+Verify micro-step completion immediately after mutation
+Pause execution before attempting multi-layer edits
+
 ## Universal boundary
 
 Use no automatic actions from a third-party skill

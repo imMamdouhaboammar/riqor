@@ -29,8 +29,9 @@ test("lists all curated harness paths", () => {
   const result = run(["paths", "list", "--json"]);
   expect(result.exitCode).toBe(0);
   const value = JSON.parse(result.stdout.toString());
-  expect(value.paths).toHaveLength(8);
+  expect(value.paths).toHaveLength(9);
   expect(value.paths.map((entry: any) => entry.id)).toContain("secure-change");
+  expect(value.paths.map((entry: any) => entry.id)).toContain("anti-overwhelm-focus");
 });
 
 test("terminal commands keep command content out of output and state", async () => {

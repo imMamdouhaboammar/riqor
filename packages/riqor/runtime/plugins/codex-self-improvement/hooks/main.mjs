@@ -365,6 +365,19 @@ var harnessPaths = Object.freeze([
     guardrails: ["never retry until green without diagnosing the flake", "use no production account, credential, or personal data"],
     automaticActions: [],
     requiresExplicitApproval: ["run against production", "create persistent external test data", "upload traces or screenshots externally"]
+  }),
+  path({
+    id: "anti-overwhelm-focus",
+    objective: "Break complex tasks into single-action micro-steps to reduce cognitive overhead and eliminate multi-turn drift",
+    curatedSkills: [],
+    evidence: ["single micro-step completion state", "focused empirical verification after each mutation"],
+    guardrails: [
+      "enforce exactly one atomic action per turn",
+      "verify micro-step completion immediately after mutation",
+      "pause execution before attempting multi-layer edits"
+    ],
+    automaticActions: [],
+    requiresExplicitApproval: ["broaden scope to multiple subsystems"]
   })
 ]);
 var pathById = new Map(harnessPaths.map((candidate) => [candidate.id, candidate]));
@@ -378,6 +391,7 @@ var profilePaths = {
   privacy: "privacy-minimization",
   performance: "performance-evidence",
   evolution: "controlled-evolution",
+  focus: "anti-overwhelm-focus",
   engineering: "architecture-conformance"
 };
 function harnessPathById(id) {
@@ -410,9 +424,11 @@ var decisions = {
   privacy: decision("privacy", ["verification-before-completion"], "Map data fields to purpose, stores, retention, and deletion paths using metadata and synthetic records only"),
   performance: decision("performance", ["verification-before-completion"], "Freeze the local workload and environment, compare control and candidate distributions, and reject gains that regress correctness or resource ceilings"),
   evolution: decision("evolution", ["self-improvement-loop", "verification-before-completion"], "Capture a repeated evidence-backed pattern, draft a bounded playbook, evaluate it on holdouts, and leave publication for explicit review"),
+  focus: decision("focus", ["verification-before-completion"], "Break down complex work into single-action micro-steps, verify each step immediately, and avoid multi-subsystem cognitive overload"),
   engineering: decision("engineering", ["evidence-engineering", "test-driven-development", "verification-before-completion"], "Define observable acceptance criteria, inspect existing patterns and reuse candidates, make the smallest coherent change, and run focused checks before project gates")
 };
 var patterns = [
+  ["focus", /\b(focus|adhd|micro[- ]step|step[- ]by[- ]step|overwhelmed)\b/i],
   ["evolution", /\b(self[- ]?evolv|playbook|workflow synthesis|capture learning|agent learning|repeatable workflow)\w*/i],
   ["privacy", /\b(pii|personal data|data minimization|retention|consent|dsar|right to deletion|right to erasure|gdpr|privacy)\b/i],
   ["performance", /\b(benchmark|latency|throughput|load test|stress test|cpu profile|memory profile|core web vitals|requests per second|p95|p99)\b/i],

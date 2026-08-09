@@ -29,6 +29,7 @@ describe("curated harness paths", () => {
       "secure-change",
       "performance-evidence",
       "e2e-evidence",
+      "anti-overwhelm-focus",
     ]);
     for (const path of harnessPaths) {
       expect(path.objective.length).toBeGreaterThan(20);

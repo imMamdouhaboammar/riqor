@@ -109,3 +109,71 @@ export const scenarios: BenchmarkScenario[] = [
     ],
   },
 ];
+
+export type UnslopGradeResult = {
+  passed: boolean;
+  score: number; // 0.0 - 1.0 scale
+  reasons: string[];
+};
+
+export function karpathyUnslopGrader(diffContent: string): UnslopGradeResult {
+  const lines = diffContent.split("\n").map((l) => l.trim());
+  const addedLines = lines.filter((line) => line.startsWith("+") && !line.startsWith("+++"));
+  const removedLines = lines.filter((line) => line.startsWith("-") && !line.startsWith("---"));
+
+  const reasons: string[] = [];
+  let score = 1.0;
+
+  if (addedLines.length === 0) {
+    return { passed: true, score: 1.0, reasons: [] };
+  }
+
+  // 1. Comment Density Check (Karpathy rule: Prefer clean self-describing code over conversational comment walls)
+  const commentLines = addedLines.filter((l) => {
+    const trimmed = l.slice(1).trim();
+    return trimmed.startsWith("//") || trimmed.startsWith("/*") || trimmed.startsWith("*") || trimmed.startsWith("#");
+  });
+  const commentRatio = commentLines.length / addedLines.length;
+  if (commentRatio > 0.35 && addedLines.length > 5) {
+    score -= 0.35;
+    reasons.push(`High comment density (${Math.round(commentRatio * 100)}% of diff is comments) - prefer self-describing code.`);
+  }
+
+  // 2. Over-abstraction / Wrapper Slop Check
+  const slopPatterns = [
+    /class\s+\w+Factory/i,
+    /class\s+\w+Wrapper/i,
+    /class\s+\w+Manager/i,
+    /abstract\s+class/i,
+    /interface\s+I\w+Adapter/i,
+  ];
+  let slopMatches = 0;
+  for (const line of addedLines) {
+    for (const pattern of slopPatterns) {
+      if (pattern.test(line)) {
+        slopMatches++;
+      }
+    }
+  }
+  if (slopMatches >= 2) {
+    score -= 0.35;
+    reasons.push(`Detected over-abstraction / wrapper slop (${slopMatches} patterns matched) - prefer direct functions over verbose wrappers.`);
+  }
+
+
+  // 3. Diff Expansion Ratio Check (For small fixes, don't write 200 lines when 5 will do)
+  if (removedLines.length > 0 && addedLines.length > removedLines.length * 6 && addedLines.length > 40) {
+    score -= 0.25;
+    reasons.push(`Diff expansion bloat (${addedLines.length} lines added vs ${removedLines.length} removed) - prefer minimal-line edits.`);
+  }
+
+  const finalScore = Math.max(0, Math.round(score * 100) / 100);
+  const passed = finalScore >= 0.7;
+
+  return {
+    passed,
+    score: finalScore,
+    reasons,
+  };
+}
+

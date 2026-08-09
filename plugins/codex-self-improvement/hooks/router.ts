@@ -65,6 +65,11 @@ const decisions: Record<TaskProfile, RoutingDecision> = {
     ["self-improvement-loop", "verification-before-completion"],
     "Capture a repeated evidence-backed pattern, draft a bounded playbook, evaluate it on holdouts, and leave publication for explicit review",
   ),
+  focus: decision(
+    "focus",
+    ["verification-before-completion"],
+    "Break down complex work into single-action micro-steps, verify each step immediately, and avoid multi-subsystem cognitive overload",
+  ),
   engineering: decision(
     "engineering",
     ["evidence-engineering", "test-driven-development", "verification-before-completion"],
@@ -73,6 +78,7 @@ const decisions: Record<TaskProfile, RoutingDecision> = {
 };
 
 const patterns: Array<[TaskProfile, RegExp]> = [
+  ["focus", /\b(focus|adhd|micro[- ]step|step[- ]by[- ]step|overwhelmed)\b/i],
   ["evolution", /\b(self[- ]?evolv|playbook|workflow synthesis|capture learning|agent learning|repeatable workflow)\w*/i],
   ["privacy", /\b(pii|personal data|data minimization|retention|consent|dsar|right to deletion|right to erasure|gdpr|privacy)\b/i],
   ["performance", /\b(benchmark|latency|throughput|load test|stress test|cpu profile|memory profile|core web vitals|requests per second|p95|p99)\b/i],

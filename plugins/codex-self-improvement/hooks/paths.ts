@@ -8,6 +8,7 @@ export type TaskProfile =
   | "privacy"
   | "performance"
   | "evolution"
+  | "focus"
   | "engineering";
 
 export type HarnessPathId =
@@ -18,7 +19,8 @@ export type HarnessPathId =
   | "privacy-minimization"
   | "secure-change"
   | "performance-evidence"
-  | "e2e-evidence";
+  | "e2e-evidence"
+  | "anti-overwhelm-focus";
 
 export type HarnessPath = Readonly<{
   id: HarnessPathId;
@@ -114,6 +116,19 @@ export const harnessPaths = Object.freeze([
     automaticActions: [],
     requiresExplicitApproval: ["run against production", "create persistent external test data", "upload traces or screenshots externally"],
   }),
+  path({
+    id: "anti-overwhelm-focus",
+    objective: "Break complex tasks into single-action micro-steps to reduce cognitive overhead and eliminate multi-turn drift",
+    curatedSkills: [],
+    evidence: ["single micro-step completion state", "focused empirical verification after each mutation"],
+    guardrails: [
+      "enforce exactly one atomic action per turn",
+      "verify micro-step completion immediately after mutation",
+      "pause execution before attempting multi-layer edits",
+    ],
+    automaticActions: [],
+    requiresExplicitApproval: ["broaden scope to multiple subsystems"],
+  }),
 ] as const);
 
 const pathById = new Map(harnessPaths.map((candidate) => [candidate.id, candidate]));
@@ -127,6 +142,7 @@ const profilePaths: Record<TaskProfile, HarnessPathId> = {
   privacy: "privacy-minimization",
   performance: "performance-evidence",
   evolution: "controlled-evolution",
+  focus: "anti-overwhelm-focus",
   engineering: "architecture-conformance",
 };
 

@@ -28,7 +28,7 @@ const layout = resolveRuntimeLayout();
 const root = layout.runtimeRoot;
 const pluginRoot = layout.pluginRoot;
 const pluginId = "codex-self-improvement@codex-self-improvement-dev";
-const usage = "usage: codex-harness <version|status|doctor|paths list|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--actions-first] [--activator-interval 15m] [--activator-watchdog 3m]";
+const usage = "usage: codex-harness <version|status|doctor|paths list|evidence|loop|verify [--sdlc]|run start|status|complete|trace show|export|plugin status|install|uninstall|shell status|install|uninstall|terminal preexec|postexec|status|codex> [options]; codex activator: --activator [--actions-first] [--activator-interval 15m] [--activator-watchdog 3m]";
 
 const defaultActivatorIntervalMs = 15 * 60_000;
 const defaultActivatorWatchdogMs = 3 * 60_000;
@@ -395,7 +395,44 @@ export async function main(args = process.argv.slice(2)) {
   if (command === "shell" && subcommand === "uninstall") return lifecycle("uninstall-shell-integration.sh");
   if (command === "install") return lifecycle("install-universal.sh");
   if (command === "uninstall") return lifecycle("uninstall-universal.sh");
+  if (command === "evidence") {
+    const { readEvidenceLedger, appendEvidenceLedger } = await import("./evidence-ledger");
+    if (subcommand === "add") {
+      const kind = (rest[0] as any) || "checkpoint";
+      const summary = rest.slice(1).join(" ") || "Manual evidence ledger entry";
+      const path = await appendEvidenceLedger(process.cwd(), { kind, summary });
+      return print({ ok: true, path }, json);
+    }
+    const content = await readEvidenceLedger(process.cwd());
+    return print(json ? { content } : (content ?? "No evidence ledger found in .riqor/EVIDENCE.md"), json);
+  }
+  if (command === "loop") {
+    if (subcommand === "cost") {
+      const telemetry = getSessionTelemetry(process.cwd());
+      return print({ ok: true, telemetry }, json);
+    }
+    if (subcommand === "audit") {
+      const state = await readTerminalState(dataDir(), session(args));
+      return print({ ok: true, state }, json);
+    }
+    const state = await readTerminalState(dataDir(), session(args));
+    return print({ active: true, mode: "loop-engineering", state }, json);
+  }
   if (command === "verify") {
+    if (has(args, "--sdlc")) {
+      const arch = auditRepositoryConventions(process.cwd());
+      const verifier = runSkepticalVerification(process.cwd());
+      const telemetry = getSessionTelemetry(process.cwd());
+      const report = {
+        ok: arch.passed && verifier.passed,
+        gates: [
+          { name: "Architecture Pass", passed: arch.passed, detail: arch },
+          { name: "Skeptical Verification Pass", passed: verifier.passed, detail: verifier },
+          { name: "Telemetry & QA Pass", passed: true, detail: telemetry },
+        ],
+      };
+      return print(report, json);
+    }
     const report = runSkepticalVerification(process.cwd());
     return print(report, json);
   }

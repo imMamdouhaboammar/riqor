@@ -1,7 +1,7 @@
 {
   "version": "0.1.1",
-  "sourceCommit": "385c62c0a7831881c84262d3543f6a44a00225aa",
-  "sourceDateEpoch": 1786211231,
+  "sourceCommit": "87ad101810d71373acb1713cfb56f20fe1e53eda",
+  "sourceDateEpoch": 1786253931,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -35,8 +35,8 @@
     },
     {
       "path": "plugins/codex-self-improvement/hooks/main.mjs",
-      "sha256": "0d8eab082eeeeb1bb8fc2c59786bd5676a4ed1aa49e12460af8dcd7b5e914caf",
-      "bytes": 44061
+      "sha256": "48def53fd5751de0ada017ac54cc6a0f75569c1bc96b17e2fbe46be9e552c97b",
+      "bytes": 44977
     },
     {
       "path": "plugins/codex-self-improvement/package.json",
@@ -50,8 +50,8 @@
     },
     {
       "path": "plugins/codex-self-improvement/skills/harness-paths/SKILL.md",
-      "sha256": "2f230d36963d1169176c7c76a22c01365910813fe11022355f900f99ac114153",
-      "bytes": 3065
+      "sha256": "59c41b78ecdce39c04d28a669be1f756c1b1d9099e33cb90223bec94fbb3506d",
+      "bytes": 3353
     },
     {
       "path": "plugins/codex-self-improvement/skills/self-improvement-loop/SKILL.md",
