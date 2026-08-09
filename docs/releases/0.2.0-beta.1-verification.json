@@ -1,0 +1,86 @@
+{
+  "schemaVersion": 1,
+  "version": "0.2.0-beta.1",
+  "verifiedAt": "2026-08-09T07:25:24Z",
+  "tag": "v0.2.0-beta.1",
+  "tagTarget": "bfea924375ad8d2f1cb4e9359007427bc44523f3",
+  "npm": {
+    "published": true,
+    "latest": "0.1.1",
+    "beta": "0.2.0-beta.1",
+    "shasum": "0c072c377893c08345daf52f3e8601feb3091cbd",
+    "sha256": "a232f3446587c55f73b5f7297c030bcf765f6c20188a44fd55b7045c1f97f2a5",
+    "integrity": "sha512-+PcU3WZj90mo933efcx3iF25xf3tn/XjcIl8t8Cz/zqf2XFiSk6Yt6ryn4VGHxS/1UIykhfZDOdBCp/G7cTOLw==",
+    "fileCount": 33,
+    "unpackedSize": 241008,
+    "publishMethod": "authenticated maintainer CLI fallback after Trusted Publisher denial",
+    "provenanceAttached": false
+  },
+  "githubRelease": {
+    "published": true,
+    "prerelease": true,
+    "url": "https://github.com/imMamdouhaboammar/riqor/releases/tag/v0.2.0-beta.1",
+    "npmTarballSha256": "a232f3446587c55f73b5f7297c030bcf765f6c20188a44fd55b7045c1f97f2a5",
+    "npmTarballMatchesRegistry": true,
+    "assets": [
+      {
+        "name": "riqor-0.2.0-beta.1.tgz",
+        "sha256": "a232f3446587c55f73b5f7297c030bcf765f6c20188a44fd55b7045c1f97f2a5",
+        "size": 64482
+      },
+      {
+        "name": "codex-self-improvement-0.2.0+codex.20260804101214.zip",
+        "sha256": "2113bfdd8f6f3cff5218b6df0dbecced6a9fd553b6471ca9edb1765cb88388f0",
+        "size": 21743
+      }
+    ]
+  },
+  "verification": {
+    "fullSuite": {
+      "tests": 418,
+      "failures": 0,
+      "assertions": 1401,
+      "files": 89
+    },
+    "pluginHealth": "passed",
+    "skillsHealth": "passed",
+    "actionPins": "passed",
+    "backlogCheck": "passed",
+    "tarballInspection": "passed",
+    "publishedCliBunReferences": 0,
+    "changedFileSecretScan": {
+      "files": 93,
+      "findings": 0
+    },
+    "codeRabbitIssues": 0,
+    "registryCleanHomeE2E": "passed",
+    "registryE2EWithoutBun": true,
+    "registryE2EWithoutCodex": true,
+    "githubCi": {
+      "runId": 31300769365,
+      "status": "passed"
+    },
+    "secureAiScan": {
+      "runId": 31300769392,
+      "status": "passed"
+    }
+  },
+  "releaseWorkflow": {
+    "runId": 31300824868,
+    "verificationSuite": "passed",
+    "packageBuild": "passed",
+    "tarballInspection": "passed",
+    "npmPublish": "failed",
+    "failureReason": "npm Trusted Publisher mapping did not authorize the repository workflow",
+    "sigstoreLogIndex": 2390543323,
+    "fallbackPublish": "succeeded",
+    "trustedPublisherRepair": "blocked: current bypass-2FA granular token cannot manage npm trust settings"
+  },
+  "homebrew": {
+    "publishedForThisVersion": false,
+    "formulaVersion": "0.1.1"
+  },
+  "knownExternalBlockers": [
+    "Configure the npm Trusted Publisher mapping for imMamdouhaboammar/riqor, workflow release.yml, environment npm, with npm publish permission using npm web settings or qualifying account authentication."
+  ]
+}

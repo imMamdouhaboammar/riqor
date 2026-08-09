@@ -56,6 +56,10 @@ npm trust github riqor \
 
 Trusted Publisher configuration is account-side state. Repository tests can verify the workflow shape but cannot prove that the npm account mapping exists until a publish is attempted.
 
+Do not use a granular access token that bypasses two-factor authentication to manage the trust relationship. npm rejects that credential class for account-level trust changes. Configure the mapping in npm package settings or authenticate the npm CLI with an account method that is permitted to manage trusted publishers. Do not work around a failed mapping by adding a long-lived npm token to the GitHub release workflow.
+
+Before promoting a beta to stable, require one prerelease to complete the OIDC publish step successfully and confirm that the registry publication includes its provenance attestation.
+
 ## Post-publish verification
 
 After npm accepts the version:
