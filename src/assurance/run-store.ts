@@ -721,6 +721,50 @@ async function clearActivePointer(options: RunLocation) {
   });
 }
 
+function isMutationBoundary(event: RiqorTraceEvent) {
+  return event.type === "workspace_mutated"
+    || event.type === "verification_required"
+    || (event.type === "command_completed"
+      && event.status === "success"
+      && event.metadata?.kind === "mutation");
+}
+
+function assertFreshCompletionEvidence(
+  identity: RepositoryIdentity,
+  events: readonly RiqorTraceEvent[],
+) {
+  let latestMutationSequence = 0;
+  for (const event of events) {
+    if (isMutationBoundary(event)) latestMutationSequence = event.sequence;
+  }
+  if (latestMutationSequence === 0) return;
+
+  let verification: RiqorTraceEvent | undefined;
+  for (const event of events) {
+    if (
+      event.sequence > latestMutationSequence
+      && event.type === "verification_completed"
+      && event.status === "success"
+    ) {
+      verification = event;
+    }
+  }
+  if (!verification) {
+    throw new Error("successful verification evidence is required after the latest mutation");
+  }
+
+  const repositoryHead = verification.metadata?.repositoryHead;
+  const repositoryDirty = verification.metadata?.repositoryDirty;
+  const validHead = repositoryHead === null
+    || (typeof repositoryHead === "string" && HEAD_PATTERN.test(repositoryHead));
+  if (!validHead || typeof repositoryDirty !== "boolean") {
+    throw new Error("verification repository provenance is unavailable");
+  }
+  if (repositoryHead !== identity.headSha || repositoryDirty !== identity.dirty) {
+    throw new Error("repository changed after verification");
+  }
+}
+
 export async function completeRun(options: CompleteRunOptions) {
   validateRunId(options.runId);
   const directory = runDirectory(options.stateRoot, options.identity.rootDigest, options.runId);
@@ -732,6 +776,7 @@ export async function completeRun(options: CompleteRunOptions) {
         throw new Error("verification is still pending");
       }
       if (run.status !== "active") throw new Error(`run is not active: ${run.status}`);
+      assertFreshCompletionEvidence(options.identity, await readValidatedEvents(options, run));
       const now = options.now ?? new Date();
       const result = await appendEventsLocked({
         stateRoot: options.stateRoot,
