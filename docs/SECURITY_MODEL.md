@@ -173,7 +173,7 @@ Terminal state uses:
 
 Stored terminal state includes classification, digest, exit status, route, timestamps, and the evidence-pending flag. It does not store the original command text.
 
-A mutation changes pending evidence only after `postexec` reports success. A failed mutation does not create fresh pending evidence. A failed verification does not clear existing pending evidence.
+A mutation-classified command creates pending evidence after `postexec` even when it fails, because a nonzero final exit cannot prove that earlier side effects were rolled back. A failed verification does not clear existing pending evidence.
 
 ### Activator state
 

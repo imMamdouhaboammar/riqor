@@ -278,7 +278,7 @@ riqor terminal postexec \
 
 `--exit-code` must be an integer. When the current repository has an active run, a processed transition also appends bounded trace events to that run.
 
-A successful mutation moves the run to `verification-pending`. A failed mutation does not create fresh pending evidence. A successful recognized verification clears pending evidence.
+A mutation-classified command moves the run to `verification-pending` even if its final exit is nonzero, because earlier operations may already have changed the workspace. A successful recognized verification clears pending evidence.
 
 ### `riqor terminal status`
 
