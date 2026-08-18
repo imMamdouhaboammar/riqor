@@ -47,11 +47,11 @@ describe("terminal runtime", () => {
     expect(state.commandDigest).toMatch(/^[a-f0-9]{64}$/);
   });
 
-  test("a failed mutation does not create fresh pending evidence", async () => {
+  test("a failed mutation remains pending because earlier effects may have succeeded", async () => {
     const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
     await recordTerminalPreexec(root, "s", "echo x > src/a.ts", 1000);
     const result = await recordTerminalPostexec(root, "s", 1, 1001);
-    expect(result.evidencePending).toBe(false);
+    expect(result.evidencePending).toBe(true);
     expect(result.transition).toEqual(expect.objectContaining({
       kind: "mutation",
       exitCode: 1,

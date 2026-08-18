@@ -110,16 +110,16 @@ describe("active run terminal trace", () => {
     expect(stored).not.toContain("sk-private-terminal-marker");
   });
 
-  test("does not create pending evidence for a failed mutation", async () => {
+  test("creates pending evidence for a failed mutation because earlier effects may have succeeded", async () => {
     const { stateRoot, repository, identity } = await fixture();
     await recordActiveRunTerminalTransition({
       stateRoot,
       cwd: repository,
       transition: transition("mutation", 1, "echo failure > src/a.ts", 1000, 1100),
     });
-    expect((await readRun({ stateRoot, identity, runId: "run-terminal" })).status).toBe("active");
+    expect((await readRun({ stateRoot, identity, runId: "run-terminal" })).status).toBe("verification-pending");
     expect((await readRunEvents({ stateRoot, identity, runId: "run-terminal" })).map((event) => event.type))
-      .toEqual(["run_started", "command_completed"]);
+      .toEqual(["run_started", "command_completed", "workspace_mutated", "verification_required"]);
   });
 
   test("returns null when the repository has no active run", async () => {
