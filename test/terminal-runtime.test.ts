@@ -32,6 +32,7 @@ describe("terminal runtime", () => {
     await recordTerminalPreexec(root, "s", "bun test || true", 1002);
     await recordTerminalPostexec(root, "s", 0, 1003);
     expect((await readTerminalState(root, "s")).evidencePending).toBe(true);
+    expect(classifyTerminalCommand("bun test\ntrue").kind).toBe("other");
   });
 
   test("persists bounded metadata without raw commands", async () => {

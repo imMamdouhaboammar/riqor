@@ -48,7 +48,7 @@ const agent = /^(?:env\s+[^ ]+\s+)*(?:codex|claude|gemini|agy|aider|pi|delegate-
 export function classifyTerminalCommand(command: string) {
   const normalized = command.trim();
   const scoped = normalized.replace(/^cd\s+\S+\s*&&\s*/, "");
-  const masksExitStatus = /(?:\|\||&&|[;&|`]|\$\()/.test(scoped);
+  const masksExitStatus = /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(scoped);
   const kind: TerminalCommandKind = !masksExitStatus
     && (isPackageVerificationCommand(scoped) || verification.test(scoped))
     ? "verification"

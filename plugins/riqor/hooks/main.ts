@@ -107,7 +107,7 @@ function verificationScope(input: HookInput): VerificationScope | undefined {
   if (!shellTools.test(String(input.tool_name ?? ""))) return undefined;
   if (structuredExitCode(input.tool_response) !== 0) return undefined;
   const normalized = normalizeCheckCommand(commandFrom(input));
-  if (!normalized || /(?:\|\||&&|[;&|`]|\$\()/.test(normalized)) return undefined;
+  if (!normalized || /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(normalized)) return undefined;
   if (/^git\s+diff\s+--check(?:\s|$)/i.test(normalized) || /^(?:npx\s+)?markdownlint\b/i.test(normalized)) return "docs";
   if (isPackageVerificationCommand(normalized)) return "code";
   if (/^(?:pytest\b|python\s+-m\s+pytest\b|cargo\s+test\b|go\s+test\b|dotnet\s+test\b|mvn\b[^\n]*\btest\b|gradle\S*\s+test\b|swift\s+test\b|xcodebuild\b[^\n]*\btest\b|phpunit\b)/i.test(normalized)) return "code";

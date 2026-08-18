@@ -1011,7 +1011,7 @@ function verificationScope(input) {
   if (structuredExitCode(input.tool_response) !== 0)
     return;
   const normalized = normalizeCheckCommand(commandFrom(input));
-  if (!normalized || /(?:\|\||&&|[;&|`]|\$\()/.test(normalized))
+  if (!normalized || /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(normalized))
     return;
   if (/^git\s+diff\s+--check(?:\s|$)/i.test(normalized) || /^(?:npx\s+)?markdownlint\b/i.test(normalized))
     return "docs";

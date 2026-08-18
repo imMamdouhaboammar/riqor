@@ -147,6 +147,26 @@ describe("plugin lifecycle hook", () => {
       .toMatchObject({ decision: "block" });
   });
 
+  test("does not accept a verification command followed by a newline-masked success", async () => {
+    const root = await dataDir();
+    await handleHook({
+      ...common,
+      hook_event_name: "PostToolUse",
+      tool_name: "apply_patch",
+      tool_input: { command: "*** Update File: src/auth.ts" },
+      tool_response: {},
+    }, root);
+    await handleHook({
+      ...common,
+      hook_event_name: "PostToolUse",
+      tool_name: "Bash",
+      tool_input: { command: "bun test\ntrue" },
+      tool_response: { exit_code: 0 },
+    }, root);
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root))
+      .toMatchObject({ decision: "block" });
+  });
+
   test("accepts a documentation sanity check for documentation-only edits", async () => {
     const root = await dataDir();
     await handleHook({
