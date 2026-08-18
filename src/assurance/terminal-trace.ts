@@ -42,8 +42,8 @@ async function recordActiveRunTerminalTransitionStrict(
   if (!active) return null;
 
   const commandSucceeded = options.transition.exitCode === 0;
-  const needsRepositoryMetadata = commandSucceeded
-    && ["mutation", "verification"].includes(options.transition.kind);
+  const needsRepositoryMetadata = options.transition.kind === "mutation"
+    || (commandSucceeded && options.transition.kind === "verification");
   let identity = lookupIdentity;
   let repositoryMetadata: Readonly<Record<string, RiqorTraceMetadataValue>> = {
     repositoryInspection: "not-required",
@@ -76,11 +76,11 @@ async function recordActiveRunTerminalTransitionStrict(
     now: options.now,
   }];
 
-  if (options.transition.kind === "mutation" && commandSucceeded) {
+  if (options.transition.kind === "mutation") {
     events.push({
       source: "terminal",
       type: "workspace_mutated",
-      status: "success",
+      status: commandSucceeded ? "success" : "failure",
       subject: options.transition.route,
       digest: options.transition.commandDigest,
       metadata: repositoryMetadata,

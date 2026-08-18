@@ -2,6 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { classifyPrompt, type TaskProfile } from "../plugins/riqor/hooks/router";
+import { isPackageVerificationCommand } from "../plugins/riqor/hooks/verification-command";
 
 export type TerminalCommandKind = "mutation" | "verification" | "agent" | "other";
 
@@ -40,13 +41,14 @@ export type TerminalPostexecResult = TerminalState & Readonly<{
 }>;
 
 const digest = (value: string) => createHash("sha256").update(value).digest("hex");
-const verification = /^(?:cd\s+\S+\s*&&\s*)?(?:bun\s+(?:test|run\s+\S*(?:test|check|build|lint|typecheck|validate)\S*)|npm\s+(?:test|run\s+\S*(?:test|check|build|lint|typecheck|validate)\S*)|pnpm\s+(?:test|run\s+\S*(?:test|check|build|lint|typecheck|validate)\S*)|yarn\s+(?:test|\S*(?:test|check|build|lint|typecheck|validate)\S*)|pytest|python\s+-m\s+pytest|cargo\s+test|go\s+test|dotnet\s+test|mvn\b.*\btest\b|gradle\S*\s+test|swift\s+test|xcodebuild\b.*\btest\b|git\s+diff\s+--check|codex\s+doctor|kaku\s+doctor)(?:\s|$)/i;
+const verification = /^(?:pytest|python\s+-m\s+pytest|cargo\s+test|go\s+test|dotnet\s+test|mvn\b.*\btest\b|gradle\S*\s+test|swift\s+test|xcodebuild\b.*\btest\b|git\s+diff\s+--check|codex\s+doctor|kaku\s+doctor)(?:\s|$)/i;
 const mutation = /(?:^|[;&|]\s*)(?:rm|mv|cp|touch|mkdir|install)\b|\b(?:sed\s+-i|perl\s+-pi|git\s+(?:checkout|restore|reset|clean|apply)|npm\s+install|pnpm\s+(?:add|install)|yarn\s+add)\b|(?:^|\s)(?:cat|printf|echo)\b[^\n]*(?:>>?|\|\s*tee\b)|\bapply_patch\b/i;
 const agent = /^(?:env\s+[^ ]+\s+)*(?:codex|claude|gemini|agy|aider|pi|delegate-team|vertex-coder|hunk)(?:\s|$)/i;
 
 export function classifyTerminalCommand(command: string) {
   const normalized = command.trim();
-  const kind: TerminalCommandKind = verification.test(normalized)
+  const scoped = normalized.replace(/^cd\s+\S+\s*&&\s*/, "");
+  const kind: TerminalCommandKind = isPackageVerificationCommand(scoped) || verification.test(scoped)
     ? "verification"
     : mutation.test(normalized)
       ? "mutation"
@@ -122,7 +124,7 @@ export async function recordTerminalPostexec(
   const pending = current.pending;
   if (!pending) return publicState(current);
 
-  const evidencePending = pending.kind === "mutation" && exitCode === 0
+  const evidencePending = pending.kind === "mutation"
     ? true
     : pending.kind === "verification" && exitCode === 0
       ? false
