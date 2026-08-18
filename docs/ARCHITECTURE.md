@@ -69,7 +69,7 @@ Shell hooks call the terminal runtime before and after commands. The runtime cla
 - `agent`
 - `other`
 
-A successful mutation sets `evidencePending` to `true`. A successful recognized verification command clears it. Failed commands preserve existing evidence state, and a failed mutation does not create fresh pending evidence.
+A mutation-classified command sets `evidencePending` to `true`, regardless of its final exit code, because earlier operations may already have changed the workspace. A successful recognized verification command clears it. Failed verification and unrelated commands preserve existing evidence state.
 
 Command text is reduced to a SHA-256 digest in terminal state. The stored state includes classification, exit status, route, timing, and the pending evidence flag.
 
@@ -119,7 +119,7 @@ The initial run lifecycle is:
 ```mermaid
 stateDiagram-v2
     [*] --> active: riqor run start
-    active --> verification-pending: successful mutation
+    active --> verification-pending: mutation-classified command
     verification-pending --> verification-pending: failed or unrelated command
     verification-pending --> active: successful recognized verification
     active --> completed: riqor run complete

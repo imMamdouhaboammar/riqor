@@ -460,10 +460,66 @@ function routingContext(prompt) {
 `).slice(0, 900);
 }
 
-// plugins/riqor/hooks/state.ts
-import { createHash as createHash2, randomUUID as randomUUID2 } from "node:crypto";
-import { chmod as chmod2, lstat as lstat2, mkdir as mkdir2, readdir as readdir2, readFile as readFile2, rename as rename2, rm as rm2, rmdir, writeFile as writeFile2 } from "node:fs/promises";
+// plugins/riqor/hooks/adoption.ts
+import { randomUUID as randomUUID2 } from "node:crypto";
+import { readFile as readFile2, rename as rename2, rm as rm2, writeFile as writeFile2 } from "node:fs/promises";
 import { join as join2 } from "node:path";
+var file = "adoption.json";
+var utcDay = (now) => new Date(now).toISOString().slice(0, 10);
+async function readLedger(dataDir) {
+  try {
+    const value = JSON.parse(await readFile2(join2(dataDir, file), "utf8"));
+    return value?.schemaVersion === 1 ? value : undefined;
+  } catch (error) {
+    if (error.code === "ENOENT")
+      return;
+    throw error;
+  }
+}
+async function recordPluginAdoption(dataDir, event, now = Date.now()) {
+  const current = await readLedger(dataDir);
+  const timestamp = new Date(now).toISOString();
+  const day = utcDay(now);
+  const next = {
+    schemaVersion: 1,
+    installationId: current?.installationId ?? randomUUID2(),
+    firstSeenAt: current?.firstSeenAt ?? timestamp,
+    lastSeenAt: timestamp,
+    activeDayCount: (current?.activeDayCount ?? 0) + (current?.lastActiveDay === day ? 0 : 1),
+    lastActiveDay: day,
+    sessions: (current?.sessions ?? 0) + (event === "session" ? 1 : 0),
+    agentStarts: (current?.agentStarts ?? 0) + (event === "agentStart" ? 1 : 0)
+  };
+  const target = join2(dataDir, file);
+  const temporary = `${target}.${randomUUID2()}.tmp`;
+  try {
+    await writeFile2(temporary, `${JSON.stringify(next, null, 2)}
+`, { mode: 384, flag: "wx" });
+    await rename2(temporary, target);
+  } finally {
+    await rm2(temporary, { force: true });
+  }
+  return next;
+}
+
+// plugins/riqor/hooks/verification-command.ts
+var packageManagers = new Set(["bun", "npm", "pnpm", "yarn"]);
+var verificationScriptParts = new Set(["build", "check", "lint", "test", "typecheck", "validate"]);
+function isPackageVerificationCommand(command) {
+  const tokens = command.trim().split(/\s+/);
+  const manager = tokens[0]?.toLowerCase();
+  if (!manager || !packageManagers.has(manager))
+    return false;
+  const script = tokens[1]?.toLowerCase() === "run" ? tokens[2] : tokens[1];
+  if (!script || !/^[a-z0-9:_-]+$/i.test(script))
+    return false;
+  return script.split(/[:_-]/).some((part) => verificationScriptParts.has(part));
+}
+
+// plugins/riqor/hooks/state.ts
+import { createHash as createHash2, randomUUID as randomUUID3 } from "node:crypto";
+import { chmod as chmod2, lstat as lstat2, mkdir as mkdir2, readdir as readdir2, readFile as readFile3, rename as rename3, rm as rm3, rmdir, writeFile as writeFile3 } from "node:fs/promises";
+import { join as join3 } from "node:path";
 var mutationKinds = new Set(["code", "docs", "config", "unknown"]);
 var keyPattern2 = /^[a-f0-9]{64}$/;
 var lockRetryMs2 = 5;
@@ -474,7 +530,7 @@ function turnKey(input) {
 function statePath2(dataDir, key) {
   if (!keyPattern2.test(key))
     throw new Error("invalid state key");
-  return join2(dataDir, `${key}.json`);
+  return join3(dataDir, `${key}.json`);
 }
 async function secureDataDir(dataDir) {
   await mkdir2(dataDir, { recursive: true, mode: 448 });
@@ -486,7 +542,7 @@ async function secureDataDir(dataDir) {
 function lockPath2(dataDir, key) {
   if (!keyPattern2.test(key))
     throw new Error("invalid state key");
-  return join2(dataDir, `.${key}.lock`);
+  return join3(dataDir, `.${key}.lock`);
 }
 var delay2 = (milliseconds) => new Promise((resolve) => setTimeout(resolve, milliseconds));
 var lockLeaseMs = 60000;
@@ -512,7 +568,7 @@ async function readLockOwner(path2) {
     const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512)
       return;
-    return parseLockOwner(await readFile2(path2, "utf8"));
+    return parseLockOwner(await readFile3(path2, "utf8"));
   } catch (error) {
     if (error.code === "ENOENT")
       return;
@@ -538,7 +594,7 @@ async function recoverAbandonedLock(path2) {
   }
   if (!directoryInfo.isDirectory() || directoryInfo.isSymbolicLink())
     return false;
-  const ownerPath = join2(path2, "owner.json");
+  const ownerPath = join3(path2, "owner.json");
   const observedOwner = await readLockOwner(ownerPath);
   const observedAt = observedOwner?.createdAt ?? directoryInfo.mtimeMs;
   const observedAge = Date.now() - observedAt;
@@ -546,19 +602,19 @@ async function recoverAbandonedLock(path2) {
     return false;
   if (observedOwner && observedAge <= lockHardExpiryMs && processIsAlive(observedOwner.pid))
     return false;
-  const recoveryPath = join2(path2, ".recovery.json");
-  const recoveryToken = randomUUID2();
+  const recoveryPath = join3(path2, ".recovery.json");
+  const recoveryToken = randomUUID3();
   const staleMarker = await readLockOwner(recoveryPath);
   if (staleMarker) {
     const markerAge = Date.now() - staleMarker.createdAt;
     if (markerAge > lockLeaseMs && (markerAge > lockHardExpiryMs || !processIsAlive(staleMarker.pid))) {
       const confirmedMarker = await readLockOwner(recoveryPath);
       if (confirmedMarker?.token === staleMarker.token)
-        await rm2(recoveryPath, { force: true });
+        await rm3(recoveryPath, { force: true });
     }
   }
   try {
-    await writeFile2(recoveryPath, `${JSON.stringify({ version: 1, token: recoveryToken, pid: process.pid, createdAt: Date.now() })}
+    await writeFile3(recoveryPath, `${JSON.stringify({ version: 1, token: recoveryToken, pid: process.pid, createdAt: Date.now() })}
 `, {
       encoding: "utf8",
       flag: "wx",
@@ -582,11 +638,11 @@ async function recoverAbandonedLock(path2) {
       if (currentAge <= lockHardExpiryMs && processIsAlive(currentOwner.pid))
         return false;
     }
-    await rm2(ownerPath, { force: true });
+    await rm3(ownerPath, { force: true });
   } finally {
     const recovery = await readLockOwner(recoveryPath);
     if (recovery?.token === recoveryToken)
-      await rm2(recoveryPath, { force: true });
+      await rm3(recoveryPath, { force: true });
   }
   try {
     await rmdir(path2);
@@ -603,20 +659,20 @@ async function recoverAbandonedLock(path2) {
 async function acquireTurnLock(dataDir, key) {
   await secureDataDir(dataDir);
   const path2 = lockPath2(dataDir, key);
-  const ownerPath = join2(path2, "owner.json");
-  const token = randomUUID2();
+  const ownerPath = join3(path2, "owner.json");
+  const token = randomUUID3();
   for (let attempt = 0;attempt < lockAttempts2; attempt += 1) {
     try {
       await mkdir2(path2, { mode: 448 });
       try {
-        await writeFile2(ownerPath, `${JSON.stringify({ version: 1, token, pid: process.pid, createdAt: Date.now() })}
+        await writeFile3(ownerPath, `${JSON.stringify({ version: 1, token, pid: process.pid, createdAt: Date.now() })}
 `, {
           encoding: "utf8",
           flag: "wx",
           mode: 384
         });
       } catch (error) {
-        await rm2(ownerPath, { force: true });
+        await rm3(ownerPath, { force: true });
         await rmdir(path2).catch(() => {
           return;
         });
@@ -637,7 +693,7 @@ async function releaseTurnLock(lock) {
   const owner = await readLockOwner(lock.ownerPath);
   if (owner?.token !== lock.token)
     return;
-  await rm2(lock.ownerPath, { force: true });
+  await rm3(lock.ownerPath, { force: true });
   try {
     await rmdir(lock.path);
   } catch (error) {
@@ -680,12 +736,12 @@ async function readState2(dataDir, key) {
   try {
     const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
-      await rm2(path2, { force: true });
+      await rm3(path2, { force: true });
       return;
     }
-    const state = parseState2(await readFile2(path2, "utf8"));
+    const state = parseState2(await readFile3(path2, "utf8"));
     if (!state)
-      await rm2(path2, { force: true });
+      await rm3(path2, { force: true });
     return state;
   } catch (error) {
     if (error.code === "ENOENT")
@@ -696,29 +752,29 @@ async function readState2(dataDir, key) {
 async function writeState2(dataDir, key, state) {
   await secureDataDir(dataDir);
   const path2 = statePath2(dataDir, key);
-  const temporary = join2(dataDir, `.${key}.${randomUUID2()}.tmp`);
+  const temporary = join3(dataDir, `.${key}.${randomUUID3()}.tmp`);
   try {
-    await writeFile2(temporary, `${JSON.stringify(state)}
+    await writeFile3(temporary, `${JSON.stringify(state)}
 `, { encoding: "utf8", flag: "wx", mode: 384 });
-    await rename2(temporary, path2);
+    await rename3(temporary, path2);
   } finally {
-    await rm2(temporary, { force: true });
+    await rm3(temporary, { force: true });
   }
 }
 async function markRuntimeSeen(dataDir, now = Date.now()) {
   await secureDataDir(dataDir);
-  const path2 = join2(dataDir, "runtime.json");
-  const temporary = join2(dataDir, `.runtime.${randomUUID2()}.tmp`);
+  const path2 = join3(dataDir, "runtime.json");
+  const temporary = join3(dataDir, `.runtime.${randomUUID3()}.tmp`);
   try {
-    await writeFile2(temporary, `${JSON.stringify({ version: 1, event: "SessionStart", lastSeenAt: now })}
+    await writeFile3(temporary, `${JSON.stringify({ version: 1, event: "SessionStart", lastSeenAt: now })}
 `, {
       encoding: "utf8",
       flag: "wx",
       mode: 384
     });
-    await rename2(temporary, path2);
+    await rename3(temporary, path2);
   } finally {
-    await rm2(temporary, { force: true });
+    await rm3(temporary, { force: true });
   }
 }
 async function recordMutation(dataDir, key, mutationKind, now = Date.now()) {
@@ -738,7 +794,7 @@ async function recordVerification(dataDir, key, now = Date.now(), scope = "code"
   });
 }
 async function clearTurnUnlocked(dataDir, key) {
-  await rm2(statePath2(dataDir, key), { force: true });
+  await rm3(statePath2(dataDir, key), { force: true });
 }
 async function consumeEvidenceGate(dataDir, key) {
   return withTurnLock(dataDir, key, async () => {
@@ -775,13 +831,13 @@ async function inspectPruneCandidateUnlocked(dataDir, key, removeInvalid) {
     const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
       if (removeInvalid)
-        await rm2(path2, { force: true });
+        await rm3(path2, { force: true });
       return;
     }
-    const state = parseState2(await readFile2(path2, "utf8"));
+    const state = parseState2(await readFile3(path2, "utf8"));
     if (!state) {
       if (removeInvalid)
-        await rm2(path2, { force: true });
+        await rm3(path2, { force: true });
       return;
     }
     return {
@@ -810,7 +866,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
       if (!current)
         return;
       if (now - current.modifiedAt > maxAgeMs) {
-        await rm2(current.path, { force: true });
+        await rm3(current.path, { force: true });
         return;
       }
       return current;
@@ -826,7 +882,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
       if (!current)
         return false;
       if (now - current.modifiedAt > maxAgeMs) {
-        await rm2(current.path, { force: true });
+        await rm3(current.path, { force: true });
         return true;
       }
       if (current.modifiedAt !== candidate.modifiedAt) {
@@ -837,7 +893,7 @@ async function pruneState(dataDir, now = Date.now(), limits = {}) {
         survivorRank += 1;
         return false;
       }
-      await rm2(current.path, { force: true });
+      await rm3(current.path, { force: true });
       return true;
     });
     if (!attempt.acquired)
@@ -955,13 +1011,11 @@ function verificationScope(input) {
   if (structuredExitCode(input.tool_response) !== 0)
     return;
   const normalized = normalizeCheckCommand(commandFrom(input));
-  if (!normalized || /(?:\|\||&&|[;&|`]|\$\()/.test(normalized))
+  if (!normalized || /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(normalized))
     return;
   if (/^git\s+diff\s+--check(?:\s|$)/i.test(normalized) || /^(?:npx\s+)?markdownlint\b/i.test(normalized))
     return "docs";
-  if (/^(?:bun\s+test\b|bun\s+run\s+[A-Za-z0-9:_-]*(?:build|check|lint|test|typecheck|validate)[A-Za-z0-9:_-]*\b)/i.test(normalized))
-    return "code";
-  if (/^(?:(?:npm|pnpm|yarn)\s+(?:run\s+)?[A-Za-z0-9:_-]*(?:build|check|lint|test|typecheck|validate)[A-Za-z0-9:_-]*\b)/i.test(normalized))
+  if (isPackageVerificationCommand(normalized))
     return "code";
   if (/^(?:pytest\b|python\s+-m\s+pytest\b|cargo\s+test\b|go\s+test\b|dotnet\s+test\b|mvn\b[^\n]*\btest\b|gradle\S*\s+test\b|swift\s+test\b|xcodebuild\b[^\n]*\btest\b|phpunit\b)/i.test(normalized))
     return "code";
@@ -1008,6 +1062,7 @@ async function handleHook(input, dataDir, environment = process.env, now = Date.
 ⚡ Actions-First Mode: Provide executable code, diffs, or commands FIRST. Omit conversational fluff. Max 3 bullet points summary.
 ✂️ Ponytail YAGNI Filter: Apply 6-step filter (Skip -> Native -> Reuse -> Existing Dep -> One-liner -> Minimal diff) before creating code.` : "";
   if (event === "SessionStart") {
+    await boundedActivatorOperation(() => recordPluginAdoption(dataDir, "session", now));
     await pruneState(dataDir);
     await markRuntimeSeen(dataDir, now);
     if (activator)
@@ -1025,6 +1080,7 @@ async function handleHook(input, dataDir, environment = process.env, now = Date.
     };
   }
   if (event === "SubagentStart") {
+    await boundedActivatorOperation(() => recordPluginAdoption(dataDir, "agentStart", now));
     return {
       hookSpecificOutput: {
         hookEventName: "SubagentStart",

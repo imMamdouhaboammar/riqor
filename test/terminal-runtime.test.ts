@@ -17,6 +17,24 @@ describe("terminal runtime", () => {
     expect(classifyTerminalCommand("pwd").kind).toBe("other");
   });
 
+  test("does not treat script names that merely contain a check word as verification", () => {
+    expect(classifyTerminalCommand("bun run contest").kind).toBe("other");
+    expect(classifyTerminalCommand("npm run latest").kind).toBe("other");
+    expect(classifyTerminalCommand("bun run test:unit").kind).toBe("verification");
+    expect(classifyTerminalCommand("npm run ci-test").kind).toBe("verification");
+  });
+
+  test("does not accept a verification command whose failure can be masked", async () => {
+    const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
+    await recordTerminalPreexec(root, "s", "echo x > src/a.ts", 1000);
+    await recordTerminalPostexec(root, "s", 0, 1001);
+    expect(classifyTerminalCommand("bun test || true").kind).toBe("other");
+    await recordTerminalPreexec(root, "s", "bun test || true", 1002);
+    await recordTerminalPostexec(root, "s", 0, 1003);
+    expect((await readTerminalState(root, "s")).evidencePending).toBe(true);
+    expect(classifyTerminalCommand("bun test\ntrue").kind).toBe("other");
+  });
+
   test("persists bounded metadata without raw commands", async () => {
     const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
     const session = "tty-test";
@@ -40,11 +58,11 @@ describe("terminal runtime", () => {
     expect(state.commandDigest).toMatch(/^[a-f0-9]{64}$/);
   });
 
-  test("a failed mutation does not create fresh pending evidence", async () => {
+  test("a failed mutation remains pending because earlier effects may have succeeded", async () => {
     const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
     await recordTerminalPreexec(root, "s", "echo x > src/a.ts", 1000);
     const result = await recordTerminalPostexec(root, "s", 1, 1001);
-    expect(result.evidencePending).toBe(false);
+    expect(result.evidencePending).toBe(true);
     expect(result.transition).toEqual(expect.objectContaining({
       kind: "mutation",
       exitCode: 1,
