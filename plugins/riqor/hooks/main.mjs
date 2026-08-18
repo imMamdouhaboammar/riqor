@@ -502,6 +502,20 @@ async function recordPluginAdoption(dataDir, event, now = Date.now()) {
   return next;
 }
 
+// plugins/riqor/hooks/verification-command.ts
+var packageManagers = new Set(["bun", "npm", "pnpm", "yarn"]);
+var verificationScriptParts = new Set(["build", "check", "lint", "test", "typecheck", "validate"]);
+function isPackageVerificationCommand(command) {
+  const tokens = command.trim().split(/\s+/);
+  const manager = tokens[0]?.toLowerCase();
+  if (!manager || !packageManagers.has(manager))
+    return false;
+  const script = tokens[1]?.toLowerCase() === "run" ? tokens[2] : tokens[1];
+  if (!script || !/^[a-z0-9:_-]+$/i.test(script))
+    return false;
+  return script.split(/[:_-]/).some((part) => verificationScriptParts.has(part));
+}
+
 // plugins/riqor/hooks/state.ts
 import { createHash as createHash2, randomUUID as randomUUID3 } from "node:crypto";
 import { chmod as chmod2, lstat as lstat2, mkdir as mkdir2, readdir as readdir2, readFile as readFile3, rename as rename3, rm as rm3, rmdir, writeFile as writeFile3 } from "node:fs/promises";
@@ -1001,9 +1015,7 @@ function verificationScope(input) {
     return;
   if (/^git\s+diff\s+--check(?:\s|$)/i.test(normalized) || /^(?:npx\s+)?markdownlint\b/i.test(normalized))
     return "docs";
-  if (/^(?:bun\s+test\b|bun\s+run\s+[A-Za-z0-9:_-]*(?:build|check|lint|test|typecheck|validate)[A-Za-z0-9:_-]*\b)/i.test(normalized))
-    return "code";
-  if (/^(?:(?:npm|pnpm|yarn)\s+(?:run\s+)?[A-Za-z0-9:_-]*(?:build|check|lint|test|typecheck|validate)[A-Za-z0-9:_-]*\b)/i.test(normalized))
+  if (isPackageVerificationCommand(normalized))
     return "code";
   if (/^(?:pytest\b|python\s+-m\s+pytest\b|cargo\s+test\b|go\s+test\b|dotnet\s+test\b|mvn\b[^\n]*\btest\b|gradle\S*\s+test\b|swift\s+test\b|xcodebuild\b[^\n]*\btest\b|phpunit\b)/i.test(normalized))
     return "code";
