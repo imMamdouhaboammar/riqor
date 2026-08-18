@@ -40,8 +40,11 @@ Any terminal action or agent tool call that mutates workspace state (creating, e
 ### 2. The Empirical Verification Rule
 State can transition from `verification-pending` back to `clear` **only** when a recognized verification command runs and exits with a status code of `0`.
 
-- A failing test run (`exit code != 0`) preserves `verification-pending`.
+- A failing verification run (`exit code != 0`) preserves `verification-pending`.
+- A mutation-shaped command makes verification pending even when it exits nonzero, because an earlier operation in the command may already have changed the workspace.
 - Executing non-verification commands (`ls`, `pwd`, `cat`) leaves state unchanged.
+
+Package-manager scripts are recognized only when a verification word (`build`, `check`, `lint`, `test`, `typecheck`, or `validate`) is an exact colon, dash, or underscore-delimited part of the script name. An unrelated script such as `contest` is not verification evidence.
 
 ### 3. The Completion Assertion Rule
 `riqor run complete` acts as a hard gate. If a developer or agent calls `riqor run complete` while the session is in `verification-pending`, the CLI rejects the command with exit code `1`.
