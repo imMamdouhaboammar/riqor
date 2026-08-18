@@ -1,6 +1,6 @@
 # Riqor Autonomous Engineering Baseline
 
-Date: 2026-08-18  
+Date: 2026-08-18
 Repository baseline: `f3ce876f6278b762ac8b759996748ff5a13d9feb` (`main`, version `0.2.6`)
 
 This is a point-in-time engineering map, not a permanent roadmap. Code and fresh runtime evidence take precedence when this document drifts.
