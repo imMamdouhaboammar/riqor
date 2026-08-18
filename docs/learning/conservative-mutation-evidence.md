@@ -14,7 +14,7 @@ Failure is not atomic rollback. At an observation boundary, uncertainty about si
 
 ## What Riqor now does
 
-Every mutation-classified terminal command makes evidence pending, while retaining its real success or failure outcome in the trace. Package scripts count as verification only when a check word is an exact delimited name part, preventing unrelated names such as `contest` from clearing the gate.
+Every mutation-classified terminal command makes evidence pending, while retaining its real success or failure outcome in the trace. Package scripts count as verification only when a check word is an exact delimited name part, preventing unrelated names such as `contest` from clearing the gate. Shell control operators that can mask the check's exit status are rejected as verification evidence.
 
 ## Test proving behavior
 

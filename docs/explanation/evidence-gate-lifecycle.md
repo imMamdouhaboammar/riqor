@@ -45,6 +45,7 @@ State can transition from `verification-pending` back to `clear` **only** when a
 - Executing non-verification commands (`ls`, `pwd`, `cat`) leaves state unchanged.
 
 Package-manager scripts are recognized only when a verification word (`build`, `check`, `lint`, `test`, `typecheck`, or `validate`) is an exact colon, dash, or underscore-delimited part of the script name. An unrelated script such as `contest` is not verification evidence.
+Compound commands that can mask a failing check, such as `bun test || true`, are not verification evidence either.
 
 ### 3. The Completion Assertion Rule
 `riqor run complete` acts as a hard gate. If a developer or agent calls `riqor run complete` while the session is in `verification-pending`, the CLI rejects the command with exit code `1`.
