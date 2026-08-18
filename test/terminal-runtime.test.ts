@@ -17,6 +17,13 @@ describe("terminal runtime", () => {
     expect(classifyTerminalCommand("pwd").kind).toBe("other");
   });
 
+  test("does not treat script names that merely contain a check word as verification", () => {
+    expect(classifyTerminalCommand("bun run contest").kind).toBe("other");
+    expect(classifyTerminalCommand("npm run latest").kind).toBe("other");
+    expect(classifyTerminalCommand("bun run test:unit").kind).toBe("verification");
+    expect(classifyTerminalCommand("npm run ci-test").kind).toBe("verification");
+  });
+
   test("persists bounded metadata without raw commands", async () => {
     const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
     const session = "tty-test";
