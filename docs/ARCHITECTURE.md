@@ -142,7 +142,7 @@ The raw canonical path exists only in process memory so the state directory can 
 
 ### Codex Plugin
 
-The Codex plugin responds to lifecycle events and applies the reviewed workflow rules. At a safe `Stop` event, the existing evidence gate runs before the optional activator checkpoint.
+The Codex plugin responds to lifecycle events and applies the reviewed workflow rules. At a safe `Stop` event, the evidence gate runs before the optional activator checkpoint. A pending mutation remains blocked across ordinary and active-continuation `Stop` events until a recognized, successful check covers it. Active-continuation handling suppresses only recursive activator checkpoints; it cannot bypass the evidence gate.
 
 The plugin is installed into the local Codex environment. Codex App and Codex CLI can share that plugin through the local `CODEX_HOME` configuration.
 

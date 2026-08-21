@@ -17,8 +17,18 @@ describe("terminal runtime", () => {
     expect(classifyTerminalCommand("pwd").kind).toBe("other");
   });
 
-  test("does not treat script names that merely contain a check word as verification", () => {
+  test("does not treat misleading names or non-executing check modes as verification", () => {
     expect(classifyTerminalCommand("bun run contest").kind).toBe("other");
+    expect(classifyTerminalCommand("bun test --help").kind).toBe("other");
+    expect(classifyTerminalCommand("npm test -- --help").kind).toBe("other");
+    expect(classifyTerminalCommand("pnpm run lint -h").kind).toBe("other");
+    expect(classifyTerminalCommand("yarn typecheck --version").kind).toBe("other");
+    expect(classifyTerminalCommand("pytest --help").kind).toBe("other");
+    expect(classifyTerminalCommand("python -m pytest --version").kind).toBe("other");
+    expect(classifyTerminalCommand("git diff --check -h").kind).toBe("other");
+    expect(classifyTerminalCommand("mvn -version test").kind).toBe("other");
+    expect(classifyTerminalCommand("xcodebuild -version test").kind).toBe("other");
+    expect(classifyTerminalCommand("phpunit -V").kind).toBe("other");
     expect(classifyTerminalCommand("npm run latest").kind).toBe("other");
     expect(classifyTerminalCommand("bun run test:unit").kind).toBe("verification");
     expect(classifyTerminalCommand("npm run ci-test").kind).toBe("verification");

@@ -505,8 +505,31 @@ async function recordPluginAdoption(dataDir, event, now = Date.now()) {
 // plugins/riqor/hooks/verification-command.ts
 var packageManagers = new Set(["bun", "npm", "pnpm", "yarn"]);
 var verificationScriptParts = new Set(["build", "check", "lint", "test", "typecheck", "validate"]);
+var nonExecutingFlags = new Set(["--help", "-h", "--version"]);
+function unquoteToken(token) {
+  return token.length > 1 && token[0] === token.at(-1) && /['"]/.test(token[0]) ? token.slice(1, -1) : token;
+}
+function hasNonExecutingVerificationMode(command) {
+  const tokens = command.trim().split(/\s+/).map(unquoteToken);
+  const genericMode = tokens.some((token) => {
+    const normalized = token.toLowerCase();
+    return nonExecutingFlags.has(normalized) || normalized.startsWith("--help=") || normalized.startsWith("--version=");
+  });
+  if (genericMode)
+    return true;
+  const executable = tokens[0]?.toLowerCase();
+  if (executable === "mvn")
+    return tokens.some((token) => ["-v", "-version"].includes(token.toLowerCase()));
+  if (executable === "xcodebuild")
+    return tokens.some((token) => ["-help", "-version"].includes(token.toLowerCase()));
+  if (executable === "phpunit")
+    return tokens.includes("-V");
+  return false;
+}
 function isPackageVerificationCommand(command) {
   const tokens = command.trim().split(/\s+/);
+  if (hasNonExecutingVerificationMode(command))
+    return false;
   const manager = tokens[0]?.toLowerCase();
   if (!manager || !packageManagers.has(manager))
     return false;
@@ -809,7 +832,6 @@ async function consumeEvidenceGate(dataDir, key) {
       await writeState2(dataDir, key, { ...current, blockedOnce: true });
       return { pending: true, firstBlock: true, mutationKind: current.mutationKind };
     }
-    await clearTurnUnlocked(dataDir, key);
     return { pending: true, firstBlock: false, mutationKind: current.mutationKind };
   });
 }
@@ -1013,6 +1035,8 @@ function verificationScope(input) {
   const normalized = normalizeCheckCommand(commandFrom(input));
   if (!normalized || /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(normalized))
     return;
+  if (hasNonExecutingVerificationMode(normalized))
+    return;
   if (/^git\s+diff\s+--check(?:\s|$)/i.test(normalized) || /^(?:npx\s+)?markdownlint\b/i.test(normalized))
     return "docs";
   if (isPackageVerificationCommand(normalized))
@@ -1102,24 +1126,18 @@ async function handleHook(input, dataDir, environment = process.env, now = Date.
     return {};
   }
   if (event === "Stop") {
+    const gate = await consumeEvidenceGate(dataDir, key);
+    if (gate.pending) {
+      return {
+        decision: "block",
+        reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`
+      };
+    }
     if (input.stop_hook_active === true) {
-      await clearTurn(dataDir, key);
       if (!activator)
         return {};
       const result2 = await boundedActivatorOperation(() => observeActivatorStop(dataDir, activator, now, false));
       return activatorStopOutput(result2);
-    }
-    const gate = await consumeEvidenceGate(dataDir, key);
-    if (gate.pending) {
-      if (gate.firstBlock) {
-        return {
-          decision: "block",
-          reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`
-        };
-      }
-      return {
-        systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified"
-      };
     }
     if (!activator)
       return {};

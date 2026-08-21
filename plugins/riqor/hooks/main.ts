@@ -8,7 +8,7 @@ import {
 } from "./activator";
 import { routingContext } from "./router";
 import { recordPluginAdoption } from "./adoption";
-import { isPackageVerificationCommand } from "./verification-command";
+import { hasNonExecutingVerificationMode, isPackageVerificationCommand } from "./verification-command";
 import {
   clearTurn,
   consumeEvidenceGate,
@@ -108,6 +108,7 @@ function verificationScope(input: HookInput): VerificationScope | undefined {
   if (structuredExitCode(input.tool_response) !== 0) return undefined;
   const normalized = normalizeCheckCommand(commandFrom(input));
   if (!normalized || /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(normalized)) return undefined;
+  if (hasNonExecutingVerificationMode(normalized)) return undefined;
   if (/^git\s+diff\s+--check(?:\s|$)/i.test(normalized) || /^(?:npx\s+)?markdownlint\b/i.test(normalized)) return "docs";
   if (isPackageVerificationCommand(normalized)) return "code";
   if (/^(?:pytest\b|python\s+-m\s+pytest\b|cargo\s+test\b|go\s+test\b|dotnet\s+test\b|mvn\b[^\n]*\btest\b|gradle\S*\s+test\b|swift\s+test\b|xcodebuild\b[^\n]*\btest\b|phpunit\b)/i.test(normalized)) return "code";
@@ -201,24 +202,18 @@ export async function handleHook(
   }
 
   if (event === "Stop") {
+    const gate = await consumeEvidenceGate(dataDir, key);
+    if (gate.pending) {
+      return {
+        decision: "block",
+        reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`,
+      };
+    }
+
     if (input.stop_hook_active === true) {
-      await clearTurn(dataDir, key);
       if (!activator) return {};
       const result = await boundedActivatorOperation(() => observeActivatorStop(dataDir, activator, now, false));
       return activatorStopOutput(result);
-    }
-
-    const gate = await consumeEvidenceGate(dataDir, key);
-    if (gate.pending) {
-      if (gate.firstBlock) {
-        return {
-          decision: "block",
-          reason: `Riqor evidence gate: a ${gate.mutationKind} mutation was observed after the last accepted check. ${evidenceReason(gate.mutationKind)}. Then finish with changed files, exact check outcomes, and anything not verified`,
-        };
-      }
-      return {
-        systemMessage: "Riqor allowed completion after one evidence reminder and cleared its pending state. Any missing check must be disclosed as not verified",
-      };
     }
 
     if (!activator) return {};

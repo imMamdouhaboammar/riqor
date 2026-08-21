@@ -197,6 +197,8 @@ Activator records contain timing and lifecycle fields. They do not contain promp
 
 The evidence gate keeps precedence at a Codex `Stop` event. The activator begins a checkpoint only after the existing evidence decision allows it.
 
+Pending evidence is not a one-reminder warning. Ordinary and active-continuation `Stop` events remain blocked until a recognized successful check covers the observed mutation. The host supplies an eight-continuation safety cap, so Riqor cannot promise indefinite blocking; it does not add an earlier fail-open path. `SessionEnd` remains the explicit lifecycle cleanup boundary.
+
 One checkpoint block is allowed per cycle. The next Stop completes the review cycle. When the review phase exceeds the watchdog deadline, Riqor resets the cycle and fails open rather than repeatedly blocking the session.
 
 The watchdog is not a process killer. It limits activator checkpoint behavior only.

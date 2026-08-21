@@ -63,6 +63,7 @@ describe("bounded hook state", () => {
     await recordMutation(root, key, "config", 300);
     expect(await consumeEvidenceGate(root, key)).toEqual({ pending: true, firstBlock: true, mutationKind: "config" });
     expect(await consumeEvidenceGate(root, key)).toEqual({ pending: true, firstBlock: false, mutationKind: "config" });
+    expect(await consumeEvidenceGate(root, key)).toEqual({ pending: true, firstBlock: false, mutationKind: "config" });
   });
 
   test("waits for an active per-turn lock before updating state", async () => {
