@@ -555,8 +555,8 @@
     },
     {
       "path": "plugins/riqor/hooks/main.mjs",
-      "sha256": "ffb0cf8bc6bc993e53833125e74f54ed5ad019165fb61d1aa4fd3f560e9f86a5",
-      "bytes": 47040
+      "sha256": "b68eec65d20fd2c9b66e0ed8e56d843d6b69b83f3ee5998424d168e4bb690376",
+      "bytes": 47803
     },
     {
       "path": "plugins/riqor/package.json",

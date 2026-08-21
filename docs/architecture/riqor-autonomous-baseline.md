@@ -26,7 +26,7 @@ This is a point-in-time engineering map, not a permanent roadmap. Code and fresh
 ## Documentation drift found
 
 - `docs/reference/schema-and-state-reference.md` describes older run/event field names than `src/assurance/types.ts` persists.
-- Product documentation says pending evidence prevents completion, while the plugin `Stop` path currently fails open after one reminder.
+- Product documentation says pending evidence prevents completion. The plugin's former one-reminder fail-open path was removed on 2026-08-21.
 - `docs/reference/cli-reference.md` advertises `trace show active`, but the CLI treats `active` as a literal run id.
 - Root architecture/version and backlog documents contain pre-`0.2.6` status, while package metadata is `0.2.6`.
 - Release evidence is claimed broadly, but `0.2.6` lacks the checked-in verification JSON present for several earlier releases.
@@ -62,4 +62,28 @@ Priority is a decision aid rather than an automatic roadmap. Candidate 1 was sel
 
 ## Remaining architectural risks
 
-The plugin and terminal paths still classify commands independently in places, filesystem changes outside observed tools can be missed, the plugin gate can fail open after one reminder, and assured completion does not yet require a minimum proof event. Repository identity freshness is being changed separately in PR #11 and should be re-audited after it lands.
+The plugin and terminal paths still classify commands independently in places, and filesystem changes outside observed tools can be missed. Assured completion now requires current verification evidence and repository identity, but dirty-to-dirty workspace changes remain weaker than a content fingerprint.
+
+## Revalidation: 2026-08-21
+
+Repository baseline: `8ae5f88186faa215abe3670a730b7b893c35f576` (`main`, version `0.2.6`)
+
+The daily audit rescored seven bounded opportunities using the same formula as the initial baseline.
+
+| Rank | Candidate | Fit | Rel. | User | Evid. | Test | Learn | Conf. | Cost | Risk | Priority |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Persist the plugin evidence gate until fresh verification | 10 | 10 | 10 | 10 | 10 | 8 | 9 | 3 | 5 | 59 |
+| 2 | Add a read-only committed-runtime provenance gate | 8 | 9 | 8 | 10 | 10 | 8 | 8 | 4 | 4 | 53 |
+| 3 | Correct unsigned-provenance trust terminology | 7 | 6 | 8 | 10 | 8 | 6 | 9 | 2 | 2 | 50 |
+| 4 | Implement or remove the documented `trace show active` alias | 6 | 5 | 7 | 10 | 10 | 5 | 10 | 2 | 2 | 49 |
+| 5 | Bind assured completion to a worktree content fingerprint | 10 | 10 | 10 | 9 | 8 | 9 | 6 | 7 | 8 | 47 |
+| 6 | Observe failed tool events as conservative mutation boundaries | 10 | 9 | 9 | 7 | 8 | 8 | 6 | 6 | 7 | 44 |
+| 7 | Consolidate terminal and plugin command classifiers | 9 | 8 | 7 | 9 | 9 | 7 | 7 | 7 | 6 | 43 |
+
+Candidate 1 was selected because executable tests proved that a second ordinary `Stop` deleted pending mutation state and allowed an unsupported completion claim. The accepted contract is:
+
+1. Every ordinary `Stop` remains blocked while relevant verification is pending.
+2. An active-continuation `Stop` remains subject to the evidence gate and skips only recursive activator work.
+3. Only a recognized structured-zero check with sufficient scope clears the gate; help and version modes are not checks.
+4. The activator remains downstream of the evidence decision.
+5. `SessionEnd` remains the explicit cleanup boundary.

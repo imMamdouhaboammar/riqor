@@ -96,7 +96,7 @@ describe("plugin lifecycle hook", () => {
       tool_input: { input: "bun test" },
       tool_response: { text: "all tests passed" },
     }, root);
-    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root)).toEqual({});
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root)).toMatchObject({ decision: "block" });
   });
 
   test("does not accept masked, failed, or prose-only check claims", async () => {
@@ -113,6 +113,12 @@ describe("plugin lifecycle hook", () => {
       { command: "bun test || true", response: { exit_code: 0 } },
       { command: "bun test", response: { exit_code: 1 } },
       { command: "bun test", response: "all good" },
+      { command: "bun test --help", response: { exit_code: 0 } },
+      { command: "pytest --help", response: { exit_code: 0 } },
+      { command: "python -m pytest --version", response: { exit_code: 0 } },
+      { command: "mvn -v test", response: { exit_code: 0 } },
+      { command: "xcodebuild -help test", response: { exit_code: 0 } },
+      { command: "phpunit -V", response: { exit_code: 0 } },
     ]) {
       await mutate();
       await handleHook({
@@ -180,13 +186,22 @@ describe("plugin lifecycle hook", () => {
       ...common,
       hook_event_name: "PostToolUse",
       tool_name: "shell",
+      tool_input: { command: "git diff --check --help" },
+      tool_response: { exitCode: 0 },
+    }, root);
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root))
+      .toMatchObject({ decision: "block" });
+    await handleHook({
+      ...common,
+      hook_event_name: "PostToolUse",
+      tool_name: "shell",
       tool_input: { command: "git diff --check" },
       tool_response: { exitCode: 0 },
     }, root);
     expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root)).toEqual({});
   });
 
-  test("a later mutation invalidates earlier verification and the gate blocks once", async () => {
+  test("a later mutation keeps completion blocked until fresh verification", async () => {
     const root = await dataDir();
     const post = (command: string, response: unknown = {}) => handleHook({
       ...common,
@@ -199,7 +214,13 @@ describe("plugin lifecycle hook", () => {
     await post("bun test", { exit_code: 0 });
     await post("*** Update File: src/b.ts");
     expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root)).toMatchObject({ decision: "block" });
-    const secondStop = await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root);
-    expect(secondStop.systemMessage).toContain("allowed completion after one evidence reminder");
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root)).toMatchObject({ decision: "block" });
+
+    // The active continuation is the agent's chance to satisfy the gate, not authorization to bypass it.
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root)).toMatchObject({ decision: "block" });
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: false }, root)).toMatchObject({ decision: "block" });
+
+    await post("bun test", { exit_code: 0 });
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root)).toEqual({});
   });
 });

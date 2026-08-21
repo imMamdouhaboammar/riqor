@@ -2,7 +2,7 @@ import { createHash } from "node:crypto";
 import { mkdir, readFile, rename, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { classifyPrompt, type TaskProfile } from "../plugins/riqor/hooks/router";
-import { isPackageVerificationCommand } from "../plugins/riqor/hooks/verification-command";
+import { hasNonExecutingVerificationMode, isPackageVerificationCommand } from "../plugins/riqor/hooks/verification-command";
 
 export type TerminalCommandKind = "mutation" | "verification" | "agent" | "other";
 
@@ -50,6 +50,7 @@ export function classifyTerminalCommand(command: string) {
   const scoped = normalized.replace(/^cd\s+\S+\s*&&\s*/, "");
   const masksExitStatus = /(?:\r|\n|\|\||&&|[;&|`]|\$\()/.test(scoped);
   const kind: TerminalCommandKind = !masksExitStatus
+    && !hasNonExecutingVerificationMode(scoped)
     && (isPackageVerificationCommand(scoped) || verification.test(scoped))
     ? "verification"
     : mutation.test(normalized)

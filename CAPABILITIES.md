@@ -1,6 +1,6 @@
 # Codex Capability Audit
 
-Snapshot updated: 2026-08-04
+Snapshot updated: 2026-08-21
 
 ## Proven in this repository
 
@@ -9,7 +9,7 @@ Snapshot updated: 2026-08-04
 | Codex CLI plugin ingestion | Source validated and installed through a repo-local marketplace |
 | Lifecycle hook execution | Real installed `SessionStart` wrote the bounded runtime marker in isolated `PLUGIN_DATA` |
 | Prompt routing | Ten deterministic profiles and eight frozen harness paths have passing tests |
-| Completion evidence gate | Recognized mutation, accepted check, later invalidation, one-time block, and fail-open paths have passing tests |
+| Completion evidence gate | Recognized mutation, accepted check, later invalidation, repeated blocking, and active-continuation blocking have passing tests |
 | Anonymous state | Hashed file names, bounded schema, owner-only permissions, symlink defense, pruning, and lock contention have passing tests |
 | Candidate capsule | Owner-only temporary home, safe auth link, selected skills only, path instructions, and cleanup have passing tests |
 | Independent verification | Broken fixtures are rejected and reference fixtures are accepted across baseline and holdout graders |

@@ -307,7 +307,6 @@ export async function consumeEvidenceGate(dataDir: string, key: string) {
       await writeState(dataDir, key, { ...current, blockedOnce: true });
       return { pending: true, firstBlock: true, mutationKind: current.mutationKind } as const;
     }
-    await clearTurnUnlocked(dataDir, key);
     return { pending: true, firstBlock: false, mutationKind: current.mutationKind } as const;
   });
 }
