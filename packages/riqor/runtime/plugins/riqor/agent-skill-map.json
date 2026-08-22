@@ -1,0 +1,1005 @@
+{
+  "schemaVersion": 1,
+  "pairs": [
+    {
+      "slug": "agents-orchestrator",
+      "displayName": "Agents Orchestrator",
+      "sourceAgent": ".codex/agents/agents-orchestrator.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/agents-orchestrator.toml",
+      "skill": "plugins/riqor/skills/agents-orchestrator/SKILL.md",
+      "reference": "plugins/riqor/skills/agents-orchestrator/references/agent-instructions.md",
+      "instructionsSha256": "9c55e9b3ec19c667888af94c55b09a3b4915eec18fc16ea5ea15dbd166f464a7",
+      "referenceSha256": "7ceb10535b72cc2ff8916fc0769b56e5dfeb9b2359ff35e9143e2455a8958347"
+    },
+    {
+      "slug": "design-brand-guardian",
+      "displayName": "Brand Guardian",
+      "sourceAgent": ".codex/agents/design-brand-guardian.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-brand-guardian.toml",
+      "skill": "plugins/riqor/skills/design-brand-guardian/SKILL.md",
+      "reference": "plugins/riqor/skills/design-brand-guardian/references/agent-instructions.md",
+      "instructionsSha256": "3fbe465a7cc0def159da4b467753743b7b59bed2f3564eb2c04da964c11027c6",
+      "referenceSha256": "c3e5bba8dd2956735742dba909719b2b60d611fc0e2080b55905a94fdb643507"
+    },
+    {
+      "slug": "design-image-prompt-engineer",
+      "displayName": "Image Prompt Engineer",
+      "sourceAgent": ".codex/agents/design-image-prompt-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-image-prompt-engineer.toml",
+      "skill": "plugins/riqor/skills/design-image-prompt-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/design-image-prompt-engineer/references/agent-instructions.md",
+      "instructionsSha256": "2de92913af0ff51a9416caae0d7e6f3b94bc08eb8d4e67359614f8285674ff23",
+      "referenceSha256": "45a42c0c32f89f5cca3736a87e9766fb5a9e686de5d617a72c9078bb38119948"
+    },
+    {
+      "slug": "design-inclusive-visuals-specialist",
+      "displayName": "Inclusive Visuals Specialist",
+      "sourceAgent": ".codex/agents/design-inclusive-visuals-specialist.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-inclusive-visuals-specialist.toml",
+      "skill": "plugins/riqor/skills/design-inclusive-visuals-specialist/SKILL.md",
+      "reference": "plugins/riqor/skills/design-inclusive-visuals-specialist/references/agent-instructions.md",
+      "instructionsSha256": "68345bdb35975899808ece6708cd6ba0f3c7aadbec41a8b0517371e5a6cb75e2",
+      "referenceSha256": "ea89d2bfcd9369c614b97239cbc6875a735771d778d7112cdac83cf3116dc9ba"
+    },
+    {
+      "slug": "design-persona-walkthrough",
+      "displayName": "Persona Walkthrough Specialist",
+      "sourceAgent": ".codex/agents/design-persona-walkthrough.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-persona-walkthrough.toml",
+      "skill": "plugins/riqor/skills/design-persona-walkthrough/SKILL.md",
+      "reference": "plugins/riqor/skills/design-persona-walkthrough/references/agent-instructions.md",
+      "instructionsSha256": "cafb2f73432efb56e326d29ea6b5fc5c6d596813e900b56d351b6a800aac8f6b",
+      "referenceSha256": "e7d2b076b0d9cad890d240c6d95562ae92db5dc60a37f324cf9f1a86529fdb13"
+    },
+    {
+      "slug": "design-ui-designer",
+      "displayName": "UI Designer",
+      "sourceAgent": ".codex/agents/design-ui-designer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-ui-designer.toml",
+      "skill": "plugins/riqor/skills/design-ui-designer/SKILL.md",
+      "reference": "plugins/riqor/skills/design-ui-designer/references/agent-instructions.md",
+      "instructionsSha256": "ac9e47582085ab69bdf24d02bcbdec7d369df576606ae4e0483847ca51673d9c",
+      "referenceSha256": "82f0f75bd0cffa79051f2780e7b7d6645e1d02f148e73d4ab0a806d7e0724e3f"
+    },
+    {
+      "slug": "design-ui-finish-gate-reviewer",
+      "displayName": "UI Finish-Gate Reviewer",
+      "sourceAgent": ".codex/agents/design-ui-finish-gate-reviewer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-ui-finish-gate-reviewer.toml",
+      "skill": "plugins/riqor/skills/design-ui-finish-gate-reviewer/SKILL.md",
+      "reference": "plugins/riqor/skills/design-ui-finish-gate-reviewer/references/agent-instructions.md",
+      "instructionsSha256": "7870de3b382b0d8062085c5858f790fc88657130d4469c4e8abfbf884015b039",
+      "referenceSha256": "d49ddc7f43e1ca180f5f554089822c51702780b5564567f4a657e867ea763ae8"
+    },
+    {
+      "slug": "design-ux-architect",
+      "displayName": "UX Architect",
+      "sourceAgent": ".codex/agents/design-ux-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-ux-architect.toml",
+      "skill": "plugins/riqor/skills/design-ux-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/design-ux-architect/references/agent-instructions.md",
+      "instructionsSha256": "c346e0b5b6fe0d08a9e0c12240dbf943b309774c77644a62009f8df8a5580fb8",
+      "referenceSha256": "2121680bf6f1821a9277ea136bbab3c0e776b1aa8b8e3f596266f5b63030d01b"
+    },
+    {
+      "slug": "design-ux-researcher",
+      "displayName": "UX Researcher",
+      "sourceAgent": ".codex/agents/design-ux-researcher.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-ux-researcher.toml",
+      "skill": "plugins/riqor/skills/design-ux-researcher/SKILL.md",
+      "reference": "plugins/riqor/skills/design-ux-researcher/references/agent-instructions.md",
+      "instructionsSha256": "a9e646275f01aa2de59d293e59b948e43b001b2ed3ee7a42f7036d1a69c659bb",
+      "referenceSha256": "bbbb16e91c3c602e0ce46aa45407c0e58ed99a59f6ac23fe6da47c846c37e40d"
+    },
+    {
+      "slug": "design-visual-storyteller",
+      "displayName": "Visual Storyteller",
+      "sourceAgent": ".codex/agents/design-visual-storyteller.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-visual-storyteller.toml",
+      "skill": "plugins/riqor/skills/design-visual-storyteller/SKILL.md",
+      "reference": "plugins/riqor/skills/design-visual-storyteller/references/agent-instructions.md",
+      "instructionsSha256": "7834d82d02135b7a5250fc9e01a4682da7a69532bc0ffedb91f2397d512359a5",
+      "referenceSha256": "fd1d8582bd9f7fffbb30e86de01112fe947124e2ace082b5366533adad81a007"
+    },
+    {
+      "slug": "design-whimsy-injector",
+      "displayName": "Whimsy Injector",
+      "sourceAgent": ".codex/agents/design-whimsy-injector.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/design-whimsy-injector.toml",
+      "skill": "plugins/riqor/skills/design-whimsy-injector/SKILL.md",
+      "reference": "plugins/riqor/skills/design-whimsy-injector/references/agent-instructions.md",
+      "instructionsSha256": "69cc4aafd96c4b82e076d6ea3b3a4629f931eb8026669e1c6efceaa882fce40f",
+      "referenceSha256": "c078fa2707a438e8b175c9d51b07a1af23947749180bb88202b8292ba9b11320"
+    },
+    {
+      "slug": "docs-researcher",
+      "displayName": "Docs Researcher",
+      "sourceAgent": ".codex/agents/docs-researcher.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/docs-researcher.toml",
+      "skill": "plugins/riqor/skills/docs-researcher/SKILL.md",
+      "reference": "plugins/riqor/skills/docs-researcher/references/agent-instructions.md",
+      "instructionsSha256": "84f70837576a52baa9bb1ab23a92aa1b7b714dcb3144b5977bc96185d7415971",
+      "referenceSha256": "84f70837576a52baa9bb1ab23a92aa1b7b714dcb3144b5977bc96185d7415971"
+    },
+    {
+      "slug": "engineering-ai-data-remediation-engineer",
+      "displayName": "AI Data Remediation Engineer",
+      "sourceAgent": ".codex/agents/engineering-ai-data-remediation-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-ai-data-remediation-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-ai-data-remediation-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-ai-data-remediation-engineer/references/agent-instructions.md",
+      "instructionsSha256": "9730c2018798213dc219a51545f4d1cd0b945b2acb284047281a7439759ad520",
+      "referenceSha256": "50a04407cb594a097b7a9d291b1015ae7eb9de2c65b4fba68f06d79393ce8aa4"
+    },
+    {
+      "slug": "engineering-ai-engineer",
+      "displayName": "AI Engineer",
+      "sourceAgent": ".codex/agents/engineering-ai-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-ai-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-ai-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-ai-engineer/references/agent-instructions.md",
+      "instructionsSha256": "8983351b94c1916c8078960271f96bcf80b7ba92443c5f8a1e06770587fa7a62",
+      "referenceSha256": "0ae43585c7a6e842152d48570f86526e966abedad3d1f629e082e4d1bf36b2d9"
+    },
+    {
+      "slug": "engineering-api-platform-engineer",
+      "displayName": "API Platform Engineer",
+      "sourceAgent": ".codex/agents/engineering-api-platform-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-api-platform-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-api-platform-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-api-platform-engineer/references/agent-instructions.md",
+      "instructionsSha256": "94eebea550002796d462690cd1a727d79b626c0124affcead97f7cb4e508c976",
+      "referenceSha256": "da937b1f5b1099f50b45790466d3da6fba3d1826369ef6f647dba035fe870000"
+    },
+    {
+      "slug": "engineering-autonomous-optimization-architect",
+      "displayName": "Autonomous Optimization Architect",
+      "sourceAgent": ".codex/agents/engineering-autonomous-optimization-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-autonomous-optimization-architect.toml",
+      "skill": "plugins/riqor/skills/engineering-autonomous-optimization-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-autonomous-optimization-architect/references/agent-instructions.md",
+      "instructionsSha256": "504b364a4003a4e1b98a625a128d86ecf5491bb072d5560da5cd31462c4131d1",
+      "referenceSha256": "ac17915e5395f85193777e015054f5015c68ae5d10c18fcaedcd3d0c5afc89ca"
+    },
+    {
+      "slug": "engineering-backend-architect",
+      "displayName": "Backend Architect",
+      "sourceAgent": ".codex/agents/engineering-backend-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-backend-architect.toml",
+      "skill": "plugins/riqor/skills/engineering-backend-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-backend-architect/references/agent-instructions.md",
+      "instructionsSha256": "3dd8deb9b391f00d0a8c132b659920ef0f626fde8c81808c5256ebc4f925c767",
+      "referenceSha256": "a4285225fc9f894bba8e00ec9139f2a616068ccc1865a184171bb86c046c8bd4"
+    },
+    {
+      "slug": "engineering-cms-developer",
+      "displayName": "CMS Developer",
+      "sourceAgent": ".codex/agents/engineering-cms-developer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-cms-developer.toml",
+      "skill": "plugins/riqor/skills/engineering-cms-developer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-cms-developer/references/agent-instructions.md",
+      "instructionsSha256": "be1852a475f3f5fa621092bec63343872df1c54638ee66654c0fe07182fc4e3b",
+      "referenceSha256": "ce5f4af46fe555ea18a428455695fcbd79492a48a86f3e203db30dd4dac18dfb"
+    },
+    {
+      "slug": "engineering-code-reviewer",
+      "displayName": "Code Reviewer",
+      "sourceAgent": ".codex/agents/engineering-code-reviewer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-code-reviewer.toml",
+      "skill": "plugins/riqor/skills/engineering-code-reviewer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-code-reviewer/references/agent-instructions.md",
+      "instructionsSha256": "97f8a040224bb3a17bedd3f14015104eebc29e2f5a37a76914102d0cc9ff2d40",
+      "referenceSha256": "1ed4bd9ad20908616d7a35d0d680177058270c3e41f7c0d89782e68465d192f5"
+    },
+    {
+      "slug": "engineering-codebase-onboarding-engineer",
+      "displayName": "Codebase Onboarding Engineer",
+      "sourceAgent": ".codex/agents/engineering-codebase-onboarding-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-codebase-onboarding-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-codebase-onboarding-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-codebase-onboarding-engineer/references/agent-instructions.md",
+      "instructionsSha256": "667e748d58732af37883635acc3678e48e34e521e435fe8419af0fd6634c372d",
+      "referenceSha256": "ab18d93832bb37e72d5bfce27157f2bffb807fa9e1c77e5c94796da99e8b2c12"
+    },
+    {
+      "slug": "engineering-data-engineer",
+      "displayName": "Data Engineer",
+      "sourceAgent": ".codex/agents/engineering-data-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-data-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-data-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-data-engineer/references/agent-instructions.md",
+      "instructionsSha256": "1fe38e472b09db6a49c6bd5394a68f21623d7e2476619e49d682c5b8730ca9bd",
+      "referenceSha256": "d29b9a88d90de820e08477853921971aa98c2655304a642a8549fbbe3b5e614d"
+    },
+    {
+      "slug": "engineering-data-visualization-engineer",
+      "displayName": "Data Visualization Engineer",
+      "sourceAgent": ".codex/agents/engineering-data-visualization-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-data-visualization-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-data-visualization-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-data-visualization-engineer/references/agent-instructions.md",
+      "instructionsSha256": "ce397cbe3ef452d747e036633b72ea02f7f33bec373df65ab036fa7dc3171044",
+      "referenceSha256": "8a6303ddcb1c5553955842fecc2e9e9073e5173d36168a9e619bba00950c1421"
+    },
+    {
+      "slug": "engineering-database-optimizer",
+      "displayName": "Database Optimizer",
+      "sourceAgent": ".codex/agents/engineering-database-optimizer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-database-optimizer.toml",
+      "skill": "plugins/riqor/skills/engineering-database-optimizer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-database-optimizer/references/agent-instructions.md",
+      "instructionsSha256": "d25e88316f274f49d5144cffbf84faf5278955085e77a806784ef9a16752e713",
+      "referenceSha256": "1820874def3f584d052728f91d2243f3d606298f1903ed65dad899153da8b82d"
+    },
+    {
+      "slug": "engineering-database-reliability-engineer",
+      "displayName": "Database Reliability Engineer",
+      "sourceAgent": ".codex/agents/engineering-database-reliability-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-database-reliability-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-database-reliability-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-database-reliability-engineer/references/agent-instructions.md",
+      "instructionsSha256": "10d5e7b0e3be04f4ce3f679fee238174bd5811ea80d5a8c205afa7a6f405ac36",
+      "referenceSha256": "069179d275c449c0196959a63da906dbda9dbacdac8dd5119bbc3987025a9f4e"
+    },
+    {
+      "slug": "engineering-desktop-app-engineer",
+      "displayName": "Desktop App Engineer",
+      "sourceAgent": ".codex/agents/engineering-desktop-app-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-desktop-app-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-desktop-app-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-desktop-app-engineer/references/agent-instructions.md",
+      "instructionsSha256": "7781a7bc87b0e05e6f59a52acced56dacbb3c4738c3f46bff94e9fbdc9624481",
+      "referenceSha256": "61f35b47b33acdba83913aed937572501300890493a4dcfb78ba667b37df5176"
+    },
+    {
+      "slug": "engineering-devops-automator",
+      "displayName": "DevOps Automator",
+      "sourceAgent": ".codex/agents/engineering-devops-automator.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-devops-automator.toml",
+      "skill": "plugins/riqor/skills/engineering-devops-automator/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-devops-automator/references/agent-instructions.md",
+      "instructionsSha256": "effe5bb394e59a373f710a41aadba9f4e103f28f315c962f5cb81692ffcdfaf3",
+      "referenceSha256": "cb199c5d9ea23df05b74c78eb21d0fe4f4d2584adb5aa30738d7967720e913cd"
+    },
+    {
+      "slug": "engineering-drupal-performance",
+      "displayName": "Drupal Performance Engineer",
+      "sourceAgent": ".codex/agents/engineering-drupal-performance.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-drupal-performance.toml",
+      "skill": "plugins/riqor/skills/engineering-drupal-performance/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-drupal-performance/references/agent-instructions.md",
+      "instructionsSha256": "f4bd8763ce71d536754eed43ee25ba8750385d052aa0a0eaddc95dad1228508f",
+      "referenceSha256": "a879417572fdbd2032f7b6c419728f6cbecb823ee895d420931f27824a546db1"
+    },
+    {
+      "slug": "engineering-drupal-shopping-cart",
+      "displayName": "Drupal Shopping Cart Engineer",
+      "sourceAgent": ".codex/agents/engineering-drupal-shopping-cart.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-drupal-shopping-cart.toml",
+      "skill": "plugins/riqor/skills/engineering-drupal-shopping-cart/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-drupal-shopping-cart/references/agent-instructions.md",
+      "instructionsSha256": "9de596c2a8949fb0aaa258254a892b991d434fc7351a2b7c1bcad53b4767393a",
+      "referenceSha256": "0467add5a1a450c730a40acc8f2e34169e0f712563469fbd4262aa64a97336a7"
+    },
+    {
+      "slug": "engineering-email-intelligence-engineer",
+      "displayName": "Email Intelligence Engineer",
+      "sourceAgent": ".codex/agents/engineering-email-intelligence-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-email-intelligence-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-email-intelligence-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-email-intelligence-engineer/references/agent-instructions.md",
+      "instructionsSha256": "946608510faa5559a8221a602d1ad285049de16b4344ed08b27356cefd3f252c",
+      "referenceSha256": "95c581839af9dea86872216d4cdc5eeebad0f8fcb5c69704f6e3776cd1f6424a"
+    },
+    {
+      "slug": "engineering-embedded-firmware-engineer",
+      "displayName": "Embedded Firmware Engineer",
+      "sourceAgent": ".codex/agents/engineering-embedded-firmware-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-embedded-firmware-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-embedded-firmware-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-embedded-firmware-engineer/references/agent-instructions.md",
+      "instructionsSha256": "60ef0b6ee719152a2fb06ecaa95aedd5857da273ffe44913d9c3ff7a57af49fd",
+      "referenceSha256": "31b9188d04138e87c1fa4b3b549a51ff183b4697916e87599f2cf104a5cc8f13"
+    },
+    {
+      "slug": "engineering-feishu-integration-developer",
+      "displayName": "Feishu Integration Developer",
+      "sourceAgent": ".codex/agents/engineering-feishu-integration-developer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-feishu-integration-developer.toml",
+      "skill": "plugins/riqor/skills/engineering-feishu-integration-developer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-feishu-integration-developer/references/agent-instructions.md",
+      "instructionsSha256": "b9909161c439da158aaeac8b0daa4382b2636f4970f4fdade729e1da0d06b81c",
+      "referenceSha256": "a7cf18128826a58c9e076e706805750a53aecfd08574a3e059e09a5f3c2c65d3"
+    },
+    {
+      "slug": "engineering-filament-optimization-specialist",
+      "displayName": "Filament Optimization Specialist",
+      "sourceAgent": ".codex/agents/engineering-filament-optimization-specialist.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-filament-optimization-specialist.toml",
+      "skill": "plugins/riqor/skills/engineering-filament-optimization-specialist/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-filament-optimization-specialist/references/agent-instructions.md",
+      "instructionsSha256": "aa63f1be32cca8f2899b9af0dd9302c3e482207951d14c94aae9e3ccf6c6a442",
+      "referenceSha256": "d67e544e793ab3d13eb804de3fa86d125810b5c98d658b4ddbcdf27b8096371b"
+    },
+    {
+      "slug": "engineering-finops-engineer",
+      "displayName": "FinOps Engineer",
+      "sourceAgent": ".codex/agents/engineering-finops-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-finops-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-finops-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-finops-engineer/references/agent-instructions.md",
+      "instructionsSha256": "0ba8e846b46cda6d29a3939fe2f23ff52b2283dd4ad04e6b0e03cf797446b84f",
+      "referenceSha256": "45fead32b4817402acce136f750ef3eb391f4c615c9ba1fbdba4a33c8b33efe0"
+    },
+    {
+      "slug": "engineering-frontend-developer",
+      "displayName": "Frontend Developer",
+      "sourceAgent": ".codex/agents/engineering-frontend-developer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-frontend-developer.toml",
+      "skill": "plugins/riqor/skills/engineering-frontend-developer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-frontend-developer/references/agent-instructions.md",
+      "instructionsSha256": "9088428b9850885521d9fd7dfd3b894d04c62ed159e935c4ed7fd60785f72ed0",
+      "referenceSha256": "7079154356b8761adccada941f84c6c8d60de7652987c3ca12fab016f2c45d13"
+    },
+    {
+      "slug": "engineering-gaussdb-expert",
+      "displayName": "GaussDB Expert Engineer",
+      "sourceAgent": ".codex/agents/engineering-gaussdb-expert.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-gaussdb-expert.toml",
+      "skill": "plugins/riqor/skills/engineering-gaussdb-expert/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-gaussdb-expert/references/agent-instructions.md",
+      "instructionsSha256": "bdb64646abd25dd25b19ad2c3d574a8a28e12f1e5d3df504e9b166db993b8937",
+      "referenceSha256": "6708fe2cb973f586757d21ff73196366ebdbc4a8b9eb80e9073d377cf1901ee4"
+    },
+    {
+      "slug": "engineering-git-workflow-master",
+      "displayName": "Git Workflow Master",
+      "sourceAgent": ".codex/agents/engineering-git-workflow-master.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-git-workflow-master.toml",
+      "skill": "plugins/riqor/skills/engineering-git-workflow-master/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-git-workflow-master/references/agent-instructions.md",
+      "instructionsSha256": "493d43e51aa1d210926548893f5d605f89e55fcdf558fec738c18506a5e6904a",
+      "referenceSha256": "418c4d9216a8a2883b49cd38b3288d22d3728c8b66f99ba9eedfb80fa4de155f"
+    },
+    {
+      "slug": "engineering-i18n-engineer",
+      "displayName": "Internationalization Engineer",
+      "sourceAgent": ".codex/agents/engineering-i18n-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-i18n-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-i18n-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-i18n-engineer/references/agent-instructions.md",
+      "instructionsSha256": "274af7fc02955e42a4b41e1ecbc1bab4aee20d6d7529ff6e7ba8c917ff82c96c",
+      "referenceSha256": "3802c34968f92864bdbeb2013f85e598098457d15e6146b0dbf42df88fc72d19"
+    },
+    {
+      "slug": "engineering-identity-access-engineer",
+      "displayName": "Identity & Access Engineer",
+      "sourceAgent": ".codex/agents/engineering-identity-access-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-identity-access-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-identity-access-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-identity-access-engineer/references/agent-instructions.md",
+      "instructionsSha256": "85665fefbbe20adfe27779fcde39aa25ec36d109603560e1e21040878db22834",
+      "referenceSha256": "2bd7665789e8aab8a1685d5ffcd67a23219c236d063d325dd3ef8d3ca2dc365b"
+    },
+    {
+      "slug": "engineering-incident-response-commander",
+      "displayName": "Incident Response Commander",
+      "sourceAgent": ".codex/agents/engineering-incident-response-commander.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-incident-response-commander.toml",
+      "skill": "plugins/riqor/skills/engineering-incident-response-commander/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-incident-response-commander/references/agent-instructions.md",
+      "instructionsSha256": "d72f6f1beca79ed3836958096568b0bb3ee135a3e81ab53416140f266738caa7",
+      "referenceSha256": "253653a05003a88deaaac62442bc4f194af126f9597142c993d557c7646243fe"
+    },
+    {
+      "slug": "engineering-iot-fleet-engineer",
+      "displayName": "IoT Fleet Engineer",
+      "sourceAgent": ".codex/agents/engineering-iot-fleet-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-iot-fleet-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-iot-fleet-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-iot-fleet-engineer/references/agent-instructions.md",
+      "instructionsSha256": "22aadda898b9d75dd937874319252d185e0190d6da7f47df11cb6f05118bf56e",
+      "referenceSha256": "50d35b8819c364a301e99f08e665c6440e5e1379f50dda21503abb106965b180"
+    },
+    {
+      "slug": "engineering-it-service-manager",
+      "displayName": "IT Service Manager",
+      "sourceAgent": ".codex/agents/engineering-it-service-manager.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-it-service-manager.toml",
+      "skill": "plugins/riqor/skills/engineering-it-service-manager/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-it-service-manager/references/agent-instructions.md",
+      "instructionsSha256": "a698a182010ea979b3dd959fd5d285e0559c67e80bc945b26eeb0c69b97c6d76",
+      "referenceSha256": "7bab066021d08f62e26d9fdd3a8614743c4fc95f7badfa521fd406e9bb373025"
+    },
+    {
+      "slug": "engineering-llm-post-training-engineer",
+      "displayName": "LLM Post-Training Engineer",
+      "sourceAgent": ".codex/agents/engineering-llm-post-training-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-llm-post-training-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-llm-post-training-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-llm-post-training-engineer/references/agent-instructions.md",
+      "instructionsSha256": "5f6efd6bc23ad5ec72d11855a903c03ce9c29c003e4f733f6acceb7a3d6f78e7",
+      "referenceSha256": "7a28c43866f5b7116ee8f7ab7db84bea4dd513b7ac50803e736c720430ee0dd0"
+    },
+    {
+      "slug": "engineering-minimal-change-engineer",
+      "displayName": "Minimal Change Engineer",
+      "sourceAgent": ".codex/agents/engineering-minimal-change-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-minimal-change-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-minimal-change-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-minimal-change-engineer/references/agent-instructions.md",
+      "instructionsSha256": "00636cd5673ff9e4ed378bd64b7dfe358e92af10230a4b078ca2e46dc4bd53fa",
+      "referenceSha256": "16965be58c9c4b64426b2f042214fa8a2d75ea4b08e2fd3ee1efab0d3070e663"
+    },
+    {
+      "slug": "engineering-mobile-app-builder",
+      "displayName": "Mobile App Builder",
+      "sourceAgent": ".codex/agents/engineering-mobile-app-builder.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-mobile-app-builder.toml",
+      "skill": "plugins/riqor/skills/engineering-mobile-app-builder/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-mobile-app-builder/references/agent-instructions.md",
+      "instructionsSha256": "2c71fe75b52e81382c573346891885c541c1c1c5f1c1d2f8571f09c0c172ee7a",
+      "referenceSha256": "3040247fc2a2d41df362e08d37118bfea4b4d610ae10b915320e1ac81dd57b8b"
+    },
+    {
+      "slug": "engineering-mobile-release-engineer",
+      "displayName": "Mobile Release Engineer",
+      "sourceAgent": ".codex/agents/engineering-mobile-release-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-mobile-release-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-mobile-release-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-mobile-release-engineer/references/agent-instructions.md",
+      "instructionsSha256": "73531ced02021e8cb0f288152059e7179abca66b34d7c377e0a136a547459381",
+      "referenceSha256": "affcbf4c65a8c0e3a9afaa387e11e3fc346ffdb24b56c6a4a2d18c16369faf58"
+    },
+    {
+      "slug": "engineering-multi-agent-systems-architect",
+      "displayName": "Multi-Agent Systems Architect",
+      "sourceAgent": ".codex/agents/engineering-multi-agent-systems-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-multi-agent-systems-architect.toml",
+      "skill": "plugins/riqor/skills/engineering-multi-agent-systems-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-multi-agent-systems-architect/references/agent-instructions.md",
+      "instructionsSha256": "0b8d245d4578369948f72743daa89457e90d61dcff05cee56bfe17318636e87f",
+      "referenceSha256": "b40cf518281efaba4a4a420bbee831c4cead544b8b60ed1b014ba9f3cf022ae7"
+    },
+    {
+      "slug": "engineering-network-engineer",
+      "displayName": "Network Engineer",
+      "sourceAgent": ".codex/agents/engineering-network-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-network-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-network-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-network-engineer/references/agent-instructions.md",
+      "instructionsSha256": "4645f69897eace1d1b8288b735e0aa278c27b7453998a6800a66f3b81bd04846",
+      "referenceSha256": "32ab716fc2fe15fe2543205ce5f265c4ef487ff6eda9b395b97bf4bd7cf538b8"
+    },
+    {
+      "slug": "engineering-orgscript-engineer",
+      "displayName": "OrgScript Engineer",
+      "sourceAgent": ".codex/agents/engineering-orgscript-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-orgscript-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-orgscript-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-orgscript-engineer/references/agent-instructions.md",
+      "instructionsSha256": "368dda3fac8ddf6f903284e5099ea4d64e614e6a48ff2bf0df2d254cd4f677a4",
+      "referenceSha256": "65c2cddc3e96e983287591166d1f5c534b89404d8002bfa8dec0d143a4928508"
+    },
+    {
+      "slug": "engineering-payments-billing-engineer",
+      "displayName": "Payments & Billing Engineer",
+      "sourceAgent": ".codex/agents/engineering-payments-billing-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-payments-billing-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-payments-billing-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-payments-billing-engineer/references/agent-instructions.md",
+      "instructionsSha256": "0a30a641cb214d6f8040c4bd7ef8fbb6a8417b79a55606656c302d4c65b431f1",
+      "referenceSha256": "692e6b59133d3a2348eb2a148454016b20935c1609d412673be9e1a95465bc7a"
+    },
+    {
+      "slug": "engineering-privacy-engineer",
+      "displayName": "Privacy Engineer",
+      "sourceAgent": ".codex/agents/engineering-privacy-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-privacy-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-privacy-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-privacy-engineer/references/agent-instructions.md",
+      "instructionsSha256": "6c6f0f67e4aff75dd6519b867474fc3dde85d4fad954638638b28546e7277423",
+      "referenceSha256": "86ac1117742944cb42f900191dbee471f86049df9b808dac77822c047589aa13"
+    },
+    {
+      "slug": "engineering-prompt-engineer",
+      "displayName": "Prompt Engineer",
+      "sourceAgent": ".codex/agents/engineering-prompt-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-prompt-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-prompt-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-prompt-engineer/references/agent-instructions.md",
+      "instructionsSha256": "d29ac9b9fc063908ead7c9e62244e183f736d0c8cb93f00d32c0d8a683d54b22",
+      "referenceSha256": "446a0def540640c58c52a0aea0761fad12a3ee57ce203aaf83ab5bd0ac00e7c4"
+    },
+    {
+      "slug": "engineering-rag-pipeline-engineer",
+      "displayName": "RAG Pipeline Engineer",
+      "sourceAgent": ".codex/agents/engineering-rag-pipeline-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-rag-pipeline-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-rag-pipeline-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-rag-pipeline-engineer/references/agent-instructions.md",
+      "instructionsSha256": "ae7dbac3745647364220614e6e3f598a541049fe9b9909f058ad4cfc67acd656",
+      "referenceSha256": "fa7ba757147df6d5746d7c1d4a102264798e059e30fa7841f2969d818c0238bb"
+    },
+    {
+      "slug": "engineering-rapid-prototyper",
+      "displayName": "Rapid Prototyper",
+      "sourceAgent": ".codex/agents/engineering-rapid-prototyper.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-rapid-prototyper.toml",
+      "skill": "plugins/riqor/skills/engineering-rapid-prototyper/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-rapid-prototyper/references/agent-instructions.md",
+      "instructionsSha256": "6286dd1f068712892ec6b58e61507185e4801eac93560a5c17fd8c315eadd702",
+      "referenceSha256": "3d593684ca39ad0b85fe833b5bb241a438ba9841d5e048d0ed033543259aa9c9"
+    },
+    {
+      "slug": "engineering-realtime-collaboration-engineer",
+      "displayName": "Realtime Collaboration Engineer",
+      "sourceAgent": ".codex/agents/engineering-realtime-collaboration-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-realtime-collaboration-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-realtime-collaboration-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-realtime-collaboration-engineer/references/agent-instructions.md",
+      "instructionsSha256": "3e72021e2b5b337c402e165d32a1588e91f6e0426384a35969d2da57dee682ef",
+      "referenceSha256": "8c0e91861c848294b9e3541665eef0279ba731d26f386df5d523958d20e683cf"
+    },
+    {
+      "slug": "engineering-rust-refactoring-specialist",
+      "displayName": "Rust Refactoring Specialist",
+      "sourceAgent": ".codex/agents/engineering-rust-refactoring-specialist.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-rust-refactoring-specialist.toml",
+      "skill": "plugins/riqor/skills/engineering-rust-refactoring-specialist/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-rust-refactoring-specialist/references/agent-instructions.md",
+      "instructionsSha256": "8d7ccdb7604139cb94fd9a0de10dc23a62abe7203daa477e8a7fd2fe797a6871",
+      "referenceSha256": "7641477cb66b422d45df5bc3221765b7719811461e752ea3469203b433ede553"
+    },
+    {
+      "slug": "engineering-search-relevance-engineer",
+      "displayName": "Search Relevance Engineer",
+      "sourceAgent": ".codex/agents/engineering-search-relevance-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-search-relevance-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-search-relevance-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-search-relevance-engineer/references/agent-instructions.md",
+      "instructionsSha256": "335f0e4ca1d0a9977e08f3d405cc2d8c5f989330200cbb6a07d8b361a32a5751",
+      "referenceSha256": "1f132ab3753d2ed1ed8a1472cb054b46bd5287f4c5afdc7c8384b29bc8bf801a"
+    },
+    {
+      "slug": "engineering-section-508-specialist",
+      "displayName": "Section 508 Accessibility Specialist",
+      "sourceAgent": ".codex/agents/engineering-section-508-specialist.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-section-508-specialist.toml",
+      "skill": "plugins/riqor/skills/engineering-section-508-specialist/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-section-508-specialist/references/agent-instructions.md",
+      "instructionsSha256": "65b62daa0349e5dd846538521f6864c02d38d3e6cee673fa86b8d17ad81cec2a",
+      "referenceSha256": "7d5465388397378165a53bbf1af388a178efa195c734ba17ef9f31402abc9a19"
+    },
+    {
+      "slug": "engineering-senior-developer",
+      "displayName": "Senior Developer",
+      "sourceAgent": ".codex/agents/engineering-senior-developer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-senior-developer.toml",
+      "skill": "plugins/riqor/skills/engineering-senior-developer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-senior-developer/references/agent-instructions.md",
+      "instructionsSha256": "50fd27b571b4fd8298b9b4e1947c1edd501f74c5c53b66de8a1a71c97e1246af",
+      "referenceSha256": "917c863d94682e9cc49442c69ff5aab7c07b165a42d30967547c63a56a64f09a"
+    },
+    {
+      "slug": "engineering-software-architect",
+      "displayName": "Software Architect",
+      "sourceAgent": ".codex/agents/engineering-software-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-software-architect.toml",
+      "skill": "plugins/riqor/skills/engineering-software-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-software-architect/references/agent-instructions.md",
+      "instructionsSha256": "642f1fd554a60cea7d3dae5f7ccbc0943a20671d712fa015aaced814288cc09e",
+      "referenceSha256": "05b0ac699d98d50e2dacc2104b9bd2f9dc038acd3dc6a95ece734e89b51721c1"
+    },
+    {
+      "slug": "engineering-solidity-smart-contract-engineer",
+      "displayName": "Solidity Smart Contract Engineer",
+      "sourceAgent": ".codex/agents/engineering-solidity-smart-contract-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-solidity-smart-contract-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-solidity-smart-contract-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-solidity-smart-contract-engineer/references/agent-instructions.md",
+      "instructionsSha256": "dfefbd25537f04b12d11dcf20f9197310f565bcb66854ba6d252788507e77b5a",
+      "referenceSha256": "605ad0d27b238c9189828153061017d519f619105c2d9d716e83dc29de46ac07"
+    },
+    {
+      "slug": "engineering-sre",
+      "displayName": "SRE (Site Reliability Engineer)",
+      "sourceAgent": ".codex/agents/engineering-sre.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-sre.toml",
+      "skill": "plugins/riqor/skills/engineering-sre/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-sre/references/agent-instructions.md",
+      "instructionsSha256": "b74f9905755e7f38cddb86d3111db3df666f4a48575bd00f11e1e7baab3ba2f6",
+      "referenceSha256": "40fd7b913eb542b2bceb93e326f11c68d756481fd332557b4103a081c5402c4b"
+    },
+    {
+      "slug": "engineering-technical-writer",
+      "displayName": "Technical Writer",
+      "sourceAgent": ".codex/agents/engineering-technical-writer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-technical-writer.toml",
+      "skill": "plugins/riqor/skills/engineering-technical-writer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-technical-writer/references/agent-instructions.md",
+      "instructionsSha256": "2d4cc1f5c26111ff103300cd9de82c57d77b86f65541f7c082bf97773fb67f68",
+      "referenceSha256": "2d79f4ea0bd9d6f116dda3cfdd4a6b4d1404b653a8b6a9c4774bb8f6b7d4f87b"
+    },
+    {
+      "slug": "engineering-uswds-developer",
+      "displayName": "USWDS Developer",
+      "sourceAgent": ".codex/agents/engineering-uswds-developer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-uswds-developer.toml",
+      "skill": "plugins/riqor/skills/engineering-uswds-developer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-uswds-developer/references/agent-instructions.md",
+      "instructionsSha256": "5f9c9ff58eb54f251aaef5fe525993fb2ccdb6a175bdc8bedac342fde21d5f33",
+      "referenceSha256": "ce77dbf421d2bb6c0243dcd2413b6619d2be806f3e89db28ad2fa9193b3738fd"
+    },
+    {
+      "slug": "engineering-video-streaming-engineer",
+      "displayName": "Video Streaming Engineer",
+      "sourceAgent": ".codex/agents/engineering-video-streaming-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-video-streaming-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-video-streaming-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-video-streaming-engineer/references/agent-instructions.md",
+      "instructionsSha256": "948af9f41b62fc3e2f89066e8b4087ea0b9b86e72399d0bfbb54949517c517d4",
+      "referenceSha256": "b102c9ad5fa7987f77917b2b5847f8a68f0cdffab65a246d33cd0ffb265e4ce9"
+    },
+    {
+      "slug": "engineering-voice-ai-integration-engineer",
+      "displayName": "Voice AI Integration Engineer",
+      "sourceAgent": ".codex/agents/engineering-voice-ai-integration-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-voice-ai-integration-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-voice-ai-integration-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-voice-ai-integration-engineer/references/agent-instructions.md",
+      "instructionsSha256": "9c2dd811e5ec27431baec4ccd9892998ad34bc3fbaa81b92845b039e7d583997",
+      "referenceSha256": "8cba8771456142560ddb1e17ccf225b2e8c10d884a5c1e1911a69fe5df4c9bd4"
+    },
+    {
+      "slug": "engineering-webassembly-engineer",
+      "displayName": "WebAssembly Engineer",
+      "sourceAgent": ".codex/agents/engineering-webassembly-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-webassembly-engineer.toml",
+      "skill": "plugins/riqor/skills/engineering-webassembly-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-webassembly-engineer/references/agent-instructions.md",
+      "instructionsSha256": "cd6f2fc571c197c7be50ee3e135bf1deeb93ced533dd083c08b57c00c8582184",
+      "referenceSha256": "bdf5b77b74f8d9641edcd81453192990b94295548394275692fb3221d0c2bc23"
+    },
+    {
+      "slug": "engineering-wechat-mini-program-developer",
+      "displayName": "WeChat Mini Program Developer",
+      "sourceAgent": ".codex/agents/engineering-wechat-mini-program-developer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-wechat-mini-program-developer.toml",
+      "skill": "plugins/riqor/skills/engineering-wechat-mini-program-developer/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-wechat-mini-program-developer/references/agent-instructions.md",
+      "instructionsSha256": "e43659b0a774db9d5a0e4ca470cb988774d6482594970f04d3a48969dfa364b0",
+      "referenceSha256": "b468232cdefbeae57b593c0c31b82dc2085d01facf070d55456b109942b4dc5e"
+    },
+    {
+      "slug": "engineering-wordpress-performance",
+      "displayName": "WordPress Performance Engineer",
+      "sourceAgent": ".codex/agents/engineering-wordpress-performance.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-wordpress-performance.toml",
+      "skill": "plugins/riqor/skills/engineering-wordpress-performance/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-wordpress-performance/references/agent-instructions.md",
+      "instructionsSha256": "9f900beb64f30715e5def51a69379ad5af9f037c23132420cab1d14c5f8bc0b4",
+      "referenceSha256": "931366adae4db92c43402335bb0ecfbd6ad8dc72e6227b2fdd6587f1ec947e63"
+    },
+    {
+      "slug": "engineering-wordpress-shopping-cart",
+      "displayName": "WordPress Shopping Cart Engineer",
+      "sourceAgent": ".codex/agents/engineering-wordpress-shopping-cart.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/engineering-wordpress-shopping-cart.toml",
+      "skill": "plugins/riqor/skills/engineering-wordpress-shopping-cart/SKILL.md",
+      "reference": "plugins/riqor/skills/engineering-wordpress-shopping-cart/references/agent-instructions.md",
+      "instructionsSha256": "09811926fa93032bd090127e9c82e41d72cac2925b3326d802f51ee169ee5393",
+      "referenceSha256": "1c8e10eb79c497d68226a716b31597cb1e3c979dfea2f59bf74855d031739df8"
+    },
+    {
+      "slug": "explorer",
+      "displayName": "Explorer",
+      "sourceAgent": ".codex/agents/explorer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/explorer.toml",
+      "skill": "plugins/riqor/skills/explorer/SKILL.md",
+      "reference": "plugins/riqor/skills/explorer/references/agent-instructions.md",
+      "instructionsSha256": "f4874650654e95de81b84e83f795da8a554ded1bb07b3435ff960cb499498212",
+      "referenceSha256": "f4874650654e95de81b84e83f795da8a554ded1bb07b3435ff960cb499498212"
+    },
+    {
+      "slug": "product-sprint-prioritizer",
+      "displayName": "Sprint Prioritizer",
+      "sourceAgent": ".codex/agents/product-sprint-prioritizer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/product-sprint-prioritizer.toml",
+      "skill": "plugins/riqor/skills/product-sprint-prioritizer/SKILL.md",
+      "reference": "plugins/riqor/skills/product-sprint-prioritizer/references/agent-instructions.md",
+      "instructionsSha256": "6feec2e2ad365639df1d7b3f92f1f6794df84c4ac3f93a49b033a599be0b1d02",
+      "referenceSha256": "591c5b18dd4f84520791d65f8981d1296b4ed595df6d708ff32ec98cc0a577d2"
+    },
+    {
+      "slug": "project-management-experiment-tracker",
+      "displayName": "Experiment Tracker",
+      "sourceAgent": ".codex/agents/project-management-experiment-tracker.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/project-management-experiment-tracker.toml",
+      "skill": "plugins/riqor/skills/project-management-experiment-tracker/SKILL.md",
+      "reference": "plugins/riqor/skills/project-management-experiment-tracker/references/agent-instructions.md",
+      "instructionsSha256": "2ed91c7841dc7225873dc33f9d0ac45ae0410ef53f77a526ac0122b4f013a0e5",
+      "referenceSha256": "3b48a25b96b35d7c61cd66130cc97f27bc7a39a9c84bf6785752b70f76bd2f61"
+    },
+    {
+      "slug": "project-management-project-shepherd",
+      "displayName": "Project Shepherd",
+      "sourceAgent": ".codex/agents/project-management-project-shepherd.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/project-management-project-shepherd.toml",
+      "skill": "plugins/riqor/skills/project-management-project-shepherd/SKILL.md",
+      "reference": "plugins/riqor/skills/project-management-project-shepherd/references/agent-instructions.md",
+      "instructionsSha256": "f35a178f86ae95114ce69a1e52c5b2ee0504030a9831d0b2d9add2f9efdc8150",
+      "referenceSha256": "4cd8e457dea8891f76c2e3c22e748392d919409abe1eacd587bff9c399eab4bc"
+    },
+    {
+      "slug": "project-manager-senior",
+      "displayName": "Senior Project Manager",
+      "sourceAgent": ".codex/agents/project-manager-senior.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/project-manager-senior.toml",
+      "skill": "plugins/riqor/skills/project-manager-senior/SKILL.md",
+      "reference": "plugins/riqor/skills/project-manager-senior/references/agent-instructions.md",
+      "instructionsSha256": "7181d42a6d6720c7f1b3624202b70c884705c61a9ba900a6fa19f0b0cc3fb014",
+      "referenceSha256": "9deae96c4abd5c6ee39387d0b463757eeb1b0e9c9353341c1808491800f966c9"
+    },
+    {
+      "slug": "reviewer",
+      "displayName": "Reviewer",
+      "sourceAgent": ".codex/agents/reviewer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/reviewer.toml",
+      "skill": "plugins/riqor/skills/reviewer/SKILL.md",
+      "reference": "plugins/riqor/skills/reviewer/references/agent-instructions.md",
+      "instructionsSha256": "9403f229b6e20828829f700f22422895052a493729cda1d7a7ecf1c06de6555c",
+      "referenceSha256": "9403f229b6e20828829f700f22422895052a493729cda1d7a7ecf1c06de6555c"
+    },
+    {
+      "slug": "security-ai-generated-code-auditor",
+      "displayName": "AI-Generated Code Security Auditor",
+      "sourceAgent": ".codex/agents/security-ai-generated-code-auditor.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-ai-generated-code-auditor.toml",
+      "skill": "plugins/riqor/skills/security-ai-generated-code-auditor/SKILL.md",
+      "reference": "plugins/riqor/skills/security-ai-generated-code-auditor/references/agent-instructions.md",
+      "instructionsSha256": "a2fee80a49689e71d817206d6767d851d4cc42d88a25e99b08e2b4e87e9ddd79",
+      "referenceSha256": "969834fa69d2f4a4f1a1d592ce0184e771bddad03c1b10484c7d7f5af595afd1"
+    },
+    {
+      "slug": "security-appsec-engineer",
+      "displayName": "Application Security Engineer",
+      "sourceAgent": ".codex/agents/security-appsec-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-appsec-engineer.toml",
+      "skill": "plugins/riqor/skills/security-appsec-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/security-appsec-engineer/references/agent-instructions.md",
+      "instructionsSha256": "05018a0d534ea60801d826d9164a4e294fc7e935bba8896d4d4478d7118b2f6c",
+      "referenceSha256": "1370061960ccc8fb86efaf294c9f6da73904bde6c76c3e27687540f306f1d0cf"
+    },
+    {
+      "slug": "security-architect",
+      "displayName": "Security Architect",
+      "sourceAgent": ".codex/agents/security-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-architect.toml",
+      "skill": "plugins/riqor/skills/security-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/security-architect/references/agent-instructions.md",
+      "instructionsSha256": "e7ce69b04fc825a52a160d782aece464cc1bccb3d256c79cadf4c7ae08ab2d6c",
+      "referenceSha256": "313861d872299ba25b08421c7df2cdbdd8501f487608d713a00ce851a8ad1621"
+    },
+    {
+      "slug": "security-blockchain-security-auditor",
+      "displayName": "Blockchain Security Auditor",
+      "sourceAgent": ".codex/agents/security-blockchain-security-auditor.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-blockchain-security-auditor.toml",
+      "skill": "plugins/riqor/skills/security-blockchain-security-auditor/SKILL.md",
+      "reference": "plugins/riqor/skills/security-blockchain-security-auditor/references/agent-instructions.md",
+      "instructionsSha256": "4a4b70a5000c47250f9fccef0e600e839e75a4bb15652ab87676705718b2dfa2",
+      "referenceSha256": "d54eff3fef9b688ce1eef139c6c3e7fd8a23a63d719a83c27209e2088d698d92"
+    },
+    {
+      "slug": "security-cloud-security-architect",
+      "displayName": "Cloud Security Architect",
+      "sourceAgent": ".codex/agents/security-cloud-security-architect.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-cloud-security-architect.toml",
+      "skill": "plugins/riqor/skills/security-cloud-security-architect/SKILL.md",
+      "reference": "plugins/riqor/skills/security-cloud-security-architect/references/agent-instructions.md",
+      "instructionsSha256": "1abd158160d15c75e35ad44ef19996af68a6fb218dfb9b5f02beddd7ca6342fe",
+      "referenceSha256": "de951b9e37dd4cb2fa2a258402180df20def31acaee086c28260829dafcc0e8f"
+    },
+    {
+      "slug": "security-compliance-auditor",
+      "displayName": "Compliance Auditor",
+      "sourceAgent": ".codex/agents/security-compliance-auditor.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-compliance-auditor.toml",
+      "skill": "plugins/riqor/skills/security-compliance-auditor/SKILL.md",
+      "reference": "plugins/riqor/skills/security-compliance-auditor/references/agent-instructions.md",
+      "instructionsSha256": "992a2e2e685e5b66021d1d2bbe4aa9c0831b92d223f7960e5d8638c12790489a",
+      "referenceSha256": "f2abdb31218f0d5caaba1aef5090461f8165a72a4c1c47a75add727c1b37da81"
+    },
+    {
+      "slug": "security-incident-responder",
+      "displayName": "Incident Responder",
+      "sourceAgent": ".codex/agents/security-incident-responder.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-incident-responder.toml",
+      "skill": "plugins/riqor/skills/security-incident-responder/SKILL.md",
+      "reference": "plugins/riqor/skills/security-incident-responder/references/agent-instructions.md",
+      "instructionsSha256": "c0b263c6a2d0890300c3eab7a42097ea50f50171a692abfd93a9a943ecc25819",
+      "referenceSha256": "db03540e8641e6b6444f21b79b4172e0681b36886dce948118f43dbdd2893dcf"
+    },
+    {
+      "slug": "security-secrets-credential-engineer",
+      "displayName": "Secrets & Credential Hygiene Engineer",
+      "sourceAgent": ".codex/agents/security-secrets-credential-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-secrets-credential-engineer.toml",
+      "skill": "plugins/riqor/skills/security-secrets-credential-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/security-secrets-credential-engineer/references/agent-instructions.md",
+      "instructionsSha256": "3f758fe6a846161837fca555faa2638880612e419c7e22a3b6f4149f4fbbb3ef",
+      "referenceSha256": "27e547822da3b2776f230c99061d6340bb99f3b7d466dd70cf1114b1b786dad7"
+    },
+    {
+      "slug": "security-senior-secops",
+      "displayName": "Senior SecOps Engineer",
+      "sourceAgent": ".codex/agents/security-senior-secops.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-senior-secops.toml",
+      "skill": "plugins/riqor/skills/security-senior-secops/SKILL.md",
+      "reference": "plugins/riqor/skills/security-senior-secops/references/agent-instructions.md",
+      "instructionsSha256": "55a1cf0d203fcc2805dc243cf5c47d237d986f5af6fc766801c017c99b1332e7",
+      "referenceSha256": "2667a2ae81a20f59b42b57754985e6e8f6684b5770e99828fe4a5c3acc780d04"
+    },
+    {
+      "slug": "security-threat-detection-engineer",
+      "displayName": "Threat Detection Engineer",
+      "sourceAgent": ".codex/agents/security-threat-detection-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-threat-detection-engineer.toml",
+      "skill": "plugins/riqor/skills/security-threat-detection-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/security-threat-detection-engineer/references/agent-instructions.md",
+      "instructionsSha256": "75997fa9412c6ae4c0dded9dc796669a96d5ca47eb7a272ac9ee6b36c3d57413",
+      "referenceSha256": "11ab67ea66702fba6f623977ffbe3c16c4788320b629a1dc6aa28eb6f11094e7"
+    },
+    {
+      "slug": "security-threat-intelligence-analyst",
+      "displayName": "Threat Intelligence Analyst",
+      "sourceAgent": ".codex/agents/security-threat-intelligence-analyst.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/security-threat-intelligence-analyst.toml",
+      "skill": "plugins/riqor/skills/security-threat-intelligence-analyst/SKILL.md",
+      "reference": "plugins/riqor/skills/security-threat-intelligence-analyst/references/agent-instructions.md",
+      "instructionsSha256": "81c9d486d7db9aa37951994353d1bc7300fc8314e92f63d6b4f5f139848ab67a",
+      "referenceSha256": "2baab5652e31b32b859a4a97d6026aaa2bdd964378bc166f38508a7b93a54271"
+    },
+    {
+      "slug": "support-executive-summary-generator",
+      "displayName": "Executive Summary Generator",
+      "sourceAgent": ".codex/agents/support-executive-summary-generator.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/support-executive-summary-generator.toml",
+      "skill": "plugins/riqor/skills/support-executive-summary-generator/SKILL.md",
+      "reference": "plugins/riqor/skills/support-executive-summary-generator/references/agent-instructions.md",
+      "instructionsSha256": "787545d9126363aacc5e3b84144bdab5d11c7ee7b7b479a135c88cbf6a663d33",
+      "referenceSha256": "14aa206eaedc22209de57b58ab7412f642263d5ea5c8b960147cfe34b5133caf"
+    },
+    {
+      "slug": "support-finance-tracker",
+      "displayName": "Finance Tracker",
+      "sourceAgent": ".codex/agents/support-finance-tracker.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/support-finance-tracker.toml",
+      "skill": "plugins/riqor/skills/support-finance-tracker/SKILL.md",
+      "reference": "plugins/riqor/skills/support-finance-tracker/references/agent-instructions.md",
+      "instructionsSha256": "bff08344c3aa31208577d6f5707589a397a02ab0e873154705f05cd45e9fa56f",
+      "referenceSha256": "2dce5d86d2361ec9e551066307558c70743c72f20866ae877a66257902a5956b"
+    },
+    {
+      "slug": "support-infrastructure-maintainer",
+      "displayName": "Infrastructure Maintainer",
+      "sourceAgent": ".codex/agents/support-infrastructure-maintainer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/support-infrastructure-maintainer.toml",
+      "skill": "plugins/riqor/skills/support-infrastructure-maintainer/SKILL.md",
+      "reference": "plugins/riqor/skills/support-infrastructure-maintainer/references/agent-instructions.md",
+      "instructionsSha256": "e7f677e7bfb7e378a62f32ffa6682977484330b29b31babf52a44244560e21a6",
+      "referenceSha256": "477fdc5d50996540ce317f4eac2b11243ca2fbe26c6d99d61039002fb0aaab27"
+    },
+    {
+      "slug": "support-legal-compliance-checker",
+      "displayName": "Legal Compliance Checker",
+      "sourceAgent": ".codex/agents/support-legal-compliance-checker.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/support-legal-compliance-checker.toml",
+      "skill": "plugins/riqor/skills/support-legal-compliance-checker/SKILL.md",
+      "reference": "plugins/riqor/skills/support-legal-compliance-checker/references/agent-instructions.md",
+      "instructionsSha256": "f75cd6f0f1e2247c3b8229f476136f6d550367d9d7692d8a4a3c386f0d291a50",
+      "referenceSha256": "d766383463323ac298ff3324ba7e1de837b6353d563742ad932e876ee5977e1d"
+    },
+    {
+      "slug": "support-support-responder",
+      "displayName": "Support Responder",
+      "sourceAgent": ".codex/agents/support-support-responder.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/support-support-responder.toml",
+      "skill": "plugins/riqor/skills/support-support-responder/SKILL.md",
+      "reference": "plugins/riqor/skills/support-support-responder/references/agent-instructions.md",
+      "instructionsSha256": "f793858c20df3d2d569fe769faa7d465e053da609637526062cd4f20555eabc6",
+      "referenceSha256": "0e902e4407df47adbcf3252aa3f1b4f21251a68a506c2da9879b321bc15bdd79"
+    },
+    {
+      "slug": "testing-accessibility-auditor",
+      "displayName": "Accessibility Auditor",
+      "sourceAgent": ".codex/agents/testing-accessibility-auditor.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-accessibility-auditor.toml",
+      "skill": "plugins/riqor/skills/testing-accessibility-auditor/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-accessibility-auditor/references/agent-instructions.md",
+      "instructionsSha256": "c0d270cc2c7b72e47a0f74cb67f6f8294dbc4fa4c72bf44671fd99cb6e879bdc",
+      "referenceSha256": "928a1bfe0062cfd10b641636855d65ce2ba3848805fc7547c0ad6a2555a5935a"
+    },
+    {
+      "slug": "testing-api-tester",
+      "displayName": "API Tester",
+      "sourceAgent": ".codex/agents/testing-api-tester.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-api-tester.toml",
+      "skill": "plugins/riqor/skills/testing-api-tester/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-api-tester/references/agent-instructions.md",
+      "instructionsSha256": "e9d96dbcf0642529d72d7c3bf01717b11df6cf60c0cc793f4f528ccef9e2112c",
+      "referenceSha256": "7ae280706e498b7d2561aae94008b1d37db2bc3fc98b97330479606867d79209"
+    },
+    {
+      "slug": "testing-evidence-collector",
+      "displayName": "Evidence Collector",
+      "sourceAgent": ".codex/agents/testing-evidence-collector.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-evidence-collector.toml",
+      "skill": "plugins/riqor/skills/testing-evidence-collector/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-evidence-collector/references/agent-instructions.md",
+      "instructionsSha256": "4a3c0b1ddf64b1b4760a736cb9de5a9093404df423f2c3557c5ff614ca57e63f",
+      "referenceSha256": "7766b9f8e2196d76e18104097e834b317ad235c14f111935a63cd8efd6327846"
+    },
+    {
+      "slug": "testing-performance-benchmarker",
+      "displayName": "Performance Benchmarker",
+      "sourceAgent": ".codex/agents/testing-performance-benchmarker.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-performance-benchmarker.toml",
+      "skill": "plugins/riqor/skills/testing-performance-benchmarker/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-performance-benchmarker/references/agent-instructions.md",
+      "instructionsSha256": "8761e1558c58d736801d209fea4cd148ffb33f1e1fff9dd62f677094b10cd161",
+      "referenceSha256": "693bbead9284d3b76dca5304433808d14ea68cf89e8f10531e27aa8ad290dad8"
+    },
+    {
+      "slug": "testing-reality-checker",
+      "displayName": "Reality Checker",
+      "sourceAgent": ".codex/agents/testing-reality-checker.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-reality-checker.toml",
+      "skill": "plugins/riqor/skills/testing-reality-checker/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-reality-checker/references/agent-instructions.md",
+      "instructionsSha256": "e702820a3a17df238743080e415af5e22340379bf2af1110775c3d23016f4abb",
+      "referenceSha256": "2a43350101293524e65551985e35063804c26faaecc9a7509ba41387973aa8b8"
+    },
+    {
+      "slug": "testing-test-automation-engineer",
+      "displayName": "Test Automation Engineer",
+      "sourceAgent": ".codex/agents/testing-test-automation-engineer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-test-automation-engineer.toml",
+      "skill": "plugins/riqor/skills/testing-test-automation-engineer/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-test-automation-engineer/references/agent-instructions.md",
+      "instructionsSha256": "43f776fc3b51fbf68e79f4542bba565feaa8ad892f62dbf622dab22d56686c1a",
+      "referenceSha256": "664762afbd8844e1f46a22f7f67b127eb8c7b89e1b188bb203ff12dfd77fd02d"
+    },
+    {
+      "slug": "testing-test-results-analyzer",
+      "displayName": "Test Results Analyzer",
+      "sourceAgent": ".codex/agents/testing-test-results-analyzer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-test-results-analyzer.toml",
+      "skill": "plugins/riqor/skills/testing-test-results-analyzer/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-test-results-analyzer/references/agent-instructions.md",
+      "instructionsSha256": "756c65ddce86c52af65bedabdb93afe88297df58220eb99927d467dec1b6bc63",
+      "referenceSha256": "700757558d6b335980b2ef51d33ec1e3726ec2c7f41f8560255314253436500a"
+    },
+    {
+      "slug": "testing-tool-evaluator",
+      "displayName": "Tool Evaluator",
+      "sourceAgent": ".codex/agents/testing-tool-evaluator.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-tool-evaluator.toml",
+      "skill": "plugins/riqor/skills/testing-tool-evaluator/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-tool-evaluator/references/agent-instructions.md",
+      "instructionsSha256": "ba5832e69c39953598ec2a0902501e2fefdf5f9adeb09e8d7ef0f2eedc3aa48d",
+      "referenceSha256": "ad04d54b9ed21a8ca5403ac53189211658352c5662de821f13d58c017bec0cc0"
+    },
+    {
+      "slug": "testing-workflow-optimizer",
+      "displayName": "Workflow Optimizer",
+      "sourceAgent": ".codex/agents/testing-workflow-optimizer.toml",
+      "pluginAgent": "plugins/riqor/.codex/agents/testing-workflow-optimizer.toml",
+      "skill": "plugins/riqor/skills/testing-workflow-optimizer/SKILL.md",
+      "reference": "plugins/riqor/skills/testing-workflow-optimizer/references/agent-instructions.md",
+      "instructionsSha256": "b9623874c0a3285ef6e871f73a27c381c85426fba5f2a1f392b1b4c7918a1bfb",
+      "referenceSha256": "479af4b4891407d4cc351685b28ddd84f65e70ff12060302fb744d9292982a35"
+    }
+  ]
+}
