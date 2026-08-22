@@ -24,6 +24,11 @@ pipeline needs two distinct checks:
 
 Their ordering is part of the integrity boundary.
 
+The manifest's `sourceCommit` identifies the checked-out input used by the
+generator. It is therefore expected to name an ancestor of the commit that adds
+the resulting payload; trying to make a generated file contain its own commit hash
+would create an impossible self-reference loop.
+
 ## What Riqor now does
 
 `riqor:runtime:verify` reads the committed package version, runtime payload, and
