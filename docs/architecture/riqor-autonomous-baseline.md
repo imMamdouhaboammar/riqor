@@ -64,6 +64,36 @@ Priority is a decision aid rather than an automatic roadmap. Candidate 1 was sel
 
 The plugin and terminal paths still classify commands independently in places, and filesystem changes outside observed tools can be missed. Assured completion now requires current verification evidence and repository identity, but dirty-to-dirty workspace changes remain weaker than a content fingerprint.
 
+## Revalidation — 2026-08-19
+
+Repository baseline: `8ae5f88186faa215abe3670a730b7b893c35f576` (`main`, version `0.2.6`).
+
+Fresh inspection found that 317 of the 348 committed runtime provenance records
+failed integrity or file-set validation after PR #12 merged. CI did not expose the
+defect because it ran `riqor:build` before package tests, replacing the checked-in
+runtime and provenance with newly generated files. The final `main` CI run also
+ended before tests after the zsh installation step stalled, so the merge commit had
+no completed package verification evidence.
+
+Scores use the same baseline formula: `Fit + Reliability + User value + Repository
+evidence + Testability + Learning + Confidence - Maintenance cost - Regression risk`.
+
+| Rank | Candidate | Fit | Rel. | User | Evid. | Test | Learn | Conf. | Cost | Risk | Priority |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Verify committed runtime provenance before regeneration and repair the payload | 10 | 10 | 9 | 10 | 10 | 8 | 10 | 3 | 2 | 62 |
+| 2 | Keep the plugin Stop evidence gate closed until fresh verification | 10 | 10 | 10 | 10 | 10 | 8 | 8 | 4 | 7 | 55 |
+| 3 | Add privacy-preserving dirty-to-dirty workspace fingerprints | 10 | 10 | 9 | 10 | 9 | 9 | 6 | 8 | 8 | 47 |
+| 4 | Harden terminal-state locking, symlinks, and temporary-file uniqueness | 8 | 9 | 8 | 10 | 9 | 8 | 8 | 6 | 5 | 49 |
+| 5 | Bound and retry CI system-package installation | 6 | 8 | 7 | 10 | 6 | 5 | 9 | 2 | 2 | 47 |
+| 6 | Restore complete `0.2.6` GitHub release evidence without republishing | 7 | 8 | 9 | 10 | 7 | 8 | 6 | 7 | 6 | 42 |
+
+Candidate 1 was selected because it repairs a measured distribution-integrity
+failure and prevents the exact CI ordering mistake from recurring. The new gate is
+read-only, runs before both the zsh dependency step and runtime build, and fails
+closed on manifest, digest, size, path, or file-set mismatch. It reuses the same
+provenance verifier as the installed-package doctor rather than creating a second
+integrity policy.
+
 ## Revalidation: 2026-08-21
 
 Repository baseline: `8ae5f88186faa215abe3670a730b7b893c35f576` (`main`, version `0.2.6`)
