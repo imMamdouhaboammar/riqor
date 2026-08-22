@@ -35,6 +35,12 @@ The check shares `verifyPayloadProvenance` with `riqor doctor`, so installed-pac
 and repository validation enforce the same path, digest, size, and exact-file-set
 rules.
 
+Generated specialist reference files preserve their canonical source bytes. Their
+runtime-copy path has a narrowly scoped Git whitespace attribute so repository diff
+checks do not reinterpret intentional Markdown hard breaks or example conflict
+markers as defects in the packaging change; all other runtime paths retain normal
+whitespace checking.
+
 ## Failure case
 
 Changing a runtime file while leaving `provenance.json` unchanged returns a nonzero

@@ -12,6 +12,9 @@ describe("riqor package build", () => {
     expect(isPortableRuntimePath("/repo/skills/example/.DS_Store")).toBe(false);
     expect(isPortableRuntimePath("/repo/skills/example/Thumbs.db")).toBe(false);
     expect(isPortableRuntimePath("/repo/skills/example/._SKILL.md")).toBe(false);
+    expect(isPortableRuntimePath("/repo/skills/example/__pycache__")).toBe(false);
+    expect(isPortableRuntimePath("/repo/skills/example/check.cpython-312.pyc")).toBe(false);
+    expect(isPortableRuntimePath("/repo/skills/example/check.pyo")).toBe(false);
   });
 
   test("package.json metadata matches expected shape", async () => {

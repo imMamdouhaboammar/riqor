@@ -18,7 +18,11 @@ export type BuildReport = Readonly<{
 
 export function isPortableRuntimePath(path: string) {
   const name = basename(path);
-  return name !== ".DS_Store" && name !== "Thumbs.db" && !name.startsWith("._");
+  return name !== ".DS_Store"
+    && name !== "Thumbs.db"
+    && name !== "__pycache__"
+    && !name.startsWith("._")
+    && !/\.py[cod]$/i.test(name);
 }
 
 const staticRuntimeFiles = [
