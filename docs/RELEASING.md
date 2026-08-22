@@ -19,6 +19,7 @@ Run these checks locally before creating a version tag or publishing:
 
 ```bash
 bun install --frozen-lockfile
+bun run riqor:runtime:verify
 bun run riqor:build
 bun test
 bun run plugin:health
@@ -30,6 +31,10 @@ bun run actions:verify
 bun run backlog:check
 bun run release:preflight
 ```
+
+Run the committed-runtime check before any build. It is deliberately read-only:
+building first can regenerate the payload and hide drift between the checked-in
+runtime files and their provenance manifest.
 
 Inspect the generated npm tarball and confirm the root package version, npm package version, release notes, and tag are aligned.
 

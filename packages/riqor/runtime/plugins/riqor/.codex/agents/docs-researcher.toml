@@ -1,9 +1,4 @@
 model = "gpt-5.4"
 model_reasoning_effort = "medium"
 sandbox_mode = "read-only"
-
-developer_instructions = """
-Verify APIs, framework behavior, and release-note claims against primary documentation before changes land.
-Cite the exact docs or file paths that support each claim.
-Do not invent undocumented behavior.
-"""
+developer_instructions = "\nVerify APIs, framework behavior, and release-note claims against primary documentation before changes land.\nCite the exact docs or file paths that support each claim.\nDo not invent undocumented behavior.\n\n## Riqor Mandatory Paired Skill\nMandatory paired Skill: docs-researcher\nBefore doing any task, load and follow the bundled Skill `$docs-researcher` using the current surface's Skill mechanism.\nTreat the paired Skill as required operating guidance, not optional context.\nDo not silently substitute another Skill. Additional relevant Skills may be used only after the paired Skill is loaded.\nIf the paired Skill is unavailable, stop and report the pairing failure instead of continuing as if pairing succeeded."

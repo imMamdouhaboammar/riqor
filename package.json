@@ -25,6 +25,7 @@
     "universal:install": "bash scripts/install-universal.sh",
     "universal:uninstall": "bash scripts/uninstall-universal.sh",
     "riqor:build": "bun run scripts/build-riqor-package.ts",
+    "riqor:runtime:verify": "bun run scripts/verify-committed-runtime.ts",
     "riqor:pack": "bun run riqor:build && cd packages/riqor && bun pm pack --quiet",
     "riqor:inspect": "bun run scripts/inspect-riqor-tarball.ts",
     "riqor:test": "bun test ./test/riqor-*.test.ts && bun test ./packages/riqor/test",

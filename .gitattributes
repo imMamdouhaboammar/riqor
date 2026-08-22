@@ -1,1 +1,2 @@
 config/curated-skills.patch -whitespace
+packages/riqor/runtime/plugins/riqor/skills/**/references/agent-instructions.md -whitespace conflict-marker-size=100
