@@ -126,7 +126,7 @@ PRs #13 and #14 closed the previously selected persistent-completion-gate and co
 
 Fresh code inspection found that terminal evidence storage remained materially weaker than the assured-run store. `src/terminal-runtime.ts` treated any read or JSON failure as a clean state with `evidencePending: false`, accepted incompletely validated records, followed symlinked state paths, used a PID-only temporary filename, and performed read-modify-write transitions without a file lock. The assured-run store already contains repository-native patterns for schema validation, symlink rejection, exclusive unique temporary files, and serialized updates.
 
-The first PR CI attempt also reproduced the previously noted zsh-install reliability problem: the job remained blocked in the unbounded `sudo apt-get update && sudo apt-get install -y zsh` step before it could execute the new tests. That is recorded as a separate initiative rather than mixed into the terminal-state PR.
+The RED CI run completed the zsh installation successfully before executing the regression suite. Earlier repository history recorded a zsh-install stall, but today's run does not reproduce that failure. System-package installation remains a lower-confidence CI hardening candidate rather than evidence for today's selected change.
 
 Scores use the same baseline formula.
 
@@ -134,16 +134,16 @@ Scores use the same baseline formula.
 |---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | 1 | Fail closed on corrupt terminal evidence state and harden its filesystem persistence | 10 | 10 | 9 | 10 | 10 | 9 | 9 | 4 | 4 | 59 |
 | 2 | Add privacy-preserving dirty-to-dirty workspace fingerprints | 10 | 10 | 10 | 10 | 9 | 9 | 6 | 8 | 8 | 48 |
-| 3 | Bound/retry or eliminate the CI zsh system-package installation bottleneck | 7 | 9 | 8 | 10 | 7 | 6 | 9 | 3 | 3 | 50 |
-| 4 | Replace mtime-only stale lock recovery with owner/token-aware leases | 8 | 9 | 7 | 9 | 8 | 9 | 7 | 6 | 6 | 45 |
-| 5 | Implement or remove the documented `trace show active` alias | 6 | 5 | 7 | 10 | 10 | 5 | 10 | 2 | 2 | 49 |
-| 6 | Observe failed tool events as conservative mutation boundaries | 10 | 9 | 9 | 8 | 8 | 8 | 6 | 6 | 7 | 45 |
-| 7 | Consolidate terminal and plugin mutation/verification classifiers | 9 | 8 | 7 | 9 | 9 | 7 | 7 | 7 | 6 | 43 |
-| 8 | Bridge plugin file mutations into the active assured-run trace | 10 | 10 | 9 | 9 | 8 | 8 | 6 | 7 | 7 | 46 |
-| 9 | Add explicit orphaned-run discovery and recovery commands | 8 | 8 | 8 | 8 | 8 | 9 | 7 | 7 | 6 | 43 |
-| 10 | Add a macOS package/install verification lane | 7 | 7 | 8 | 8 | 8 | 7 | 8 | 5 | 4 | 44 |
-| 11 | Generate state/trace reference examples from executable schemas | 7 | 6 | 8 | 10 | 9 | 6 | 9 | 4 | 3 | 48 |
-| 12 | Reconcile generated backlog status with merged repository reality | 5 | 4 | 7 | 10 | 9 | 5 | 10 | 2 | 2 | 46 |
+| 3 | Bridge plugin file mutations into the active assured-run trace | 10 | 10 | 9 | 9 | 8 | 8 | 6 | 7 | 7 | 46 |
+| 4 | Observe failed tool events as conservative mutation boundaries | 10 | 9 | 9 | 8 | 8 | 8 | 6 | 6 | 7 | 45 |
+| 5 | Replace mtime-only stale lock recovery with owner/token-aware leases | 8 | 9 | 7 | 9 | 8 | 9 | 7 | 6 | 6 | 45 |
+| 6 | Implement or remove the documented `trace show active` alias | 6 | 5 | 7 | 10 | 10 | 5 | 10 | 2 | 2 | 49 |
+| 7 | Generate state/trace reference examples from executable schemas | 7 | 6 | 8 | 10 | 9 | 6 | 9 | 4 | 3 | 48 |
+| 8 | Reconcile generated backlog status with merged repository reality | 5 | 4 | 7 | 10 | 9 | 5 | 10 | 2 | 2 | 46 |
+| 9 | Add a macOS package/install verification lane | 7 | 7 | 8 | 8 | 8 | 7 | 8 | 5 | 4 | 44 |
+| 10 | Add explicit orphaned-run discovery and recovery commands | 8 | 8 | 8 | 8 | 8 | 9 | 7 | 7 | 6 | 43 |
+| 11 | Consolidate terminal and plugin mutation/verification classifiers | 9 | 8 | 7 | 9 | 9 | 7 | 7 | 7 | 6 | 43 |
+| 12 | Bound/retry or eliminate the CI zsh system-package installation dependency | 6 | 7 | 6 | 5 | 6 | 5 | 7 | 3 | 3 | 36 |
 
 Priority remains a decision aid rather than an automatic ordering; mission fit and evidence integrity break close scores. Candidate 1 was selected because corrupt terminal state could directly convert uncertainty into an unsupported “verified” status, and because the remediation is bounded, testable, and reuses established repository patterns.
 
@@ -160,4 +160,4 @@ Priority remains a decision aid rather than an automatic ordering; mission fit a
 
 ### Remaining risks after the selected change
 
-The lock strategy intentionally matches the stronger existing run-store pattern, which still uses mtime-based stale-lock recovery; owner/token-aware leases remain a separate hardening opportunity. Filesystem mutations outside observed shell/plugin surfaces can still escape invalidation, and repository identity still reduces dirty worktrees to a boolean rather than a content fingerprint. CI also still has an unbounded system-package installation step that can prevent fresh verification from completing.
+The lock strategy intentionally matches the stronger existing run-store pattern, which still uses mtime-based stale-lock recovery; owner/token-aware leases remain a separate hardening opportunity. Filesystem mutations outside observed shell/plugin surfaces can still escape invalidation, and repository identity still reduces dirty worktrees to a boolean rather than a content fingerprint. CI retains an external system-package installation step, but today's run completed it successfully.
