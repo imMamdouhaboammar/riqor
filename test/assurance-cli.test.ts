@@ -42,6 +42,23 @@ function run(cwd: string, args: string[], env: Record<string, string>) {
 }
 
 describe("assurance CLI", () => {
+  test("blocks completion as soon as a mutation command starts", async () => {
+    const { repository, env } = await fixture();
+    expect(run(repository, ["run", "start", "--goal", "Survive a terminal crash", "--json"], env).exitCode).toBe(0);
+    expect(run(repository, [
+      "terminal",
+      "preexec",
+      "--session",
+      "crash-window",
+      "--command",
+      "printf changed > src/a.ts",
+    ], env).exitCode).toBe(0);
+
+    const blocked = run(repository, ["run", "complete", "--json"], env);
+    expect(blocked.exitCode).toBe(64);
+    expect(blocked.stderr.toString()).toContain("verification is still pending");
+  });
+
   test("starts, traces, verifies, and completes a repository-scoped run", async () => {
     const { repository, env } = await fixture();
     const started = run(repository, [
