@@ -62,7 +62,10 @@ async function recordActiveRunTerminalMutationIntentStrict(
       status: "pending",
       subject: options.transition.route,
       digest: options.transition.commandDigest,
-      metadata: { phase: "command-started" },
+      metadata: {
+        phase: "command-started",
+        startedAt: options.transition.startedAt,
+      },
       nextStatus: "verification-pending",
       now: options.now,
     }],
@@ -98,16 +101,16 @@ async function recordActiveRunTerminalTransitionStrict(
   if (!active) return null;
 
   const commandSucceeded = options.transition.exitCode === 0;
-  const latestEvent = options.transition.kind === "mutation"
+  const matchingIntentAlreadyRecorded = options.transition.kind === "mutation"
     ? (await readRunEvents({
       stateRoot: options.stateRoot,
       identity: lookupIdentity,
       runId: active.runId,
-    })).at(-1)
-    : undefined;
-  const matchingIntentAlreadyRecorded = latestEvent?.type === "verification_required"
-    && latestEvent.digest === options.transition.commandDigest
-    && latestEvent.metadata?.phase === "command-started";
+    })).some((event) => event.type === "verification_required"
+      && event.digest === options.transition.commandDigest
+      && event.metadata?.phase === "command-started"
+      && event.metadata?.startedAt === options.transition.startedAt)
+    : false;
   const needsRepositoryMetadata = options.transition.kind === "mutation"
     || (commandSucceeded && options.transition.kind === "verification");
   let identity = lookupIdentity;
@@ -159,7 +162,10 @@ async function recordActiveRunTerminalTransitionStrict(
         status: "pending",
         subject: options.transition.route,
         digest: options.transition.commandDigest,
-        metadata: {},
+        metadata: {
+          phase: "command-started",
+          startedAt: options.transition.startedAt,
+        },
         nextStatus: "verification-pending",
         now: options.now,
       });
