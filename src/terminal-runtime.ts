@@ -27,6 +27,13 @@ type StoredTerminalState = Readonly<{
 
 export type TerminalState = Omit<StoredTerminalState, "pending">;
 
+export type TerminalPreexecTransition = Readonly<{
+  kind: TerminalCommandKind;
+  route: TaskProfile;
+  commandDigest: string;
+  startedAt: number;
+}>;
+
 export type TerminalPostexecTransition = Readonly<{
   kind: TerminalCommandKind;
   route: TaskProfile;
@@ -59,9 +66,20 @@ const TASK_PROFILES = new Set<TaskProfile>([
   "focus",
   "engineering",
 ]);
-const LOCK_TIMEOUT_MS = 1_000;
 const STALE_LOCK_MS = 30_000;
 const LOCK_RETRY_MS = 20;
+const STATE_KEYS = new Set([
+  "version",
+  "sessionDigest",
+  "evidencePending",
+  "commandDigest",
+  "lastKind",
+  "lastExitCode",
+  "route",
+  "updatedAt",
+  "pending",
+]);
+const PENDING_KEYS = new Set(["kind", "route", "commandDigest", "startedAt"]);
 
 export function classifyTerminalCommand(command: string) {
   const normalized = command.trim();
@@ -132,6 +150,7 @@ function validTimestamp(value: unknown) {
 
 function validPending(value: unknown): value is PendingCommand {
   if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  if (Object.keys(value).some((key) => !PENDING_KEYS.has(key))) return false;
   const pending = value as Partial<PendingCommand>;
   return COMMAND_KINDS.has(pending.kind as TerminalCommandKind)
     && TASK_PROFILES.has(pending.route as TaskProfile)
@@ -142,6 +161,7 @@ function validPending(value: unknown): value is PendingCommand {
 
 function parseStoredState(value: unknown, session: string): StoredTerminalState | null {
   if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  if (Object.keys(value).some((key) => !STATE_KEYS.has(key))) return null;
   const state = value as Partial<StoredTerminalState>;
   if (state.version !== 1 || state.sessionDigest !== digest(session)) return null;
   if (typeof state.evidencePending !== "boolean") return null;
@@ -151,7 +171,26 @@ function parseStoredState(value: unknown, session: string): StoredTerminalState 
   if (!TASK_PROFILES.has(state.route as TaskProfile)) return null;
   if (!validTimestamp(state.updatedAt)) return null;
   if (state.pending !== undefined && !validPending(state.pending)) return null;
-  return state as StoredTerminalState;
+  if (state.pending !== undefined && (
+    state.lastExitCode !== null
+    || (state.pending.kind === "mutation" && state.evidencePending !== true)
+    || state.lastKind !== state.pending.kind
+    || state.route !== state.pending.route
+    || state.commandDigest !== state.pending.commandDigest
+    || state.updatedAt !== state.pending.startedAt
+  )) return null;
+  const canonical: StoredTerminalState = {
+    version: 1,
+    sessionDigest: state.sessionDigest,
+    evidencePending: state.evidencePending,
+    commandDigest: state.commandDigest,
+    lastKind: state.lastKind,
+    lastExitCode: state.lastExitCode,
+    route: state.route,
+    updatedAt: state.updatedAt,
+    ...(state.pending === undefined ? {} : { pending: state.pending }),
+  } as StoredTerminalState;
+  return canonical;
 }
 
 async function load(dataDir: string, session: string): Promise<StoredTerminalState> {
@@ -189,10 +228,24 @@ function sleep(milliseconds: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }
 
+async function lockOwnerAlive(path: string): Promise<boolean | null> {
+  try {
+    const parsed = JSON.parse(await readFile(path, "utf8")) as { pid?: unknown };
+    if (!Number.isInteger(parsed.pid) || (parsed.pid as number) <= 0) return null;
+    try {
+      process.kill(parsed.pid as number, 0);
+      return true;
+    } catch (error) {
+      return (error as NodeJS.ErrnoException).code === "EPERM" ? true : false;
+    }
+  } catch {
+    return null;
+  }
+}
+
 async function withSessionLock<T>(dataDir: string, session: string, action: () => Promise<T>) {
   await mkdir(dataDir, { recursive: true, mode: 0o700 });
   const path = lockPath(dataDir, session);
-  const startedAt = Date.now();
 
   for (;;) {
     let handle;
@@ -204,11 +257,14 @@ async function withSessionLock<T>(dataDir: string, session: string, action: () =
       if (!entry) continue;
       if (entry.isSymbolicLink()) throw new Error("unsafe symlink state path");
       if (!entry.isFile()) throw new Error("unsafe non-file state path");
+      if (await lockOwnerAlive(path) === false) {
+        await rm(path, { force: true });
+        continue;
+      }
       if (Date.now() - entry.mtimeMs > STALE_LOCK_MS) {
         await rm(path, { force: true });
         continue;
       }
-      if (Date.now() - startedAt >= LOCK_TIMEOUT_MS) throw new Error("terminal state is busy");
       await sleep(LOCK_RETRY_MS);
       continue;
     }
@@ -231,12 +287,18 @@ function publicState(state: StoredTerminalState): TerminalState {
   return result;
 }
 
-export async function recordTerminalPreexec(dataDir: string, session: string, command: string, now = Date.now()) {
+export async function recordTerminalPreexec(
+  dataDir: string,
+  session: string,
+  command: string,
+  now = Date.now(),
+): Promise<TerminalPreexecTransition> {
   return withSessionLock(dataDir, session, async () => {
     const current = await load(dataDir, session);
     const classified = classifyTerminalCommand(command);
     await save(dataDir, session, {
       ...current,
+      evidencePending: current.evidencePending || classified.kind === "mutation",
       commandDigest: classified.commandDigest,
       lastKind: classified.kind,
       lastExitCode: null,
@@ -244,7 +306,7 @@ export async function recordTerminalPreexec(dataDir: string, session: string, co
       updatedAt: now,
       pending: { ...classified, startedAt: now },
     });
-    return classified;
+    return Object.freeze({ ...classified, startedAt: now });
   });
 }
 

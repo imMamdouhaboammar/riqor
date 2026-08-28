@@ -4,9 +4,19 @@ import {
   type RepositoryIdentity,
   type RepositoryLocation,
 } from "./repository-identity";
-import { appendRunEvents, readActiveRun, type RunEventInput } from "./run-store";
+import { appendRunEvents, readActiveRun, readRunEvents, type RunEventInput } from "./run-store";
 import type { RiqorRun, RiqorTraceMetadataValue } from "./types";
-import type { TerminalPostexecTransition } from "../terminal-runtime";
+import type { TerminalPostexecTransition, TerminalPreexecTransition } from "../terminal-runtime";
+
+export type RecordActiveRunTerminalMutationIntentOptions = Readonly<{
+  stateRoot: string;
+  cwd: string;
+  transition: TerminalPreexecTransition;
+  now?: Date;
+  locateRepository?: typeof locateRepositoryIdentity;
+  failureMode?: "isolate" | "throw";
+  onWarning?: (error: Error) => void;
+}>;
 
 export type RecordActiveRunTerminalTransitionOptions = Readonly<{
   stateRoot: string;
@@ -28,6 +38,47 @@ function locationIdentity(location: RepositoryLocation): RepositoryIdentity {
   });
 }
 
+async function recordActiveRunTerminalMutationIntentStrict(
+  options: RecordActiveRunTerminalMutationIntentOptions,
+): Promise<RiqorRun | null> {
+  if (options.transition.kind !== "mutation") return null;
+  const locateRepository = options.locateRepository ?? locateRepositoryIdentity;
+  const location = await locateRepository(options.cwd);
+  const identity = locationIdentity(location);
+  const active = await readActiveRun({ stateRoot: options.stateRoot, identity });
+  if (!active) return null;
+  const result = await appendRunEvents({
+    stateRoot: options.stateRoot,
+    identity,
+    runId: active.runId,
+    events: [{
+      source: "terminal",
+      type: "verification_required",
+      status: "pending",
+      subject: options.transition.route,
+      digest: options.transition.commandDigest,
+      metadata: { phase: "command-started" },
+      nextStatus: "verification-pending",
+      now: options.now,
+    }],
+  });
+  return result.run;
+}
+
+export async function recordActiveRunTerminalMutationIntent(
+  options: RecordActiveRunTerminalMutationIntentOptions,
+): Promise<RiqorRun | null> {
+  try {
+    return await recordActiveRunTerminalMutationIntentStrict(options);
+  } catch (cause) {
+    if (options.failureMode === "throw") throw cause;
+    const error = cause instanceof Error ? cause : new Error("unexpected trace failure");
+    if (options.onWarning) options.onWarning(error);
+    else process.stderr.write(`Riqor warning: terminal mutation intent was not recorded: ${error.message}\n`);
+    return null;
+  }
+}
+
 async function recordActiveRunTerminalTransitionStrict(
   options: RecordActiveRunTerminalTransitionOptions,
 ): Promise<RiqorRun | null> {
@@ -42,6 +93,16 @@ async function recordActiveRunTerminalTransitionStrict(
   if (!active) return null;
 
   const commandSucceeded = options.transition.exitCode === 0;
+  const latestEvent = options.transition.kind === "mutation"
+    ? (await readRunEvents({
+      stateRoot: options.stateRoot,
+      identity: lookupIdentity,
+      runId: active.runId,
+    })).at(-1)
+    : undefined;
+  const matchingIntentAlreadyRecorded = latestEvent?.type === "verification_required"
+    && latestEvent.digest === options.transition.commandDigest
+    && latestEvent.metadata?.phase === "command-started";
   const needsRepositoryMetadata = options.transition.kind === "mutation"
     || (commandSucceeded && options.transition.kind === "verification");
   let identity = lookupIdentity;
@@ -86,16 +147,18 @@ async function recordActiveRunTerminalTransitionStrict(
       metadata: repositoryMetadata,
       now: options.now,
     });
-    events.push({
-      source: "terminal",
-      type: "verification_required",
-      status: "pending",
-      subject: options.transition.route,
-      digest: options.transition.commandDigest,
-      metadata: {},
-      nextStatus: "verification-pending",
-      now: options.now,
-    });
+    if (!matchingIntentAlreadyRecorded) {
+      events.push({
+        source: "terminal",
+        type: "verification_required",
+        status: "pending",
+        subject: options.transition.route,
+        digest: options.transition.commandDigest,
+        metadata: {},
+        nextStatus: "verification-pending",
+        now: options.now,
+      });
+    }
   } else if (options.transition.kind === "verification" && commandSucceeded) {
     events.push({
       source: "terminal",

@@ -133,6 +133,11 @@ describe("terminal runtime", () => {
     expect(state.evidencePending).toBe(true);
     expect(JSON.stringify(state)).not.toContain("rawCommand");
     expect(JSON.stringify(state)).not.toContain("sk-private-secret");
+
+    await recordTerminalPreexec(root, session, "pwd", 1001);
+    const stored = await readFile(path, "utf8");
+    expect(stored).not.toContain("rawCommand");
+    expect(stored).not.toContain("sk-private-secret");
   });
 
   test("rejects pending metadata that disagrees with its top-level command", async () => {
@@ -163,6 +168,31 @@ describe("terminal runtime", () => {
     expect(result.transition).toBeUndefined();
   });
 
+  test("rejects a mutation intent that claims verification is clear", async () => {
+    const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
+    const session = "clear-mutation-pending";
+    const sessionDigest = createHash("sha256").update(session).digest("hex");
+    const commandDigest = createHash("sha256").update("mutation").digest("hex");
+    await writeFile(join(root, `${sessionDigest}.json`), `${JSON.stringify({
+      version: 1,
+      sessionDigest,
+      evidencePending: false,
+      commandDigest,
+      lastKind: "mutation",
+      lastExitCode: null,
+      route: "engineering",
+      updatedAt: 1000,
+      pending: {
+        kind: "mutation",
+        route: "engineering",
+        commandDigest,
+        startedAt: 1000,
+      },
+    })}\n`, "utf8");
+
+    expect((await readTerminalState(root, session)).evidencePending).toBe(true);
+  });
+
   test("waits for a busy state lock instead of losing a mutation", async () => {
     const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
     const session = "busy-mutation";
@@ -176,6 +206,20 @@ describe("terminal runtime", () => {
       clearTimeout(release);
       await rm(lock, { force: true });
     }
+    expect((await readTerminalState(root, session)).evidencePending).toBe(true);
+  });
+
+  test("recovers a lock whose recorded owner is no longer alive", async () => {
+    const root = await mkdtemp(join(tmpdir(), "csi-terminal-"));
+    const session = "dead-lock-owner";
+    const sessionDigest = createHash("sha256").update(session).digest("hex");
+    const lock = join(root, `${sessionDigest}.json.lock`);
+    await writeFile(lock, `${JSON.stringify({
+      pid: 2_147_483_647,
+      createdAt: new Date().toISOString(),
+    })}\n`, { mode: 0o600 });
+
+    await recordTerminalPreexec(root, session, "printf changed > src/a.ts", 1000);
     expect((await readTerminalState(root, session)).evidencePending).toBe(true);
   });
 
