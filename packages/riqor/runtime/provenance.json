@@ -1,7 +1,7 @@
 {
   "version": "0.2.6",
-  "sourceCommit": "a23d4e511016843eefca4fbec8084edabdc1de71",
-  "sourceDateEpoch": 1787635181,
+  "sourceCommit": "8d9dec9627d62d76dc2825b36d9f91431b497d16",
+  "sourceDateEpoch": 1787635219,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
