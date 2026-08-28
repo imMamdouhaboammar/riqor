@@ -86,6 +86,47 @@ describe("active run terminal trace", () => {
     }
   });
 
+  test("deduplicates mutation intent by invocation when completions interleave", async () => {
+    const { stateRoot, repository, identity } = await fixture();
+    const first = transition("mutation", 0, "printf first > src/a.ts", 1_000, 1_200);
+    const second = transition("mutation", 0, "printf second > src/b.ts", 1_100, 1_300);
+
+    await recordActiveRunTerminalMutationIntent({
+      stateRoot,
+      cwd: repository,
+      transition: {
+        kind: first.kind,
+        route: first.route,
+        commandDigest: first.commandDigest,
+        startedAt: first.startedAt,
+      },
+      failureMode: "throw",
+    });
+    await recordActiveRunTerminalMutationIntent({
+      stateRoot,
+      cwd: repository,
+      transition: {
+        kind: second.kind,
+        route: second.route,
+        commandDigest: second.commandDigest,
+        startedAt: second.startedAt,
+      },
+      failureMode: "throw",
+    });
+
+    await recordActiveRunTerminalTransition({
+      stateRoot,
+      cwd: repository,
+      transition: first,
+      failureMode: "throw",
+    });
+
+    const intents = (await readRunEvents({ stateRoot, identity, runId: "run-terminal" }))
+      .filter((event) => event.type === "verification_required");
+    expect(intents).toHaveLength(2);
+    expect(intents.map((event) => event.metadata?.startedAt)).toEqual([1_000, 1_100]);
+  });
+
   test("records mutation and verification transitions without raw commands", async () => {
     const { stateRoot, repository, identity } = await fixture();
     const secretMarker = "printf sk-private-terminal-marker > src/a.ts";
