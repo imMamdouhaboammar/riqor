@@ -37,6 +37,8 @@ stateDiagram-v2
 ### 1. The Workspace Mutation Rule
 Any terminal action or agent tool call that mutates workspace state (creating, editing, or deleting files) automatically transitions the evidence state to `verification-pending`.
 
+For terminal commands, this transition happens at command start. Waiting for the exit callback creates a crash window in which a command may mutate files and the shell may terminate before Riqor observes the result. A missing callback is therefore treated as uncertainty, not rollback.
+
 ### 2. The Empirical Verification Rule
 State can transition from `verification-pending` back to `clear` **only** when a recognized verification command runs and exits with a status code of `0`.
 

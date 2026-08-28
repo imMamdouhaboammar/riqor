@@ -10,6 +10,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 - Keep ordinary and active-continuation Codex plugin Stop events blocked until fresh verification covers the latest observed mutation
 - Reject package-manager check invocations that only request help or version output instead of executing verification
+- Invalidate terminal and assured-run evidence at mutation command start so a shell crash before `postexec` cannot preserve stale proof
+- Reject unknown or internally inconsistent terminal-state properties instead of carrying them into future writes
+- Wait for a live terminal-state writer and recover locks owned by dead processes so lock contention cannot silently lose mutation evidence
 
 ## [0.2.6] - 2026-08-09
 

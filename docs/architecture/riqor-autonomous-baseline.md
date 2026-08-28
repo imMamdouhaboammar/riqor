@@ -161,3 +161,29 @@ Priority remains a decision aid rather than an automatic ordering; mission fit a
 ### Remaining risks after the selected change
 
 The lock strategy intentionally matches the stronger existing run-store pattern, which still uses mtime-based stale-lock recovery; owner/token-aware leases remain a separate hardening opportunity. Filesystem mutations outside observed shell/plugin surfaces can still escape invalidation, and repository identity still reduces dirty worktrees to a boolean rather than a content fingerprint. CI retains an external system-package installation step, but today's run completed it successfully.
+
+## Revalidation — 2026-08-25
+
+Repository baseline: `950732074164f30d31544d05af7ea6b60a3cf119` (`main`, version `0.2.6`). Work continued on PR #15 because its terminal-state integrity boundary was already the correct owner for today's executable failure and three unresolved safety findings.
+
+Fresh reproduction proved that mutation evidence was invalidated only at `postexec`: a command could start, mutate a tracked file, and lose its shell before the callback, after which an assured run still completed with only `run_started` and `run_completed`. Review also confirmed that unknown persisted properties could be copied forward, a one-second live-lock timeout could be suppressed by shell integration, and inconsistent pending metadata could clear evidence.
+
+| Rank | Candidate | Fit | Rel. | User | Evid. | Test | Learn | Conf. | Cost | Risk | Priority |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Invalidate terminal and assured-run evidence at mutation start | 10 | 10 | 10 | 10 | 10 | 9 | 9 | 4 | 4 | 60 |
+| 2 | Add privacy-preserving dirty-to-dirty worktree fingerprints | 10 | 10 | 10 | 10 | 9 | 9 | 6 | 8 | 8 | 48 |
+| 3 | Bridge plugin file mutations into the active assured-run trace | 10 | 10 | 9 | 9 | 8 | 8 | 6 | 7 | 7 | 46 |
+| 4 | Observe failed mutation-shaped tool events conservatively | 10 | 9 | 9 | 8 | 8 | 8 | 6 | 6 | 7 | 45 |
+| 5 | Replace enumerated command classification with a bounded effect contract | 9 | 9 | 8 | 8 | 8 | 9 | 5 | 8 | 8 | 40 |
+
+Candidate 1 was selected because it closes a demonstrated unsupported-completion path with a small extension of the existing state machine. The accepted contract is:
+
+1. Mutation `preexec` makes terminal evidence pending before execution begins.
+2. An active assured run records `verification_required` at the same boundary.
+3. Missing `postexec`, nonzero exit, restart, or shell crash cannot restore prior evidence.
+4. Only a recognized verification followed by an observed zero exit clears the gate.
+5. Persisted state is canonicalized to known fields; unknown or inconsistent metadata fails closed.
+6. A live lock is waited out, while a lock whose owner process is gone is recoverable without a fixed fail-open timeout.
+7. Raw commands, paths, output, prompts, source, and environment values remain outside persisted evidence.
+
+Dirty-to-dirty external changes remain the highest unresolved freshness gap because Git HEAD and a dirty boolean cannot distinguish two different dirty contents.
