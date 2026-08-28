@@ -45,12 +45,17 @@ async function recordActiveRunTerminalMutationIntentStrict(
   const locateRepository = options.locateRepository ?? locateRepositoryIdentity;
   const location = await locateRepository(options.cwd);
   const identity = locationIdentity(location);
-  const active = await readActiveRun({ stateRoot: options.stateRoot, identity });
+  const active = await readActiveRun({
+    stateRoot: options.stateRoot,
+    identity,
+    lockTimeoutMs: Number.POSITIVE_INFINITY,
+  });
   if (!active) return null;
   const result = await appendRunEvents({
     stateRoot: options.stateRoot,
     identity,
     runId: active.runId,
+    lockTimeoutMs: Number.POSITIVE_INFINITY,
     events: [{
       source: "terminal",
       type: "verification_required",

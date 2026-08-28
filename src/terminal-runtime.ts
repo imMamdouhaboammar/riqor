@@ -257,11 +257,12 @@ async function withSessionLock<T>(dataDir: string, session: string, action: () =
       if (!entry) continue;
       if (entry.isSymbolicLink()) throw new Error("unsafe symlink state path");
       if (!entry.isFile()) throw new Error("unsafe non-file state path");
-      if (await lockOwnerAlive(path) === false) {
+      const ownerAlive = await lockOwnerAlive(path);
+      if (ownerAlive === false) {
         await rm(path, { force: true });
         continue;
       }
-      if (Date.now() - entry.mtimeMs > STALE_LOCK_MS) {
+      if (ownerAlive === null && Date.now() - entry.mtimeMs > STALE_LOCK_MS) {
         await rm(path, { force: true });
         continue;
       }

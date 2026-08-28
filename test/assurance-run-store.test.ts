@@ -202,6 +202,32 @@ describe("assurance run store", () => {
     await expect(readRun({ stateRoot, identity, runId: "run-live" })).rejects.toThrow("unsafe symlink state path");
   });
 
+  test("recovers a fresh lock whose owner process is gone", async () => {
+    const { stateRoot, identity } = await fixture();
+    await createRun({
+      stateRoot,
+      identity,
+      goal: "Dead lock owner",
+      pathId: "evidence-loop",
+      profileId: "assured",
+      randomId: () => "run-dead-owner",
+    });
+    const directory = runDirectory(stateRoot, identity.rootDigest, "run-dead-owner");
+    await writeFile(join(directory, ".lock"), `${JSON.stringify({ pid: 2_147_483_647 })}\n`, { mode: 0o600 });
+
+    const event = await appendRunEvent({
+      stateRoot,
+      identity,
+      runId: "run-dead-owner",
+      source: "riqor",
+      type: "command_completed",
+      status: "success",
+      subject: "other",
+      lockTimeoutMs: 100,
+    });
+    expect(event.type).toBe("command_completed");
+  });
+
   test("blocks pending completion and closes a verified active run", async () => {
     const { stateRoot, identity } = await fixture();
     await createRun({
