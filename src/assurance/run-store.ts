@@ -55,6 +55,11 @@ export type RunLocation = Readonly<{
   runId: string;
 }>;
 
+type ReadRunOptions = RunLocation & Readonly<{
+  lockTimeoutMs?: number;
+  staleLockMs?: number;
+}>;
+
 export type CreateRunOptions = Readonly<{
   stateRoot: string;
   identity: RepositoryIdentity;
@@ -303,6 +308,24 @@ function sleep(milliseconds: number) {
   return new Promise<void>((resolve) => setTimeout(resolve, milliseconds));
 }
 
+async function lockOwnerAlive(path: string): Promise<boolean | null> {
+  try {
+    const parsed = JSON.parse(await readFile(path, "utf8")) as { pid?: unknown };
+    if (!Number.isInteger(parsed.pid) || (parsed.pid as number) <= 0) return null;
+    try {
+      process.kill(parsed.pid as number, 0);
+      return true;
+    } catch (error) {
+      const code = (error as NodeJS.ErrnoException).code;
+      if (code === "EPERM") return true;
+      if (code === "ESRCH") return false;
+      return null;
+    }
+  } catch {
+    return null;
+  }
+}
+
 async function withFileLock<T>(
   lockPath: string,
   action: () => Promise<T>,
@@ -323,7 +346,12 @@ async function withFileLock<T>(
       if (!entry) continue;
       if (entry.isSymbolicLink()) throw new Error("unsafe symlink state path");
       if (!entry.isFile()) throw new Error("unsafe non-file state path");
-      if (Date.now() - entry.mtimeMs > staleMs) {
+      const ownerAlive = await lockOwnerAlive(lockPath);
+      if (ownerAlive === false) {
+        await rm(lockPath, { force: true });
+        continue;
+      }
+      if (ownerAlive === null && Date.now() - entry.mtimeMs > staleMs) {
         await rm(lockPath, { force: true });
         continue;
       }
@@ -546,17 +574,17 @@ async function appendEventsLocked(
   return { events, run: updated };
 }
 
-export async function readRun(options: RunLocation) {
+export async function readRun(options: ReadRunOptions) {
   validateRunId(options.runId);
   const directory = runDirectory(options.stateRoot, options.identity.rootDigest, options.runId);
   return withFileLock(join(directory, ".lock"), async () => {
     const run = await readRunFile(options);
     return reconcileRunState(options, run);
-  });
+  }, { timeoutMs: options.lockTimeoutMs, staleMs: options.staleLockMs });
 }
 
 export async function readActiveRun(
-  options: Omit<RunLocation, "runId">,
+  options: Omit<ReadRunOptions, "runId">,
 ): Promise<RiqorRun | null> {
   validateRootDigest(options.identity.rootDigest);
   const path = activePath(options.stateRoot, options.identity.rootDigest);

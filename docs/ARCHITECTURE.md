@@ -69,7 +69,7 @@ Shell hooks call the terminal runtime before and after commands. The runtime cla
 - `agent`
 - `other`
 
-A mutation-classified command sets `evidencePending` to `true`, regardless of its final exit code, because earlier operations may already have changed the workspace. A successful recognized verification command clears it. Failed verification and unrelated commands preserve existing evidence state.
+A mutation-classified command sets `evidencePending` to `true` at `preexec`, before the command can change the workspace. This conservative intent survives a shell crash between `preexec` and `postexec`. The active assured run receives the same `verification_required` boundary at command start. A successful recognized verification command clears the terminal state only after `postexec` reports exit code zero. Failed verification and unrelated commands preserve existing evidence state.
 
 Command text is reduced to a SHA-256 digest in terminal state. The stored state includes classification, exit status, route, timing, and the pending evidence flag.
 
@@ -222,13 +222,16 @@ sequenceDiagram
     SH->>TR: preexec(command)
     TR->>TR: Classify and hash command
     TR->>ST: Save pending command digest
+    alt Mutation intent
+        TR->>ST: Set evidencePending=true
+        TR->>RR: Append verification_required
+        RR->>RR: status=verification-pending
+    end
     U->>SH: Command finishes
     SH->>TR: postexec(exit code)
     TR->>RR: Append command_completed
-    alt Successful mutation
-        TR->>ST: Set evidencePending=true
-        TR->>RR: Append workspace_mutated and verification_required
-        RR->>RR: status=verification-pending
+    alt Mutation completes
+        TR->>RR: Append workspace_mutated
     else Successful verification
         TR->>ST: Set evidencePending=false
         TR->>RR: Append verification_completed when pending
@@ -236,8 +239,10 @@ sequenceDiagram
     else Other result
         TR->>ST: Preserve existing evidence state
         RR->>RR: Preserve current status
-    end
+end
 ```
+
+If the shell terminates after mutation `preexec`, there is deliberately no `command_completed` event. The earlier `verification_required` event remains authoritative: absence of a completion callback is not evidence that the command made no changes.
 
 When the current repository has no active run, terminal verification tracking continues to work as before and no run event is appended.
 

@@ -7,7 +7,10 @@ import { join, resolve } from "node:path";
 import { harnessPaths } from "../plugins/riqor/hooks/paths";
 import { assuranceCommand } from "./assurance/cli";
 import { resolveRiqorStateRoot } from "./assurance/repository-identity";
-import { recordActiveRunTerminalTransition } from "./assurance/terminal-trace";
+import {
+  recordActiveRunTerminalMutationIntent,
+  recordActiveRunTerminalTransition,
+} from "./assurance/terminal-trace";
 import {
   readTerminalState,
   recordTerminalPostexec,
@@ -435,7 +438,14 @@ async function terminalCommand(args: string[]) {
   if (action === "preexec") {
     const command = value(args, "--command");
     if (command === undefined) throw new Error("terminal preexec requires --command");
-    await recordTerminalPreexec(dataDir(), key, command);
+    const transition = await recordTerminalPreexec(dataDir(), key, command);
+    if (transition.kind === "mutation") {
+      await recordActiveRunTerminalMutationIntent({
+        stateRoot: resolveRiqorStateRoot(),
+        cwd: process.cwd(),
+        transition,
+      });
+    }
     return;
   }
   if (action === "postexec") {

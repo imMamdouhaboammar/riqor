@@ -117,3 +117,73 @@ Candidate 1 was selected because executable tests proved that a second ordinary 
 3. Only a recognized structured-zero check with sufficient scope clears the gate; help and version modes are not checks.
 4. The activator remains downstream of the evidence decision.
 5. `SessionEnd` remains the explicit cleanup boundary.
+
+## Revalidation — 2026-08-23
+
+Repository baseline: `950732074164f30d31544d05af7ea6b60a3cf119` (`main`, version `0.2.6`).
+
+PRs #13 and #14 closed the previously selected persistent-completion-gate and committed-runtime-provenance gaps. There are no open pull requests. The only open issue, #10, requires npm Trusted Publisher account configuration and is therefore outside autonomous repository-only remediation. The current `BACKLOG.md` is also visibly stale: it still calls RIQ-101 in-progress at PR #8 even though later assured-trace work has merged. No `TODO`, `FIXME`, `HACK`, or `XXX` marker surfaced in repository search.
+
+Fresh code inspection found that terminal evidence storage remained materially weaker than the assured-run store. `src/terminal-runtime.ts` treated any read or JSON failure as a clean state with `evidencePending: false`, accepted incompletely validated records, followed symlinked state paths, used a PID-only temporary filename, and performed read-modify-write transitions without a file lock. The assured-run store already contains repository-native patterns for schema validation, symlink rejection, exclusive unique temporary files, and serialized updates.
+
+The RED CI run completed the zsh installation successfully before executing the regression suite. Earlier repository history recorded a zsh-install stall, but today's run does not reproduce that failure. System-package installation remains a lower-confidence CI hardening candidate rather than evidence for today's selected change.
+
+Scores use the same baseline formula.
+
+| Rank | Candidate | Fit | Rel. | User | Evid. | Test | Learn | Conf. | Cost | Risk | Priority |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Fail closed on corrupt terminal evidence state and harden its filesystem persistence | 10 | 10 | 9 | 10 | 10 | 9 | 9 | 4 | 4 | 59 |
+| 2 | Add privacy-preserving dirty-to-dirty workspace fingerprints | 10 | 10 | 10 | 10 | 9 | 9 | 6 | 8 | 8 | 48 |
+| 3 | Bridge plugin file mutations into the active assured-run trace | 10 | 10 | 9 | 9 | 8 | 8 | 6 | 7 | 7 | 46 |
+| 4 | Observe failed tool events as conservative mutation boundaries | 10 | 9 | 9 | 8 | 8 | 8 | 6 | 6 | 7 | 45 |
+| 5 | Replace mtime-only stale lock recovery with owner/token-aware leases | 8 | 9 | 7 | 9 | 8 | 9 | 7 | 6 | 6 | 45 |
+| 6 | Implement or remove the documented `trace show active` alias | 6 | 5 | 7 | 10 | 10 | 5 | 10 | 2 | 2 | 49 |
+| 7 | Generate state/trace reference examples from executable schemas | 7 | 6 | 8 | 10 | 9 | 6 | 9 | 4 | 3 | 48 |
+| 8 | Reconcile generated backlog status with merged repository reality | 5 | 4 | 7 | 10 | 9 | 5 | 10 | 2 | 2 | 46 |
+| 9 | Add a macOS package/install verification lane | 7 | 7 | 8 | 8 | 8 | 7 | 8 | 5 | 4 | 44 |
+| 10 | Add explicit orphaned-run discovery and recovery commands | 8 | 8 | 8 | 8 | 8 | 9 | 7 | 7 | 6 | 43 |
+| 11 | Consolidate terminal and plugin mutation/verification classifiers | 9 | 8 | 7 | 9 | 9 | 7 | 7 | 7 | 6 | 43 |
+| 12 | Bound/retry or eliminate the CI zsh system-package installation dependency | 6 | 7 | 6 | 5 | 6 | 5 | 7 | 3 | 3 | 36 |
+
+Priority remains a decision aid rather than an automatic ordering; mission fit and evidence integrity break close scores. Candidate 1 was selected because corrupt terminal state could directly convert uncertainty into an unsupported “verified” status, and because the remediation is bounded, testable, and reuses established repository patterns.
+
+### Selected 2026-08-23 contract
+
+1. A genuinely missing terminal state record still initializes clean.
+2. An existing state record that cannot be parsed or validated recovers conservatively with verification pending.
+3. A fresh recognized verification with a zero exit may clear that conservative pending state through the ordinary preexec/postexec lifecycle.
+4. Symbolic-link and non-regular terminal state paths are rejected rather than followed.
+5. Atomic replacement uses exclusive, collision-resistant temporary files with cleanup.
+6. Per-session read-modify-write transitions are serialized with a local file lock.
+7. Raw commands, source content, prompts, environment values, and verifier output remain absent from persisted terminal state.
+8. Public APIs and mutation/verification classification semantics remain unchanged.
+
+### Remaining risks after the selected change
+
+The lock strategy intentionally matches the stronger existing run-store pattern, which still uses mtime-based stale-lock recovery; owner/token-aware leases remain a separate hardening opportunity. Filesystem mutations outside observed shell/plugin surfaces can still escape invalidation, and repository identity still reduces dirty worktrees to a boolean rather than a content fingerprint. CI retains an external system-package installation step, but today's run completed it successfully.
+
+## Revalidation — 2026-08-25
+
+Repository baseline: `950732074164f30d31544d05af7ea6b60a3cf119` (`main`, version `0.2.6`). Work continued on PR #15 because its terminal-state integrity boundary was already the correct owner for today's executable failure and three unresolved safety findings.
+
+Fresh reproduction proved that mutation evidence was invalidated only at `postexec`: a command could start, mutate a tracked file, and lose its shell before the callback, after which an assured run still completed with only `run_started` and `run_completed`. Review also confirmed that unknown persisted properties could be copied forward, a one-second live-lock timeout could be suppressed by shell integration, and inconsistent pending metadata could clear evidence.
+
+| Rank | Candidate | Fit | Rel. | User | Evid. | Test | Learn | Conf. | Cost | Risk | Priority |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Invalidate terminal and assured-run evidence at mutation start | 10 | 10 | 10 | 10 | 10 | 9 | 9 | 4 | 4 | 60 |
+| 2 | Add privacy-preserving dirty-to-dirty worktree fingerprints | 10 | 10 | 10 | 10 | 9 | 9 | 6 | 8 | 8 | 48 |
+| 3 | Bridge plugin file mutations into the active assured-run trace | 10 | 10 | 9 | 9 | 8 | 8 | 6 | 7 | 7 | 46 |
+| 4 | Observe failed mutation-shaped tool events conservatively | 10 | 9 | 9 | 8 | 8 | 8 | 6 | 6 | 7 | 45 |
+| 5 | Replace enumerated command classification with a bounded effect contract | 9 | 9 | 8 | 8 | 8 | 9 | 5 | 8 | 8 | 40 |
+
+Candidate 1 was selected because it closes a demonstrated unsupported-completion path with a small extension of the existing state machine. The accepted contract is:
+
+1. Mutation `preexec` makes terminal evidence pending before execution begins.
+2. An active assured run records `verification_required` at the same boundary.
+3. Missing `postexec`, nonzero exit, restart, or shell crash cannot restore prior evidence.
+4. Only a recognized verification followed by an observed zero exit clears the gate.
+5. Persisted state is canonicalized to known fields; unknown or inconsistent metadata fails closed.
+6. A live lock is waited out, while a lock whose owner process is gone is recoverable without a fixed fail-open timeout.
+7. Raw commands, paths, output, prompts, source, and environment values remain outside persisted evidence.
+
+Dirty-to-dirty external changes remain the highest unresolved freshness gap because Git HEAD and a dirty boolean cannot distinguish two different dirty contents.
