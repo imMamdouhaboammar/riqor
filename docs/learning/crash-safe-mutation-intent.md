@@ -30,4 +30,4 @@ Completion remains blocked because the mutation intent was durable before the co
 
 ## Test proving behavior
 
-The terminal runtime tests assert that mutation `preexec` is already pending. The assured CLI regression starts a run, records only mutation `preexec`, changes a tracked file, and verifies that completion is rejected without relying on `postexec`.
+The terminal runtime tests assert that mutation `preexec` is already pending. The assured CLI regression starts a run, records mutation `preexec` only, and verifies that completion is rejected without relying on `postexec`.
