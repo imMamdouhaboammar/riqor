@@ -1,8 +1,9 @@
 import { afterEach, describe, expect, test } from "bun:test";
-import { mkdtemp, readdir, readFile, rm } from "node:fs/promises";
+import { mkdir, mkdtemp, readdir, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 import { handleHook } from "../plugins/riqor/hooks/main";
+import { turnKey } from "../plugins/riqor/hooks/state";
 
 const roots: string[] = [];
 async function dataDir() {
@@ -17,6 +18,63 @@ afterEach(async () => {
 const common = { session_id: "session", turn_id: "turn", model: "gpt", permission_mode: "never" };
 
 describe("plugin lifecycle hook", () => {
+  test("blocks Stop when current-turn evidence state is temporarily locked", async () => {
+    const root = await dataDir();
+    const key = turnKey(common);
+    const lock = join(root, `.${key}.lock`);
+    await mkdir(lock, { mode: 0o700 });
+    await writeFile(join(lock, "owner.json"), `${JSON.stringify({
+      version: 1,
+      token: "live-owner",
+      pid: process.pid,
+      createdAt: Date.now(),
+    })}\n`);
+    const output = await handleHook({ ...common, hook_event_name: "Stop" }, root);
+    expect(output).toMatchObject({ decision: "block" });
+    expect(JSON.stringify(output)).toContain("state");
+  });
+
+  test("the executable bundled hook blocks Stop when evidence state is locked", async () => {
+    const root = await dataDir();
+    const key = turnKey(common);
+    const lock = join(root, `.${key}.lock`);
+    await mkdir(lock, { mode: 0o700 });
+    await writeFile(join(lock, "owner.json"), `${JSON.stringify({
+      version: 1,
+      token: "live-bundled-owner",
+      pid: process.pid,
+      createdAt: Date.now(),
+    })}\n`);
+    const run = Bun.spawnSync(["bun", resolve(import.meta.dir, "../plugins/riqor/hooks/main.mjs")], {
+      env: { ...process.env, PLUGIN_DATA: root },
+      stdin: Buffer.from(JSON.stringify({ ...common, hook_event_name: "Stop" })),
+      stdout: "pipe",
+      stderr: "pipe",
+    });
+    expect(run.exitCode).toBe(0);
+    expect(JSON.parse(run.stdout.toString())).toMatchObject({ decision: "block" });
+  });
+
+  test("a non-empty directory at the evidence path remains blocked and untouched", async () => {
+    const root = await dataDir();
+    const key = turnKey(common);
+    const state = join(root, `${key}.json`);
+    await mkdir(state);
+    await writeFile(join(state, "marker"), "untouched");
+    expect(await handleHook({ ...common, hook_event_name: "Stop" }, root)).toMatchObject({ decision: "block" });
+    expect(await readFile(join(state, "marker"), "utf8")).toBe("untouched");
+    expect(await handleHook({ ...common, hook_event_name: "Stop", stop_hook_active: true }, root))
+      .toMatchObject({ decision: "block" });
+  });
+
+  test("does not prune away corrupt current-turn evidence at session start", async () => {
+    const root = await dataDir();
+    const key = turnKey(common);
+    await writeFile(join(root, `${key}.json`), "{");
+    await handleHook({ ...common, hook_event_name: "SessionStart", source: "resume" }, root);
+    expect(await handleHook({ ...common, hook_event_name: "Stop" }, root)).toMatchObject({ decision: "block" });
+  });
+
   test("adds compact session guidance", async () => {
     const root = await dataDir();
     const output = await handleHook({ ...common, hook_event_name: "SessionStart", source: "startup" }, root);

@@ -202,7 +202,15 @@ export async function handleHook(
   }
 
   if (event === "Stop") {
-    const gate = await consumeEvidenceGate(dataDir, key);
+    let gate;
+    try {
+      gate = await consumeEvidenceGate(dataDir, key);
+    } catch {
+      return {
+        decision: "block",
+        reason: "Riqor evidence gate: current-turn evidence state is unavailable. Restore local state access, run the relevant verification again, then retry completion",
+      };
+    }
     if (gate.pending) {
       return {
         decision: "block",

@@ -14,6 +14,7 @@ type TurnState = {
 };
 
 const mutationKinds = new Set<MutationKind>(["code", "docs", "config", "unknown"]);
+const stateProperties = new Set(["version", "mutationKind", "mutatedAt", "verifiedAt", "blockedOnce"]);
 const keyPattern = /^[a-f0-9]{64}$/;
 const lockRetryMs = 5;
 const lockAttempts = 40;
@@ -211,6 +212,8 @@ function validTime(value: unknown): value is number {
 function parseState(contents: string): TurnState | undefined {
   try {
     const candidate = JSON.parse(contents) as Partial<TurnState>;
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate)) return undefined;
+    if (Object.keys(candidate).some((property) => !stateProperties.has(property))) return undefined;
     if (candidate.version !== 1) return undefined;
     if (!mutationKinds.has(candidate.mutationKind as MutationKind)) return undefined;
     if (!validTime(candidate.mutatedAt)) return undefined;
@@ -222,17 +225,19 @@ function parseState(contents: string): TurnState | undefined {
   }
 }
 
+function conservativeState(): TurnState {
+  return { version: 1, mutationKind: "unknown", mutatedAt: 0, blockedOnce: false };
+}
+
 async function readState(dataDir: string, key: string) {
   const path = statePath(dataDir, key);
   try {
     const info = await lstat(path);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
-      await rm(path, { force: true });
-      return undefined;
+      return conservativeState();
     }
     const state = parseState(await readFile(path, "utf8"));
-    if (!state) await rm(path, { force: true });
-    return state;
+    return state ?? conservativeState();
   } catch (error) {
     if ((error as NodeJS.ErrnoException).code === "ENOENT") return undefined;
     throw error;
@@ -245,6 +250,12 @@ async function writeState(dataDir: string, key: string, state: TurnState) {
   const temporary = join(dataDir, `.${key}.${randomUUID()}.tmp`);
   try {
     await writeFile(temporary, `${JSON.stringify(state)}\n`, { encoding: "utf8", flag: "wx", mode: 0o600 });
+    try {
+      const destination = await lstat(path);
+      if (destination.isDirectory() && !destination.isSymbolicLink()) await rmdir(path);
+    } catch (error) {
+      if ((error as NodeJS.ErrnoException).code !== "ENOENT") throw error;
+    }
     await rename(temporary, path);
   } finally {
     await rm(temporary, { force: true });
@@ -337,13 +348,15 @@ async function inspectPruneCandidateUnlocked(
   try {
     const info = await lstat(path);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
-      if (removeInvalid) await rm(path, { force: true });
-      return undefined;
+      if (!removeInvalid) return undefined;
+      await writeState(dataDir, key, conservativeState());
+      return { key, path, modifiedAt: Date.now() };
     }
     const state = parseState(await readFile(path, "utf8"));
     if (!state) {
-      if (removeInvalid) await rm(path, { force: true });
-      return undefined;
+      if (!removeInvalid) return undefined;
+      await writeState(dataDir, key, conservativeState());
+      return { key, path, modifiedAt: Date.now() };
     }
     return {
       key,

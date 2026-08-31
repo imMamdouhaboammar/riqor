@@ -544,6 +544,7 @@ import { createHash as createHash2, randomUUID as randomUUID3 } from "node:crypt
 import { chmod as chmod2, lstat as lstat2, mkdir as mkdir2, readdir as readdir2, readFile as readFile3, rename as rename3, rm as rm3, rmdir, writeFile as writeFile3 } from "node:fs/promises";
 import { join as join3 } from "node:path";
 var mutationKinds = new Set(["code", "docs", "config", "unknown"]);
+var stateProperties = new Set(["version", "mutationKind", "mutatedAt", "verifiedAt", "blockedOnce"]);
 var keyPattern2 = /^[a-f0-9]{64}$/;
 var lockRetryMs2 = 5;
 var lockAttempts2 = 40;
@@ -739,6 +740,10 @@ function validTime2(value) {
 function parseState2(contents) {
   try {
     const candidate = JSON.parse(contents);
+    if (!candidate || typeof candidate !== "object" || Array.isArray(candidate))
+      return;
+    if (Object.keys(candidate).some((property) => !stateProperties.has(property)))
+      return;
     if (candidate.version !== 1)
       return;
     if (!mutationKinds.has(candidate.mutationKind))
@@ -754,18 +759,18 @@ function parseState2(contents) {
     return;
   }
 }
+function conservativeState() {
+  return { version: 1, mutationKind: "unknown", mutatedAt: 0, blockedOnce: false };
+}
 async function readState2(dataDir, key) {
   const path2 = statePath2(dataDir, key);
   try {
     const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
-      await rm3(path2, { force: true });
-      return;
+      return conservativeState();
     }
     const state = parseState2(await readFile3(path2, "utf8"));
-    if (!state)
-      await rm3(path2, { force: true });
-    return state;
+    return state ?? conservativeState();
   } catch (error) {
     if (error.code === "ENOENT")
       return;
@@ -779,6 +784,14 @@ async function writeState2(dataDir, key, state) {
   try {
     await writeFile3(temporary, `${JSON.stringify(state)}
 `, { encoding: "utf8", flag: "wx", mode: 384 });
+    try {
+      const destination = await lstat2(path2);
+      if (destination.isDirectory() && !destination.isSymbolicLink())
+        await rmdir(path2);
+    } catch (error) {
+      if (error.code !== "ENOENT")
+        throw error;
+    }
     await rename3(temporary, path2);
   } finally {
     await rm3(temporary, { force: true });
@@ -852,15 +865,17 @@ async function inspectPruneCandidateUnlocked(dataDir, key, removeInvalid) {
   try {
     const info = await lstat2(path2);
     if (!info.isFile() || info.isSymbolicLink() || info.size > 512) {
-      if (removeInvalid)
-        await rm3(path2, { force: true });
-      return;
+      if (!removeInvalid)
+        return;
+      await writeState2(dataDir, key, conservativeState());
+      return { key, path: path2, modifiedAt: Date.now() };
     }
     const state = parseState2(await readFile3(path2, "utf8"));
     if (!state) {
-      if (removeInvalid)
-        await rm3(path2, { force: true });
-      return;
+      if (!removeInvalid)
+        return;
+      await writeState2(dataDir, key, conservativeState());
+      return { key, path: path2, modifiedAt: Date.now() };
     }
     return {
       key,
@@ -1126,7 +1141,15 @@ async function handleHook(input, dataDir, environment = process.env, now = Date.
     return {};
   }
   if (event === "Stop") {
-    const gate = await consumeEvidenceGate(dataDir, key);
+    let gate;
+    try {
+      gate = await consumeEvidenceGate(dataDir, key);
+    } catch {
+      return {
+        decision: "block",
+        reason: "Riqor evidence gate: current-turn evidence state is unavailable. Restore local state access, run the relevant verification again, then retry completion"
+      };
+    }
     if (gate.pending) {
       return {
         decision: "block",

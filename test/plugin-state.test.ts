@@ -66,6 +66,41 @@ describe("bounded hook state", () => {
     expect(await consumeEvidenceGate(root, key)).toEqual({ pending: true, firstBlock: false, mutationKind: "config" });
   });
 
+  test.each([
+    ["malformed JSON", "{"],
+    ["unknown property", JSON.stringify({ version: 1, mutationKind: "code", mutatedAt: 100, blockedOnce: false, secretMarker: "must-not-survive" })],
+    ["wrong schema", JSON.stringify({ version: 2, mutationKind: "code", mutatedAt: 100, blockedOnce: false })],
+    ["oversized state", "x".repeat(513)],
+  ])("fails closed for existing %s and recovers only after fresh code verification", async (_label, contents) => {
+    const root = await dataDir();
+    const key = turnKey({ session_id: "s", turn_id: "corrupt" });
+    await writeFile(join(root, `${key}.json`), contents);
+    expect(await consumeEvidenceGate(root, key)).toMatchObject({ pending: true, mutationKind: "unknown" });
+    expect(await readFile(join(root, `${key}.json`), "utf8")).not.toContain("secretMarker");
+    await recordVerification(root, key, 200, "code");
+    expect(await consumeEvidenceGate(root, key)).toEqual({ pending: false });
+  });
+
+  test("a symlinked state blocks without touching its target", async () => {
+    const root = await dataDir();
+    const key = turnKey({ session_id: "s", turn_id: "symlink-gate" });
+    const victim = join(root, "victim.json");
+    await writeFile(victim, "untouched");
+    await symlink(victim, join(root, `${key}.json`));
+    expect(await consumeEvidenceGate(root, key)).toMatchObject({ pending: true, mutationKind: "unknown" });
+    expect(await readFile(victim, "utf8")).toBe("untouched");
+  });
+
+  test("a directory at the state path blocks and is recoverable by fresh verification", async () => {
+    const root = await dataDir();
+    const key = turnKey({ session_id: "s", turn_id: "directory-gate" });
+    const path = join(root, `${key}.json`);
+    await mkdir(path);
+    expect(await consumeEvidenceGate(root, key)).toMatchObject({ pending: true, mutationKind: "unknown" });
+    await recordVerification(root, key, 200, "code");
+    expect(await consumeEvidenceGate(root, key)).toEqual({ pending: false });
+  });
+
   test("waits for an active per-turn lock before updating state", async () => {
     const root = await dataDir();
     const key = turnKey({ session_id: "s", turn_id: "locked" });

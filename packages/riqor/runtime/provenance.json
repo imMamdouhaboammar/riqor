@@ -1,7 +1,7 @@
 {
   "version": "0.2.6",
-  "sourceCommit": "642d971c7aa73b79accad55c7cf5dadfab87c6bc",
-  "sourceDateEpoch": 1787635289,
+  "sourceCommit": "84df498e7af26b4bc5c98cf02e3a0aab8ef8c208",
+  "sourceDateEpoch": 1788153051,
   "files": [
     {
       "path": ".agents/plugins/marketplace.json",
@@ -555,8 +555,8 @@
     },
     {
       "path": "plugins/riqor/hooks/main.mjs",
-      "sha256": "b68eec65d20fd2c9b66e0ed8e56d843d6b69b83f3ee5998424d168e4bb690376",
-      "bytes": 47803
+      "sha256": "af43503a715c4c62ff3bec6d7dfdd0707f73de249a4f6497fd4736424f528602",
+      "bytes": 48817
     },
     {
       "path": "plugins/riqor/package.json",

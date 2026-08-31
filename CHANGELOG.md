@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and
 
 ### Fixed
 
+- Keep the plugin completion gate closed when current-turn evidence state is malformed, oversized, unsafe, or temporarily unavailable, and reject unknown persisted properties before they can be copied forward
 - Keep ordinary and active-continuation Codex plugin Stop events blocked until fresh verification covers the latest observed mutation
 - Reject package-manager check invocations that only request help or version output instead of executing verification
 - Invalidate terminal and assured-run evidence at mutation command start so a shell crash before `postexec` cannot preserve stale proof
