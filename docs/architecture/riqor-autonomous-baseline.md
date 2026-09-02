@@ -187,3 +187,48 @@ Candidate 1 was selected because it closes a demonstrated unsupported-completion
 7. Raw commands, paths, output, prompts, source, and environment values remain outside persisted evidence.
 
 Dirty-to-dirty external changes remain the highest unresolved freshness gap because Git HEAD and a dirty boolean cannot distinguish two different dirty contents.
+
+## Revalidation — 2026-09-02
+
+Fresh default branch: `fc38389dd89d1fb935e8522771c93dd49f8f0dea`, package
+version `0.2.6`. Terminal integrity and invocation-aware mutation-intent
+deduplication are merged through PR #15. PR #16 separately owns unavailable,
+malformed, unsafe and locked plugin evidence state; this initiative does not
+modify that state policy. Main CI is green. Issue #10 is account-side npm
+Trusted Publisher configuration, not a repository-only fix.
+
+The packaged Node CLI delegates terminal operations to the bundled harness;
+source development uses Bun. Terminal preexec records conservative mutation
+intent; postexec emits bounded transitions to the assured run store. Plugin
+hooks maintain their own gate. Both classifiers share
+`hooks/verification-command.ts`, while mutation regexes are still duplicated.
+Assured completion binds ordered evidence to repository-root digest, HEAD and
+dirty status. Activator work stays downstream of the plugin gate. Runtime
+provenance is verified before regeneration; the clean baseline verified 348
+files. Persistent data remains bounded metadata, not raw command output.
+
+Scores are 1–5; higher is better except maintenance cost and regression risk.
+
+| Rank | Candidate | Mission | Reliability | Value | Evidence | Testability | Learning | Confidence | Cost | Risk |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Reject inspection-only verification modes | 5 | 5 | 5 | 5 | 5 | 4 | 5 | 2 | 2 |
+| 2 | Preserve strongest pending mutation scope | 5 | 5 | 4 | 5 | 5 | 4 | 5 | 2 | 4 |
+| 3 | Recognize omitted Git worktree mutations | 5 | 4 | 5 | 5 | 5 | 4 | 5 | 3 | 3 |
+| 4 | Bind evidence to worktree content fingerprint | 5 | 5 | 5 | 4 | 4 | 5 | 5 | 5 | 4 |
+
+Selected candidate 1: executable classifier and plugin probes accepted pytest
+collection, Go listing and dotnet discovery after a code mutation. Their zero
+exits represent successful discovery, not passing test execution. The shared
+helper is a small cross-surface fix with no persistence/API migration.
+
+Acceptance: recognized inspection modes cannot clear terminal/plugin pending
+state or authorize assured completion; ordinary successful checks still can.
+Tests cover quoted arguments, aliases, flag values, state transitions and
+bundled runtime parity. Existing help/version and masked-exit rejection stays
+intact. Build evidence is preserved. Arbitrary script semantics, hidden runner
+configuration and nonzero test counts remain outside this contract.
+
+The other candidates are real follow-ups, not claimed fixed: code → docs
+mutation scope downgrade overlaps PR #16 state ownership; Git stash/switch and
+global-option forms remain missing from mutation regexes; dirty-to-dirty
+changes remain indistinguishable in the current repository fingerprint.
