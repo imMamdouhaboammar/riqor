@@ -280,6 +280,15 @@ riqor terminal postexec \
 
 A mutation-classified command moves the run to `verification-pending` even if its final exit is nonzero, because earlier operations may already have changed the workspace. A successful recognized verification clears pending evidence.
 
+Inspection-only test commands do not clear pending evidence, even with exit 0:
+pytest `--collect-only`/`--co`, `--fixtures`/`--funcargs`,
+`--fixtures-per-test`, `--setup-only`, and `--setup-plan`; Go test `-list`
+and `-test.list` (separate or `=` values); and dotnet test `--list-tests`/`-t`.
+Run an actual relevant check afterward. Ordinary selection flags and pytest
+`--setup-show` remain eligible because they do not disable test execution.
+The classifier cannot prove the behavior of arbitrary scripts, hidden runner
+configuration, or how many tests ran.
+
 ### `riqor terminal status`
 
 Shows the verification state for a terminal session.

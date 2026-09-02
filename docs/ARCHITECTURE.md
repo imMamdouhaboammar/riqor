@@ -73,6 +73,23 @@ A mutation-classified command sets `evidencePending` to `true` at `preexec`, bef
 
 Command text is reduced to a SHA-256 digest in terminal state. The stored state includes classification, exit status, route, timing, and the pending evidence flag.
 
+### Verification execution modes
+
+`plugins/riqor/hooks/verification-command.ts` supplies shared command-policy
+checks to the terminal and plugin. A zero exit code is necessary but not
+sufficient: known collection, fixture-inspection, and test-listing modes do not
+produce completion evidence. Their command receipt may still be recorded, but
+pending verification remains pending. A later accepted check must actually
+complete successfully before the ordinary completion gate can clear.
+
+The mode checks are runner-specific: pytest `--collect-only`/`--co`, fixture
+inspection and setup-only/plan modes; Go `-list`/`-test.list`; and dotnet test
+`--list-tests`/`-t`. Quoted arguments remain arguments, and mode-looking text in
+a selector is not itself a mode. This is a bounded command classifier, not a
+shell interpreter or proof that an arbitrary package script ran tests. Supported
+build checks remain evidence; compiling with `cargo test --no-run` is not
+reclassified as test discovery.
+
 ### Run Record and Trace
 
 The assurance code under `src/assurance/` adds one active run pointer per repository identity.
