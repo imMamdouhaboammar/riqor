@@ -302,6 +302,8 @@ Activator state additionally uses:
 - per-session locks
 - stale record pruning
 
+Plugin turn evidence distinguishes a genuinely absent record from an existing record whose contents cannot be trusted. Missing state starts clean. Malformed, oversized, schema-invalid, symbolic-link, or non-regular state is canonicalized to an `unknown` pending mutation and remains blocked until a later recognized zero-exit verification replaces it. A live per-turn lock or other Stop-time state error also blocks completion; it is never converted into permission to stop. `SessionEnd` remains the explicit cleanup boundary.
+
 See [Security Model](SECURITY_MODEL.md) for trust boundaries and failure behavior.
 
 ## Failure Behavior
@@ -309,6 +311,7 @@ See [Security Model](SECURITY_MODEL.md) for trust boundaries and failure behavio
 - Invalid run goals, paths, profiles, and run identifiers fail before state mutation
 - A second active run is rejected
 - Corrupt or unknown state schemas fail closed
+- Unavailable plugin turn evidence blocks `Stop` without persisting raw error or input content
 - Repository identity mismatches are rejected
 - A live run lock times out with an explicit busy error
 - A stale regular lock is recovered after the configured bound

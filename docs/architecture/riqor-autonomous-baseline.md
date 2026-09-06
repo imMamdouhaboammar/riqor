@@ -187,3 +187,22 @@ Candidate 1 was selected because it closes a demonstrated unsupported-completion
 7. Raw commands, paths, output, prompts, source, and environment values remain outside persisted evidence.
 
 Dirty-to-dirty external changes remain the highest unresolved freshness gap because Git HEAD and a dirty boolean cannot distinguish two different dirty contents.
+
+## Revalidation — 2026-08-31
+
+Repository baseline: `fc38389dd89d1fb935e8522771c93dd49f8f0dea` (`main`, version `0.2.6`). PR #15 is merged, no pull request is open, and the current CI, SecureAI, and badge workflows are green. Issue #10 still requires npm account configuration and publication proof, so it remains outside autonomous repository changes.
+
+Fresh executable reproduction found that plugin turn-state uncertainty still became permission: malformed, oversized, schema-invalid, symbolic-link, and non-regular records were deleted and read as absent; unknown properties were copied forward; and Stop-time lock contention escaped the evidence decision. Session-start pruning could also delete corrupt current-turn evidence before the gate inspected it.
+
+Scores use the baseline formula `Fit + Reliability + User value + Repository evidence + Testability + Learning + Confidence - Maintenance cost - Regression risk`.
+
+| Rank | Candidate | Fit | Rel. | User | Evid. | Test | Learn | Conf. | Cost | Risk | Priority |
+|---:|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| 1 | Fail closed on corrupt or unavailable plugin evidence state | 10 | 10 | 10 | 10 | 10 | 8 | 9 | 3 | 2 | 62 |
+| 2 | Add privacy-preserving dirty-to-dirty worktree fingerprints | 10 | 10 | 10 | 10 | 9 | 9 | 6 | 8 | 6 | 50 |
+| 3 | Expand remaining Git worktree-mutation coverage | 10 | 9 | 9 | 9 | 9 | 8 | 8 | 5 | 4 | 53 |
+| 4 | Observe failed mutation-shaped tool events conservatively | 10 | 9 | 9 | 8 | 8 | 8 | 7 | 6 | 5 | 48 |
+| 5 | Bridge plugin mutations into the active assured-run trace | 10 | 10 | 9 | 9 | 8 | 8 | 6 | 7 | 7 | 46 |
+| 6 | Make active-pointer lookup and trace append atomic | 9 | 9 | 8 | 8 | 8 | 9 | 6 | 8 | 7 | 42 |
+
+Candidate 1 was selected because it directly allowed unsupported completion and has a small deterministic repair. Existing unsafe state now becomes canonical `unknown` pending evidence, pruning preserves that conservative transition, Stop-time state errors block, and only later recognized successful verification can clear the gate. Missing state and explicit `SessionEnd` cleanup retain their prior semantics. No schema version, CLI, dependency, or public API changes are required.
